@@ -1,19 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 import { Bell, Car, FileText, Users } from "lucide-react";
 
+import { usePerfil } from "@/components/auth/PerfilProvider";
 import MainLayout from "@/components/layout/MainLayout";
 import { StatCard } from "@/components/ui";
-import { supabase } from "@/lib/supabase/client";
-
-type Perfil = {
-  nombres: string;
-  apellidos: string;
-  correo: string;
-  rol_id: number;
-};
 
 const nombresRoles: Record<number, string> = {
   1: "Administrador",
@@ -24,50 +15,11 @@ const nombresRoles: Record<number, string> = {
 };
 
 export default function DashboardPage() {
-  const router = useRouter();
+  const { perfil, cargandoPerfil, errorPerfil } = usePerfil();
 
-  const [perfil, setPerfil] = useState<Perfil | null>(null);
-  const [cargando, setCargando] = useState(true);
-  const [mensajeError, setMensajeError] = useState("");
-
-  useEffect(() => {
-    async function cargarPerfil() {
-      setCargando(true);
-      setMensajeError("");
-
-      const {
-        data: { user },
-        error: errorUsuario,
-      } = await supabase.auth.getUser();
-
-      if (errorUsuario || !user) {
-        router.replace("/login");
-        return;
-      }
-
-      const { data, error } = await supabase
-        .from("usuarios")
-        .select("nombres, apellidos, correo, rol_id")
-        .eq("id", user.id)
-        .single();
-
-      if (error) {
-        console.error("Error al consultar el perfil:", error);
-        setMensajeError("No se pudo cargar la información del usuario.");
-        setCargando(false);
-        return;
-      }
-
-      setPerfil(data);
-      setCargando(false);
-    }
-
-    cargarPerfil();
-  }, [router]);
-
-  if (cargando) {
+  if (cargandoPerfil) {
     return (
-      <main className="flex min-h-screen items-center justify-center bg-slate-100">
+      <main className="flex min-h-screen items-center justify-center bg-slate-100 p-4">
         <p className="font-medium text-slate-600">
           Cargando tu perfil...
         </p>
@@ -82,21 +34,21 @@ export default function DashboardPage() {
           {perfil ? nombresRoles[perfil.rol_id] : ""}
         </p>
 
-        <h1 className="mt-1 text-4xl font-bold text-slate-900">
+        <h1 className="mt-1 text-3xl font-bold text-slate-900 sm:text-4xl">
           Bienvenido, {perfil?.nombres}
         </h1>
 
-        <p className="mt-2 text-slate-600">
-          {perfil?.nombres} {perfil?.apellidos} · {perfil?.correo}
+        <p className="mt-2 break-words text-slate-600">
+          {perfil?.nombres} {perfil?.apellidos} - {perfil?.correo}
         </p>
 
-        {mensajeError && (
+        {errorPerfil && (
           <p className="mt-4 rounded-lg bg-red-50 p-3 text-red-700">
-            {mensajeError}
+            {errorPerfil}
           </p>
         )}
 
-        <div className="mt-8 grid gap-6 md:grid-cols-2 xl:grid-cols-4">
+        <div className="mt-8 grid gap-6 sm:grid-cols-2 xl:grid-cols-4">
           <StatCard
             title="Usuarios"
             value="254"
@@ -104,7 +56,7 @@ export default function DashboardPage() {
           />
 
           <StatCard
-            title="Vehículos"
+            title="Vehiculos"
             value="186"
             icon={<Car size={40} />}
           />

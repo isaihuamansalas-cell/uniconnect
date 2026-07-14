@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import  "./globals.css";
 
+import { PerfilProvider } from "@/components/auth/PerfilProvider";
 import { ConfiguracionProvider } from "@/components/configuracion/ConfiguracionProvider";
 
 export const metadata: Metadata = {
@@ -17,7 +18,9 @@ export default function RootLayout({
     <html lang="es">
       <body className="antialiased">
         <ConfiguracionProvider>
-          {children}
+          <PerfilProvider>
+            {children}
+          </PerfilProvider>
         </ConfiguracionProvider>
       </body>
     </html>

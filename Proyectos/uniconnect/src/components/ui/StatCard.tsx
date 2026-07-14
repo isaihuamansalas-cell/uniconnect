@@ -10,7 +10,7 @@ export default function StatCard({
   icon,
 }: StatCardProps) {
   return (
-    <div className="rounded-2xl bg-white p-6 shadow-md transition hover:shadow-xl">
+    <div className="rounded-2xl bg-white p-4 shadow-md transition hover:shadow-xl sm:p-6">
       <div className="flex items-center justify-between">
 
         <div>

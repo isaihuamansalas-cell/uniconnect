@@ -385,7 +385,7 @@ export default function ConfiguracionPage() {
         )}
 
         <div className="mt-8 grid gap-6 xl:grid-cols-[360px_1fr]">
-          <div className="rounded-2xl bg-white p-6 shadow-sm">
+          <div className="rounded-2xl bg-white p-4 shadow-sm sm:p-6">
             <div className="flex items-center gap-3">
               <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-emerald-100 text-emerald-700">
                 <Building2 size={22} />
@@ -443,7 +443,7 @@ export default function ConfiguracionPage() {
 
           <form
             onSubmit={guardarConfiguracion}
-            className="rounded-2xl bg-white p-6 shadow-sm"
+            className="rounded-2xl bg-white p-4 shadow-sm sm:p-6"
           >
             <div className="flex items-center gap-3">
               <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-emerald-100 text-emerald-700">

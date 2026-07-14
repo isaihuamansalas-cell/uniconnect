@@ -182,7 +182,7 @@ export default function HistorialPage() {
             type="button"
             onClick={cargarHistorial}
             disabled={cargando}
-            className="inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-700 px-5 py-3 font-semibold text-white transition hover:bg-emerald-800 disabled:cursor-not-allowed disabled:opacity-60"
+            className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-700 px-5 py-3 font-semibold text-white transition hover:bg-emerald-800 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
           >
             {cargando ? (
               <LoaderCircle size={20} className="animate-spin" />
@@ -193,7 +193,7 @@ export default function HistorialPage() {
           </button>
         </div>
 
-        <div className="mt-8 rounded-2xl bg-white p-6 shadow-sm">
+        <div className="mt-8 rounded-2xl bg-white p-4 shadow-sm sm:p-6">
           <form
             onSubmit={buscarEnHistorial}
             className="max-w-xl"
@@ -230,7 +230,7 @@ export default function HistorialPage() {
               Cargando historial...
             </div>
           ) : (
-            <div className="mt-6 overflow-x-auto">
+            <div className="mt-6 max-w-full overflow-x-auto">
               <table className="w-full min-w-[980px] text-left">
                 <thead>
                   <tr className="border-b border-slate-200 text-sm text-slate-500">

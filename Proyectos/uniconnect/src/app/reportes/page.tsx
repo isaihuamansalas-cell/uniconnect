@@ -512,7 +512,7 @@ export default function ReportesPage() {
         )}
 
         {rolId === 3 && (
-          <div className="mt-8 rounded-2xl bg-white p-6 shadow-sm print:hidden">
+          <div className="mt-8 rounded-2xl bg-white p-4 shadow-sm print:hidden sm:p-6">
             <p className="font-semibold text-slate-900">
               Acceso limitado
             </p>
@@ -524,7 +524,7 @@ export default function ReportesPage() {
         )}
 
         {puedeVerSalidas && (
-          <div className="mt-8 rounded-2xl bg-white p-6 shadow-sm print:shadow-none">
+          <div className="mt-8 rounded-2xl bg-white p-4 shadow-sm print:shadow-none sm:p-6">
             <div className="print:hidden">
               <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
                 <div>
@@ -660,7 +660,7 @@ export default function ReportesPage() {
                 Cargando salidas...
               </div>
             ) : (
-              <div className="mt-6 overflow-x-auto">
+              <div className="mt-6 max-w-full overflow-x-auto">
                 <table className="w-full min-w-[1180px] text-left text-sm print:min-w-0 print:text-xs">
                   <thead>
                     <tr className="border-b border-slate-200 text-slate-500">

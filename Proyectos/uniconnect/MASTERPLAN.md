@@ -172,6 +172,10 @@ API Configuracion implementada
 
 Logo institucional implementado
 
+Menu responsive implementado
+
+Control visual del menu por roles implementado
+
 ---
 
 ## Pendiente

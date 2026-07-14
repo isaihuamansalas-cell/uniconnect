@@ -241,7 +241,7 @@ export default function GaritaPage() {
           </div>
         </div>
 
-        <div className="mt-8 rounded-2xl bg-white p-6 shadow-sm">
+        <div className="mt-8 rounded-2xl bg-white p-4 shadow-sm sm:p-6">
           <form
             onSubmit={buscarEstudiante}
             className="flex flex-col gap-4 lg:flex-row lg:items-end"
@@ -269,7 +269,7 @@ export default function GaritaPage() {
             <button
               type="submit"
               disabled={buscando}
-              className="inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-700 px-5 py-3 font-semibold text-white transition hover:bg-emerald-800 disabled:cursor-not-allowed disabled:opacity-60"
+              className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-700 px-5 py-3 font-semibold text-white transition hover:bg-emerald-800 disabled:cursor-not-allowed disabled:opacity-60 lg:w-auto"
             >
               {buscando ? (
                 <LoaderCircle
@@ -299,7 +299,7 @@ export default function GaritaPage() {
 
         {estudiante && (
           <div className="mt-8 grid gap-6 xl:grid-cols-[360px_1fr]">
-            <div className="rounded-2xl bg-white p-6 shadow-sm">
+            <div className="rounded-2xl bg-white p-4 shadow-sm sm:p-6">
               <div className="flex items-start gap-4">
                 {fotoEstudianteValida(estudiante.foto) ? (
                   <Image
@@ -356,7 +356,7 @@ export default function GaritaPage() {
               </div>
             </div>
 
-            <div className="rounded-2xl bg-white p-6 shadow-sm">
+            <div className="rounded-2xl bg-white p-4 shadow-sm sm:p-6">
               <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                 <div>
                   <h2 className="text-xl font-bold text-slate-900">
@@ -376,7 +376,7 @@ export default function GaritaPage() {
                     !vehiculoSeleccionado ||
                     !estudiante.estado
                   }
-                  className="inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-700 px-5 py-3 font-semibold text-white transition hover:bg-emerald-800 disabled:cursor-not-allowed disabled:opacity-60"
+                  className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-700 px-5 py-3 font-semibold text-white transition hover:bg-emerald-800 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
                 >
                   {autorizando ? (
                     <LoaderCircle

@@ -149,14 +149,14 @@ export default function UsuariosPage() {
           <button
             type="button"
             onClick={() => setModalNuevoAbierto(true)}
-            className="inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-700 px-5 py-3 font-semibold text-white transition hover:bg-emerald-800"
+            className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-700 px-5 py-3 font-semibold text-white transition hover:bg-emerald-800 sm:w-auto"
           >
             <UserPlus size={20} />
             Nuevo usuario
           </button>
         </div>
 
-        <div className="mt-8 rounded-2xl bg-white p-6 shadow-sm">
+        <div className="mt-8 rounded-2xl bg-white p-4 shadow-sm sm:p-6">
           <div className="relative max-w-md">
             <Search
               size={20}
@@ -185,7 +185,7 @@ export default function UsuariosPage() {
               Cargando usuarios...
             </p>
           ) : (
-            <div className="mt-6 overflow-x-auto">
+            <div className="mt-6 max-w-full overflow-x-auto">
               <table className="w-full min-w-[900px] text-left">
                 <thead>
                   <tr className="border-b border-slate-200 text-sm text-slate-500">

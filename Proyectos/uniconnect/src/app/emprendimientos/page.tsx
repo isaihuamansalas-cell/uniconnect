@@ -249,7 +249,7 @@ export default function EmprendimientosPage() {
             <button
               type="button"
               onClick={() => setModalNuevoAbierto(true)}
-              className="inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-700 px-5 py-3 font-semibold text-white transition hover:bg-emerald-800"
+              className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-700 px-5 py-3 font-semibold text-white transition hover:bg-emerald-800 sm:w-auto"
             >
               <Plus size={20} />
               Nuevo emprendimiento
@@ -257,7 +257,7 @@ export default function EmprendimientosPage() {
           )}
         </div>
 
-        <div className="mt-8 rounded-2xl bg-white p-6 shadow-sm">
+        <div className="mt-8 rounded-2xl bg-white p-4 shadow-sm sm:p-6">
           <div className="relative max-w-lg">
             <Search
               size={20}
