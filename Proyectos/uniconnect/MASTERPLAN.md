@@ -160,6 +160,12 @@ corregirlos antes de continuar.
 
 ✔ Supabase Storage
 
+Reportes implementado
+
+Reportes Excel CSV implementado
+
+Reportes PDF mediante vista imprimible implementado
+
 ---
 
 ## Pendiente
