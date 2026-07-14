@@ -21,6 +21,7 @@ import {
   Users,
 } from "lucide-react";
 
+import { useConfiguracion } from "@/components/configuracion/ConfiguracionProvider";
 import MainLayout from "@/components/layout/MainLayout";
 import { FormField, Input, StatCard } from "@/components/ui";
 import { supabase } from "@/lib/supabase/client";
@@ -195,6 +196,7 @@ function crearNombreArchivo() {
 
 export default function ReportesPage() {
   const router = useRouter();
+  const { configuracion } = useConfiguracion();
 
   const [estadisticas, setEstadisticas] =
     useState<Estadisticas>(estadisticasVacias);
@@ -647,7 +649,8 @@ export default function ReportesPage() {
                 Reporte de salidas
               </h1>
               <p className="mt-1 text-sm text-slate-600">
-                UniConnect - {new Date().toLocaleDateString("es-PE")}
+                {configuracion.nombre_sistema} -{" "}
+                {new Date().toLocaleDateString("es-PE")}
               </p>
             </div>
 

@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Bell, LogOut, UserRound } from "lucide-react";
 
+import { useConfiguracion } from "@/components/configuracion/ConfiguracionProvider";
 import { supabase } from "@/lib/supabase/client";
 
 type Perfil = {
@@ -23,6 +24,7 @@ const nombresRoles: Record<number, string> = {
 
 export default function Header() {
   const router = useRouter();
+  const { configuracion } = useConfiguracion();
 
   const [perfil, setPerfil] = useState<Perfil | null>(null);
   const [cargando, setCargando] = useState(true);
@@ -72,7 +74,7 @@ export default function Header() {
         </h2>
 
         <p className="text-sm text-slate-500">
-          Instituto Superior Tecnológico Suiza
+          {configuracion.nombre_institucion}
         </p>
       </div>
 
@@ -120,3 +122,4 @@ export default function Header() {
     </header>
   );
 }
+

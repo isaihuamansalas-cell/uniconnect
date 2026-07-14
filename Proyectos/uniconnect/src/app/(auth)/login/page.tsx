@@ -1,11 +1,16 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { useConfiguracion } from "@/components/configuracion/ConfiguracionProvider";
+import { obtenerUrlLogo } from "@/lib/configuracion/defaults";
 import { supabase } from "@/lib/supabase/client";
 
 export default function LoginPage() {
     const router = useRouter();
+const { configuracion } = useConfiguracion();
+const logoUrl = obtenerUrlLogo(configuracion.logo_path);
 
 const [correo, setCorreo] = useState("");
 const [password, setPassword] = useState("");
@@ -38,12 +43,23 @@ router.refresh();
     <main className="min-h-screen flex items-center justify-center bg-slate-100">
       <div className="w-full max-w-md rounded-xl bg-white p-8 shadow-xl">
 
+        {logoUrl && (
+          <Image
+            src={logoUrl}
+            alt="Logo institucional"
+            width={92}
+            height={92}
+            unoptimized
+            className="mx-auto mb-4 h-20 w-auto object-contain"
+          />
+        )}
+
         <h1 className="mb-2 text-center text-3xl font-bold text-green-700">
-          UniConnect
+          {configuracion.nombre_sistema}
         </h1>
 
         <p className="mb-8 text-center text-gray-500">
-          Sistema de Seguridad y Comunicación Universitaria
+          {configuracion.nombre_institucion}
         </p>
 
         <form
@@ -59,7 +75,7 @@ router.refresh();
   type="email"
   value={correo}
   onChange={(e) => setCorreo(e.target.value)}
-  placeholder="correo@suiza.edu.pe"
+  placeholder={configuracion.correo_institucional ?? "correo@suiza.edu.pe"}
   className="w-full rounded-lg border p-3 outline-none focus:border-green-600"
 />
           </div>
@@ -91,3 +107,4 @@ router.refresh();
     </main>
   );
 }
+

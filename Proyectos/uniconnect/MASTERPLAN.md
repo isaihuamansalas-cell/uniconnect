@@ -166,6 +166,12 @@ Reportes Excel CSV implementado
 
 Reportes PDF mediante vista imprimible implementado
 
+Configuracion implementada
+
+API Configuracion implementada
+
+Logo institucional implementado
+
 ---
 
 ## Pendiente
