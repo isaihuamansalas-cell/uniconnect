@@ -13,14 +13,14 @@ type Props = {
 
 export default function MainLayout({ children }: Props) {
   const router = useRouter();
-  const { perfil, cargandoPerfil } = usePerfil();
+  const { perfil, cargandoPerfil, cargandoSesion } = usePerfil();
   const [menuMovilAbierto, setMenuMovilAbierto] = useState(false);
 
   useEffect(() => {
-    if (!cargandoPerfil && !perfil) {
+    if (!cargandoSesion && !cargandoPerfil && !perfil) {
       router.replace("/login");
     }
-  }, [cargandoPerfil, perfil, router]);
+  }, [cargandoPerfil, cargandoSesion, perfil, router]);
 
   useEffect(() => {
     if (!menuMovilAbierto) {

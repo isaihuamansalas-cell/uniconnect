@@ -7,9 +7,11 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from "react";
 import { useRouter } from "next/navigation";
+import type { Session, User } from "@supabase/supabase-js";
 
 import { supabase } from "@/lib/supabase/client";
 
@@ -24,7 +26,9 @@ export type PerfilUsuario = {
 
 type PerfilContexto = {
   perfil: PerfilUsuario | null;
+  session: Session | null;
   cargandoPerfil: boolean;
+  cargandoSesion: boolean;
   errorPerfil: string;
   recargarPerfil: () => Promise<void>;
   cerrarSesion: () => Promise<void>;
@@ -36,70 +40,177 @@ type Props = {
   children: ReactNode;
 };
 
+type PerfilConsulta = {
+  id: string;
+  nombres: string;
+  apellidos: string;
+  correo: string;
+  rol_id: number;
+  estado: boolean;
+};
+
+function normalizarPerfil(perfil: PerfilConsulta): PerfilUsuario {
+  return {
+    id: perfil.id,
+    nombres: perfil.nombres,
+    apellidos: perfil.apellidos,
+    correo: perfil.correo,
+    rol_id: perfil.rol_id,
+    estado: perfil.estado,
+  };
+}
+
 export function PerfilProvider({ children }: Props) {
   const router = useRouter();
   const [perfil, setPerfil] = useState<PerfilUsuario | null>(null);
+  const [session, setSession] = useState<Session | null>(null);
   const [cargandoPerfil, setCargandoPerfil] = useState(true);
+  const [cargandoSesion, setCargandoSesion] = useState(true);
   const [errorPerfil, setErrorPerfil] = useState("");
+  const perfilCargadoParaUsuario = useRef<string | null>(null);
+
+  const limpiarPerfil = useCallback(() => {
+    perfilCargadoParaUsuario.current = null;
+    setPerfil(null);
+  }, []);
+
+  const cargarPerfilPorUsuario = useCallback(
+    async (user: User, forzar = false) => {
+      if (
+        !forzar &&
+        perfilCargadoParaUsuario.current === user.id
+      ) {
+        return;
+      }
+
+      setCargandoPerfil(true);
+      setErrorPerfil("");
+
+      const { data, error } = await supabase
+        .from("usuarios")
+        .select("id, nombres, apellidos, correo, rol_id, estado")
+        .eq("id", user.id)
+        .maybeSingle();
+
+      if (error) {
+        console.error("Error al cargar el perfil:", error);
+        limpiarPerfil();
+        setErrorPerfil("No se pudo cargar la informacion del usuario.");
+        setCargandoPerfil(false);
+        return;
+      }
+
+      if (!data) {
+        limpiarPerfil();
+        setErrorPerfil(
+          "Tu cuenta autenticada no existe en el registro de usuarios."
+        );
+        await supabase.auth.signOut();
+        setCargandoPerfil(false);
+        return;
+      }
+
+      const perfilUsuario = normalizarPerfil(data as PerfilConsulta);
+
+      if (!perfilUsuario.estado) {
+        limpiarPerfil();
+        setErrorPerfil(
+          "Tu usuario esta inactivo. Contacta al administrador."
+        );
+        await supabase.auth.signOut();
+        setCargandoPerfil(false);
+        return;
+      }
+
+      perfilCargadoParaUsuario.current = user.id;
+      setPerfil(perfilUsuario);
+      setCargandoPerfil(false);
+    },
+    [limpiarPerfil]
+  );
 
   const recargarPerfil = useCallback(async () => {
     setCargandoPerfil(true);
     setErrorPerfil("");
 
     const {
-      data: { user },
-      error: errorUsuario,
-    } = await supabase.auth.getUser();
+      data: { session: sesionActual },
+      error,
+    } = await supabase.auth.getSession();
 
-    if (errorUsuario || !user) {
-      setPerfil(null);
+    if (error || !sesionActual?.user) {
+      setSession(null);
+      limpiarPerfil();
       setCargandoPerfil(false);
       return;
     }
 
-    const { data, error } = await supabase
-      .from("usuarios")
-      .select("id, nombres, apellidos, correo, rol_id, estado")
-      .eq("id", user.id)
-      .single();
-
-    if (error) {
-      console.error("Error al cargar el perfil:", error);
-      setErrorPerfil("No se pudo cargar la informacion del usuario.");
-      setPerfil(null);
-      setCargandoPerfil(false);
-      return;
-    }
-
-    setPerfil(data as PerfilUsuario);
-    setCargandoPerfil(false);
-  }, []);
+    setSession(sesionActual);
+    await cargarPerfilPorUsuario(sesionActual.user, true);
+  }, [cargarPerfilPorUsuario, limpiarPerfil]);
 
   useEffect(() => {
-    recargarPerfil();
-  }, [recargarPerfil]);
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((event, nuevaSession) => {
+      setSession(nuevaSession);
+      setCargandoSesion(false);
+
+      if (event === "SIGNED_OUT" || !nuevaSession?.user) {
+        limpiarPerfil();
+        setErrorPerfil("");
+        setCargandoPerfil(false);
+        return;
+      }
+
+      if (
+        event === "SIGNED_IN" ||
+        event === "INITIAL_SESSION" ||
+        event === "TOKEN_REFRESHED" ||
+        event === "USER_UPDATED"
+      ) {
+        void cargarPerfilPorUsuario(nuevaSession.user);
+      }
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [cargarPerfilPorUsuario, limpiarPerfil]);
 
   const cerrarSesion = useCallback(async () => {
+    setCargandoSesion(true);
+    setCargandoPerfil(true);
+    setErrorPerfil("");
+    setSession(null);
+    limpiarPerfil();
+
     await supabase.auth.signOut();
-    setPerfil(null);
+
+    setCargandoSesion(false);
+    setCargandoPerfil(false);
     router.replace("/login");
     router.refresh();
-  }, [router]);
+  }, [limpiarPerfil, router]);
 
   const valor = useMemo<PerfilContexto>(
     () => ({
       perfil,
+      session,
       cargandoPerfil,
+      cargandoSesion,
       errorPerfil,
       recargarPerfil,
       cerrarSesion,
     }),
     [
       cargandoPerfil,
+      cargandoSesion,
       cerrarSesion,
       errorPerfil,
       perfil,
       recargarPerfil,
+      session,
     ]
   );
 
