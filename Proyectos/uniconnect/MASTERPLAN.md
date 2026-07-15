@@ -202,6 +202,10 @@ API Auditoria implementada
 
 Pagina de auditoria con filtros, detalles y exportacion CSV implementada
 
+Dashboard con estadisticas reales y graficos nativos implementado
+
+API Dashboard implementada
+
 ---
 
 ## Pendiente
@@ -225,8 +229,6 @@ Emprendimientos
 Reportes PDF
 
 Reportes Excel
-
-Dashboard con estadísticas
 
 Roles y permisos
 
