@@ -1,6 +1,7 @@
 import { createClient } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
 
+import { crearNotificacion } from "@/lib/notificaciones/crearNotificacion";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 
 type DatosEmprendimiento = {
@@ -13,6 +14,13 @@ type ContextoRuta = {
   params: Promise<{
     id: string;
   }>;
+};
+
+type EmprendimientoExistente = {
+  id: number;
+  titulo: string;
+  autor_id: string;
+  estado: boolean;
 };
 
 const rolesGestionEmprendimientos = [1, 3];
@@ -137,7 +145,7 @@ export async function PATCH(
     const { data: emprendimientoExistente } =
       await supabaseAdmin
         .from("emprendimientos")
-        .select("id")
+        .select("id, titulo, autor_id, estado")
         .eq("id", emprendimientoId)
         .maybeSingle();
 
@@ -147,6 +155,9 @@ export async function PATCH(
         { status: 404 }
       );
     }
+
+    const emprendimientoAnterior =
+      emprendimientoExistente as EmprendimientoExistente;
 
     const {
       data: emprendimiento,
@@ -167,6 +178,23 @@ export async function PATCH(
         },
         { status: 400 }
       );
+    }
+
+    if (
+      Boolean(emprendimientoAnterior.estado) !==
+      Boolean(emprendimiento.estado)
+    ) {
+      await crearNotificacion({
+        usuario_id: emprendimiento.autor_id,
+        titulo: emprendimiento.estado
+          ? "Emprendimiento activado"
+          : "Emprendimiento desactivado",
+        mensaje: `Tu emprendimiento "${emprendimiento.titulo}" cambio de estado.`,
+        tipo: "emprendimiento",
+        ruta: "/emprendimientos",
+        entidad_tipo: "emprendimiento",
+        entidad_id: String(emprendimiento.id),
+      });
     }
 
     return NextResponse.json({

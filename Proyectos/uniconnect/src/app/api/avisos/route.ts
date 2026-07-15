@@ -1,6 +1,7 @@
 import { createClient } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
 
+import { crearNotificaciones } from "@/lib/notificaciones/crearNotificacion";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 
 type NuevoAviso = {
@@ -32,6 +33,10 @@ type AutorAviso = {
   nombres: string;
   apellidos: string;
   correo: string;
+};
+
+type UsuarioNotificacion = {
+  id: string;
 };
 
 const rolesGestionAvisos = [1, 3];
@@ -275,6 +280,36 @@ export async function POST(request: Request) {
         },
         { status: 400 }
       );
+    }
+
+    if (validacion.datos.destinatario === "Todos") {
+      const { data: usuariosActivos, error: errorUsuarios } =
+        await supabaseAdmin
+          .from("usuarios")
+          .select("id")
+          .eq("estado", true);
+
+      if (errorUsuarios) {
+        console.error(
+          "No se pudieron consultar usuarios para notificaciones:",
+          errorUsuarios.message
+        );
+      } else {
+        const usuarios =
+          (usuariosActivos ?? []) as UsuarioNotificacion[];
+
+        await crearNotificaciones(
+          usuarios.map((usuario) => ({
+            usuario_id: usuario.id,
+            titulo: "Nuevo aviso publicado",
+            mensaje: aviso.titulo,
+            tipo: "aviso",
+            ruta: "/avisos",
+            entidad_tipo: "aviso",
+            entidad_id: String(aviso.id),
+          }))
+        );
+      }
     }
 
     return NextResponse.json(

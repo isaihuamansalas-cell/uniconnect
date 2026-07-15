@@ -190,6 +190,12 @@ Foto de perfil privada implementada con bucket usuarios
 
 Cambio de contrasena desde Perfil implementado con validacion de contrasena actual
 
+Notificaciones implementado
+
+API Notificaciones implementada
+
+Centro de notificaciones en Header implementado con polling controlado
+
 ---
 
 ## Pendiente
@@ -215,8 +221,6 @@ Reportes PDF
 Reportes Excel
 
 Dashboard con estadísticas
-
-Notificaciones
 
 Roles y permisos
 

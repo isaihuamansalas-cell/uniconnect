@@ -1,6 +1,7 @@
 import { createClient } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
 
+import { crearNotificacion } from "@/lib/notificaciones/crearNotificacion";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 
 type DatosActualizados = {
@@ -17,6 +18,17 @@ type ContextoRuta = {
   params: Promise<{
     id: string;
   }>;
+};
+
+type UsuarioAnterior = {
+  id: string;
+  nombres: string;
+  apellidos: string;
+  dni: string;
+  codigo_estudiante: string | null;
+  telefono: string | null;
+  rol_id: number;
+  estado: boolean;
 };
 
 export async function PATCH(
@@ -123,6 +135,23 @@ export async function PATCH(
       );
     }
 
+    const { data: usuarioExistente } = await supabaseAdmin
+      .from("usuarios")
+      .select(
+        "id, nombres, apellidos, dni, codigo_estudiante, telefono, rol_id, estado"
+      )
+      .eq("id", id)
+      .maybeSingle();
+
+    if (!usuarioExistente) {
+      return NextResponse.json(
+        { error: "El usuario no existe." },
+        { status: 404 }
+      );
+    }
+
+    const usuarioAnterior = usuarioExistente as UsuarioAnterior;
+
     const { data: usuarioActualizado, error: errorActualizacion } =
       await supabaseAdmin
         .from("usuarios")
@@ -149,6 +178,31 @@ export async function PATCH(
         },
         { status: 400 }
       );
+    }
+
+    const cambioAdministrativo =
+      usuarioAnterior.nombres !== usuarioActualizado.nombres ||
+      usuarioAnterior.apellidos !== usuarioActualizado.apellidos ||
+      usuarioAnterior.dni !== usuarioActualizado.dni ||
+      usuarioAnterior.codigo_estudiante !==
+        usuarioActualizado.codigo_estudiante ||
+      usuarioAnterior.telefono !== usuarioActualizado.telefono ||
+      Number(usuarioAnterior.rol_id) !==
+        Number(usuarioActualizado.rol_id) ||
+      Boolean(usuarioAnterior.estado) !==
+        Boolean(usuarioActualizado.estado);
+
+    if (cambioAdministrativo) {
+      await crearNotificacion({
+        usuario_id: usuarioActualizado.id,
+        titulo: "Datos de cuenta actualizados",
+        mensaje:
+          "Un administrador actualizo informacion de tu cuenta.",
+        tipo: "administrativo",
+        ruta: "/perfil",
+        entidad_tipo: "usuario",
+        entidad_id: usuarioActualizado.id,
+      });
     }
 
     return NextResponse.json({

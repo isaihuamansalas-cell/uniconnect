@@ -1,6 +1,7 @@
 import { createClient } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
 
+import { crearNotificacion } from "@/lib/notificaciones/crearNotificacion";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 
 type NuevaSalida = {
@@ -282,6 +283,16 @@ export async function POST(request: Request) {
         { status: 400 }
       );
     }
+
+    await crearNotificacion({
+      usuario_id: estudianteId,
+      titulo: "Salida registrada",
+      mensaje: "Se registro una salida asociada a tu cuenta.",
+      tipo: "salida",
+      ruta: "/historial",
+      entidad_tipo: "salida",
+      entidad_id: String(salida.id),
+    });
 
     return NextResponse.json(
       {

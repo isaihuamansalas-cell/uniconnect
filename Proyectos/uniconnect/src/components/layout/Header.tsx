@@ -3,10 +3,11 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Bell, LogOut, Menu, UserRound } from "lucide-react";
+import { LogOut, Menu, UserRound } from "lucide-react";
 
 import { usePerfil } from "@/components/auth/PerfilProvider";
 import { useConfiguracion } from "@/components/configuracion/ConfiguracionProvider";
+import NotificacionesPanel from "./NotificacionesPanel";
 
 type HeaderProps = {
   onMenuClick: () => void;
@@ -49,13 +50,9 @@ export default function Header({ onMenuClick }: HeaderProps) {
       </div>
 
       <div className="flex shrink-0 items-center gap-2 sm:gap-4">
-        <button
-          type="button"
-          aria-label="Ver notificaciones"
-          className="rounded-lg p-2 text-slate-600 transition hover:bg-slate-100"
-        >
-          <Bell size={21} />
-        </button>
+        <NotificacionesPanel
+          accessToken={session?.access_token ?? ""}
+        />
 
         <Link
           href="/perfil"
