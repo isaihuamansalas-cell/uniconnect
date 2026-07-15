@@ -10,7 +10,7 @@ import {
   useRef,
   useState,
 } from "react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import type { Session, User } from "@supabase/supabase-js";
 
 import { supabase } from "@/lib/supabase/client";
@@ -62,12 +62,16 @@ function normalizarPerfil(perfil: PerfilConsulta): PerfilUsuario {
 
 export function PerfilProvider({ children }: Props) {
   const router = useRouter();
+  const pathname = usePathname();
   const [perfil, setPerfil] = useState<PerfilUsuario | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [cargandoPerfil, setCargandoPerfil] = useState(true);
   const [cargandoSesion, setCargandoSesion] = useState(true);
   const [errorPerfil, setErrorPerfil] = useState("");
   const perfilCargadoParaUsuario = useRef<string | null>(null);
+  const esRutaRecuperacion =
+    pathname === "/recuperar-password" ||
+    pathname === "/restablecer-password";
 
   const limpiarPerfil = useCallback(() => {
     perfilCargadoParaUsuario.current = null;
@@ -156,6 +160,13 @@ export function PerfilProvider({ children }: Props) {
       setSession(nuevaSession);
       setCargandoSesion(false);
 
+      if (esRutaRecuperacion) {
+        limpiarPerfil();
+        setErrorPerfil("");
+        setCargandoPerfil(false);
+        return;
+      }
+
       if (event === "SIGNED_OUT" || !nuevaSession?.user) {
         limpiarPerfil();
         setErrorPerfil("");
@@ -176,7 +187,7 @@ export function PerfilProvider({ children }: Props) {
     return () => {
       subscription.unsubscribe();
     };
-  }, [cargarPerfilPorUsuario, limpiarPerfil]);
+  }, [cargarPerfilPorUsuario, esRutaRecuperacion, limpiarPerfil]);
 
   const cerrarSesion = useCallback(async () => {
     setCargandoSesion(true);

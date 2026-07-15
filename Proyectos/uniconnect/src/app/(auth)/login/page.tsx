@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 import { useConfiguracion } from "@/components/configuracion/ConfiguracionProvider";
@@ -155,6 +156,15 @@ export default function LoginPage() {
           >
             {loading ? "Ingresando..." : "Iniciar sesion"}
           </button>
+
+          <div className="text-center">
+            <Link
+              href="/recuperar-password"
+              className="text-sm font-medium text-emerald-700 transition hover:text-emerald-800 hover:underline"
+            >
+              ¿Olvidaste tu contraseña?
+            </Link>
+          </div>
         </form>
       </div>
     </main>
