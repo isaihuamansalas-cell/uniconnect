@@ -35,6 +35,8 @@ Storage
 
 - bucket privado:
   vehiculos
+- bucket privado:
+  usuarios
 
 ---
 
@@ -179,6 +181,14 @@ Control visual del menu por roles implementado
 Flujo de autenticacion en produccion corregido con validacion de sesion, perfil activo y escucha de cambios de Supabase
 
 Recuperacion y restablecimiento de contrasena implementado con Supabase Auth
+
+Perfil de usuario implementado
+
+API Perfil implementada
+
+Foto de perfil privada implementada con bucket usuarios
+
+Cambio de contrasena desde Perfil implementado con validacion de contrasena actual
 
 ---
 

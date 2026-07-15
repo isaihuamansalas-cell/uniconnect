@@ -1,5 +1,8 @@
 "use client";
 
+import { useEffect, useState } from "react";
+import Image from "next/image";
+import Link from "next/link";
 import { Bell, LogOut, Menu, UserRound } from "lucide-react";
 
 import { usePerfil } from "@/components/auth/PerfilProvider";
@@ -19,7 +22,8 @@ const nombresRoles: Record<number, string> = {
 
 export default function Header({ onMenuClick }: HeaderProps) {
   const { configuracion } = useConfiguracion();
-  const { perfil, cargandoPerfil, cerrarSesion } = usePerfil();
+  const { perfil, session, cargandoPerfil, cerrarSesion } =
+    usePerfil();
 
   return (
     <header className="flex min-h-20 items-center justify-between gap-4 border-b border-slate-200 bg-white px-4 sm:px-6 lg:px-8">
@@ -34,17 +38,17 @@ export default function Header({ onMenuClick }: HeaderProps) {
         </button>
 
         <div className="min-w-0">
-        <h2 className="text-xl font-semibold text-slate-900">
-          Panel principal
-        </h2>
+          <h2 className="text-xl font-semibold text-slate-900">
+            Panel principal
+          </h2>
 
-        <p className="truncate text-sm text-slate-500">
-          {configuracion.nombre_institucion}
-        </p>
+          <p className="truncate text-sm text-slate-500">
+            {configuracion.nombre_institucion}
+          </p>
         </div>
       </div>
 
-      <div className="flex shrink-0 items-center gap-2 sm:gap-5">
+      <div className="flex shrink-0 items-center gap-2 sm:gap-4">
         <button
           type="button"
           aria-label="Ver notificaciones"
@@ -53,17 +57,22 @@ export default function Header({ onMenuClick }: HeaderProps) {
           <Bell size={21} />
         </button>
 
-        <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-100 text-emerald-700">
-            <UserRound size={21} />
-          </div>
+        <Link
+          href="/perfil"
+          className="flex min-w-0 items-center gap-3 rounded-xl px-2 py-1 transition hover:bg-slate-100"
+        >
+          <FotoPerfilHeader
+            accessToken={session?.access_token ?? ""}
+            tieneFoto={perfil?.tiene_foto ?? false}
+            version={perfil?.foto_version ?? ""}
+          />
 
           <div className="hidden sm:block">
             {cargandoPerfil ? (
               <p className="text-sm text-slate-500">Cargando...</p>
             ) : (
               <>
-                <p className="text-sm font-semibold text-slate-900">
+                <p className="max-w-48 truncate text-sm font-semibold text-slate-900">
                   {perfil?.nombres} {perfil?.apellidos}
                 </p>
 
@@ -73,13 +82,17 @@ export default function Header({ onMenuClick }: HeaderProps) {
               </>
             )}
           </div>
-        </div>
+
+          <span className="hidden rounded-lg border border-slate-200 px-3 py-2 text-sm font-semibold text-slate-700 transition hover:border-emerald-200 hover:text-emerald-700 md:inline">
+            Mi perfil
+          </span>
+        </Link>
 
         <button
           type="button"
           onClick={cerrarSesion}
-          title="Cerrar sesión"
-          aria-label="Cerrar sesión"
+          title="Cerrar sesion"
+          aria-label="Cerrar sesion"
           className="rounded-lg p-2 text-red-600 transition hover:bg-red-50"
         >
           <LogOut size={21} />
@@ -89,3 +102,79 @@ export default function Header({ onMenuClick }: HeaderProps) {
   );
 }
 
+type FotoPerfilHeaderProps = {
+  accessToken: string;
+  tieneFoto: boolean;
+  version: string;
+};
+
+function FotoPerfilHeader({
+  accessToken,
+  tieneFoto,
+  version,
+}: FotoPerfilHeaderProps) {
+  const [fotoUrl, setFotoUrl] = useState("");
+
+  useEffect(() => {
+    let cancelado = false;
+    let urlTemporal = "";
+
+    async function cargarFoto() {
+      setFotoUrl("");
+
+      if (!accessToken || !tieneFoto) {
+        return;
+      }
+
+      const respuesta = await fetch(
+        `/api/perfil/foto?v=${encodeURIComponent(version)}`,
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+          cache: "no-store",
+        }
+      );
+
+      if (!respuesta.ok || cancelado) {
+        return;
+      }
+
+      const imagen = await respuesta.blob();
+      urlTemporal = URL.createObjectURL(imagen);
+
+      if (!cancelado) {
+        setFotoUrl(urlTemporal);
+      }
+    }
+
+    void cargarFoto();
+
+    return () => {
+      cancelado = true;
+
+      if (urlTemporal) {
+        URL.revokeObjectURL(urlTemporal);
+      }
+    };
+  }, [accessToken, tieneFoto, version]);
+
+  if (!fotoUrl) {
+    return (
+      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-emerald-700">
+        <UserRound size={21} />
+      </div>
+    );
+  }
+
+  return (
+    <Image
+      src={fotoUrl}
+      alt="Foto de perfil"
+      width={40}
+      height={40}
+      unoptimized
+      className="h-10 w-10 shrink-0 rounded-full object-cover"
+    />
+  );
+}

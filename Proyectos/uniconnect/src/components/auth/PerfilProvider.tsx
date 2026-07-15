@@ -20,8 +20,13 @@ export type PerfilUsuario = {
   nombres: string;
   apellidos: string;
   correo: string;
+  dni: string;
+  codigo_estudiante: string | null;
+  telefono: string | null;
   rol_id: number;
   estado: boolean;
+  tiene_foto: boolean;
+  foto_version: string;
 };
 
 type PerfilContexto = {
@@ -31,6 +36,7 @@ type PerfilContexto = {
   cargandoSesion: boolean;
   errorPerfil: string;
   recargarPerfil: () => Promise<void>;
+  actualizarPerfilLocal: (perfilActualizado: PerfilUsuario) => void;
   cerrarSesion: () => Promise<void>;
 };
 
@@ -45,8 +51,18 @@ type PerfilConsulta = {
   nombres: string;
   apellidos: string;
   correo: string;
+  dni: string;
+  codigo_estudiante: string | null;
+  telefono: string | null;
   rol_id: number;
   estado: boolean;
+  tiene_foto: boolean;
+  foto_version: string;
+};
+
+type RespuestaPerfil = {
+  perfil?: PerfilConsulta;
+  error?: string;
 };
 
 function normalizarPerfil(perfil: PerfilConsulta): PerfilUsuario {
@@ -55,8 +71,13 @@ function normalizarPerfil(perfil: PerfilConsulta): PerfilUsuario {
     nombres: perfil.nombres,
     apellidos: perfil.apellidos,
     correo: perfil.correo,
+    dni: perfil.dni,
+    codigo_estudiante: perfil.codigo_estudiante,
+    telefono: perfil.telefono,
     rol_id: perfil.rol_id,
     estado: perfil.estado,
+    tiene_foto: perfil.tiene_foto,
+    foto_version: perfil.foto_version,
   };
 }
 
@@ -79,7 +100,7 @@ export function PerfilProvider({ children }: Props) {
   }, []);
 
   const cargarPerfilPorUsuario = useCallback(
-    async (user: User, forzar = false) => {
+    async (user: User, accessToken: string, forzar = false) => {
       if (
         !forzar &&
         perfilCargadoParaUsuario.current === user.id
@@ -90,21 +111,29 @@ export function PerfilProvider({ children }: Props) {
       setCargandoPerfil(true);
       setErrorPerfil("");
 
-      const { data, error } = await supabase
-        .from("usuarios")
-        .select("id, nombres, apellidos, correo, rol_id, estado")
-        .eq("id", user.id)
-        .maybeSingle();
+      const respuesta = await fetch("/api/perfil", {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+        cache: "no-store",
+      });
 
-      if (error) {
-        console.error("Error al cargar el perfil:", error);
+      const resultado = (await respuesta.json()) as RespuestaPerfil;
+
+      if (!respuesta.ok) {
         limpiarPerfil();
-        setErrorPerfil("No se pudo cargar la informacion del usuario.");
+        setErrorPerfil(
+          resultado.error ??
+            "No se pudo cargar la informacion del usuario."
+        );
+        if (respuesta.status === 401 || respuesta.status === 403) {
+          await supabase.auth.signOut();
+        }
         setCargandoPerfil(false);
         return;
       }
 
-      if (!data) {
+      if (!resultado.perfil) {
         limpiarPerfil();
         setErrorPerfil(
           "Tu cuenta autenticada no existe en el registro de usuarios."
@@ -114,18 +143,7 @@ export function PerfilProvider({ children }: Props) {
         return;
       }
 
-      const perfilUsuario = normalizarPerfil(data as PerfilConsulta);
-
-      if (!perfilUsuario.estado) {
-        limpiarPerfil();
-        setErrorPerfil(
-          "Tu usuario esta inactivo. Contacta al administrador."
-        );
-        await supabase.auth.signOut();
-        setCargandoPerfil(false);
-        return;
-      }
-
+      const perfilUsuario = normalizarPerfil(resultado.perfil);
       perfilCargadoParaUsuario.current = user.id;
       setPerfil(perfilUsuario);
       setCargandoPerfil(false);
@@ -150,7 +168,11 @@ export function PerfilProvider({ children }: Props) {
     }
 
     setSession(sesionActual);
-    await cargarPerfilPorUsuario(sesionActual.user, true);
+    await cargarPerfilPorUsuario(
+      sesionActual.user,
+      sesionActual.access_token,
+      true
+    );
   }, [cargarPerfilPorUsuario, limpiarPerfil]);
 
   useEffect(() => {
@@ -180,7 +202,10 @@ export function PerfilProvider({ children }: Props) {
         event === "TOKEN_REFRESHED" ||
         event === "USER_UPDATED"
       ) {
-        void cargarPerfilPorUsuario(nuevaSession.user);
+        void cargarPerfilPorUsuario(
+          nuevaSession.user,
+          nuevaSession.access_token
+        );
       }
     });
 
@@ -204,6 +229,14 @@ export function PerfilProvider({ children }: Props) {
     router.refresh();
   }, [limpiarPerfil, router]);
 
+  const actualizarPerfilLocal = useCallback(
+    (perfilActualizado: PerfilUsuario) => {
+      perfilCargadoParaUsuario.current = perfilActualizado.id;
+      setPerfil(perfilActualizado);
+    },
+    []
+  );
+
   const valor = useMemo<PerfilContexto>(
     () => ({
       perfil,
@@ -212,9 +245,11 @@ export function PerfilProvider({ children }: Props) {
       cargandoSesion,
       errorPerfil,
       recargarPerfil,
+      actualizarPerfilLocal,
       cerrarSesion,
     }),
     [
+      actualizarPerfilLocal,
       cargandoPerfil,
       cargandoSesion,
       cerrarSesion,
