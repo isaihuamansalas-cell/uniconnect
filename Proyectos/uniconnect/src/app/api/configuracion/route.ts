@@ -6,6 +6,11 @@ import {
   configuracionPorDefecto,
   normalizarConfiguracion,
 } from "@/lib/configuracion/defaults";
+import {
+  obtenerIp,
+  obtenerUserAgent,
+  registrarAuditoria,
+} from "@/lib/auditoria/registrarAuditoria";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 
 type UsuarioActivo = {
@@ -197,6 +202,14 @@ export async function PATCH(request: Request) {
       );
     }
 
+    const { data: configuracionAnterior } = await supabaseAdmin
+      .from("configuracion")
+      .select(
+        "id, nombre_sistema, nombre_institucion, correo_institucional, telefono, direccion, logo_path, color_principal, color_secundario, updated_at, updated_by"
+      )
+      .eq("id", 1)
+      .maybeSingle();
+
     const { data, error } = await supabaseAdmin
       .from("configuracion")
       .update({
@@ -218,6 +231,21 @@ export async function PATCH(request: Request) {
         { status: 400 }
       );
     }
+
+    await registrarAuditoria({
+      usuario_id: administrador.id,
+      accion: "actualizar_configuracion",
+      modulo: "configuracion",
+      entidad_tipo: "configuracion",
+      entidad_id: "1",
+      descripcion: "Actualizo la configuracion institucional.",
+      datos_anteriores: configuracionAnterior
+        ? (configuracionAnterior as ConfiguracionInstitucional)
+        : null,
+      datos_nuevos: data as ConfiguracionInstitucional,
+      ip: obtenerIp(request),
+      user_agent: obtenerUserAgent(request),
+    });
 
     return NextResponse.json({
       mensaje: "Configuracion actualizada correctamente.",

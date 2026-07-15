@@ -1,6 +1,11 @@
 import { createClient } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
 
+import {
+  obtenerIp,
+  obtenerUserAgent,
+  registrarAuditoria,
+} from "@/lib/auditoria/registrarAuditoria";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 
 type DatosAviso = {
@@ -17,6 +22,20 @@ type ContextoRuta = {
   params: Promise<{
     id: string;
   }>;
+};
+
+type AvisoAnterior = {
+  id: number;
+  titulo: string;
+  contenido: string;
+  autor_id: string;
+  tipo: string;
+  destinatario: string;
+  area_academica: string | null;
+  ciclo: string | null;
+  estado: boolean;
+  created_at: string;
+  updated_at: string | null;
 };
 
 const rolesGestionAvisos = [1, 3];
@@ -174,7 +193,9 @@ export async function PATCH(
 
     const { data: avisoExistente } = await supabaseAdmin
       .from("avisos")
-      .select("id")
+      .select(
+        "id, titulo, contenido, autor_id, tipo, destinatario, area_academica, ciclo, estado, created_at, updated_at"
+      )
       .eq("id", avisoId)
       .maybeSingle();
 
@@ -184,6 +205,8 @@ export async function PATCH(
         { status: 404 }
       );
     }
+
+    const avisoAnterior = avisoExistente as AvisoAnterior;
 
     const { data: aviso, error: errorActualizacion } =
       await supabaseAdmin
@@ -202,6 +225,36 @@ export async function PATCH(
         },
         { status: 400 }
       );
+    }
+
+    await registrarAuditoria({
+      usuario_id: responsable.id,
+      accion: "editar",
+      modulo: "avisos",
+      entidad_tipo: "aviso",
+      entidad_id: String(aviso.id),
+      descripcion: "Edito un aviso.",
+      datos_anteriores: avisoAnterior,
+      datos_nuevos: aviso,
+      ip: obtenerIp(request),
+      user_agent: obtenerUserAgent(request),
+    });
+
+    if (Boolean(avisoAnterior.estado) !== Boolean(aviso.estado)) {
+      await registrarAuditoria({
+        usuario_id: responsable.id,
+        accion: aviso.estado ? "activar" : "desactivar",
+        modulo: "avisos",
+        entidad_tipo: "aviso",
+        entidad_id: String(aviso.id),
+        descripcion: aviso.estado
+          ? "Activo un aviso."
+          : "Desactivo un aviso.",
+        datos_anteriores: { estado: avisoAnterior.estado },
+        datos_nuevos: { estado: aviso.estado },
+        ip: obtenerIp(request),
+        user_agent: obtenerUserAgent(request),
+      });
     }
 
     return NextResponse.json({

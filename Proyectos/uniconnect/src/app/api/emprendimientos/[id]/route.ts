@@ -1,6 +1,11 @@
 import { createClient } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
 
+import {
+  obtenerIp,
+  obtenerUserAgent,
+  registrarAuditoria,
+} from "@/lib/auditoria/registrarAuditoria";
 import { crearNotificacion } from "@/lib/notificaciones/crearNotificacion";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 
@@ -19,6 +24,7 @@ type ContextoRuta = {
 type EmprendimientoExistente = {
   id: number;
   titulo: string;
+  descripcion: string;
   autor_id: string;
   estado: boolean;
 };
@@ -145,7 +151,7 @@ export async function PATCH(
     const { data: emprendimientoExistente } =
       await supabaseAdmin
         .from("emprendimientos")
-        .select("id, titulo, autor_id, estado")
+        .select("id, titulo, descripcion, autor_id, estado")
         .eq("id", emprendimientoId)
         .maybeSingle();
 
@@ -180,10 +186,40 @@ export async function PATCH(
       );
     }
 
+    await registrarAuditoria({
+      usuario_id: gestor.id,
+      accion: "editar",
+      modulo: "emprendimientos",
+      entidad_tipo: "emprendimiento",
+      entidad_id: String(emprendimiento.id),
+      descripcion: "Edito un emprendimiento.",
+      datos_anteriores: emprendimientoAnterior,
+      datos_nuevos: emprendimiento,
+      ip: obtenerIp(request),
+      user_agent: obtenerUserAgent(request),
+    });
+
     if (
       Boolean(emprendimientoAnterior.estado) !==
       Boolean(emprendimiento.estado)
     ) {
+      await registrarAuditoria({
+        usuario_id: gestor.id,
+        accion: emprendimiento.estado ? "activar" : "desactivar",
+        modulo: "emprendimientos",
+        entidad_tipo: "emprendimiento",
+        entidad_id: String(emprendimiento.id),
+        descripcion: emprendimiento.estado
+          ? "Activo un emprendimiento."
+          : "Desactivo un emprendimiento.",
+        datos_anteriores: {
+          estado: emprendimientoAnterior.estado,
+        },
+        datos_nuevos: { estado: emprendimiento.estado },
+        ip: obtenerIp(request),
+        user_agent: obtenerUserAgent(request),
+      });
+
       await crearNotificacion({
         usuario_id: emprendimiento.autor_id,
         titulo: emprendimiento.estado

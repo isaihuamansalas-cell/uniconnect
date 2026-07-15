@@ -196,6 +196,12 @@ API Notificaciones implementada
 
 Centro de notificaciones en Header implementado con polling controlado
 
+Auditoria implementada
+
+API Auditoria implementada
+
+Pagina de auditoria con filtros, detalles y exportacion CSV implementada
+
 ---
 
 ## Pendiente

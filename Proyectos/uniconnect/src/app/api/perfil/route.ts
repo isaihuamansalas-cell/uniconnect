@@ -1,6 +1,11 @@
 import { createClient, type User } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
 
+import {
+  obtenerIp,
+  obtenerUserAgent,
+  registrarAuditoria,
+} from "@/lib/auditoria/registrarAuditoria";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 
 type PerfilRegistro = {
@@ -181,6 +186,21 @@ export async function PATCH(request: Request) {
         { error: `No se pudo actualizar el perfil: ${error.message}` },
         { status: 400 }
       );
+    }
+
+    if (perfilActual.telefono !== telefono) {
+      await registrarAuditoria({
+        usuario_id: usuarioAutenticado.id,
+        accion: "actualizar_telefono",
+        modulo: "perfil",
+        entidad_tipo: "usuario",
+        entidad_id: usuarioAutenticado.id,
+        descripcion: "Actualizo su telefono de perfil.",
+        datos_anteriores: { telefono: perfilActual.telefono },
+        datos_nuevos: { telefono },
+        ip: obtenerIp(request),
+        user_agent: obtenerUserAgent(request),
+      });
     }
 
     return NextResponse.json({

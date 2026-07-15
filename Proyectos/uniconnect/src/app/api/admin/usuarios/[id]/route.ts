@@ -1,6 +1,11 @@
 import { createClient } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
 
+import {
+  obtenerIp,
+  obtenerUserAgent,
+  registrarAuditoria,
+} from "@/lib/auditoria/registrarAuditoria";
 import { crearNotificacion } from "@/lib/notificaciones/crearNotificacion";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 
@@ -193,6 +198,67 @@ export async function PATCH(
         Boolean(usuarioActualizado.estado);
 
     if (cambioAdministrativo) {
+      await registrarAuditoria({
+        usuario_id: administrador.id,
+        accion: "editar",
+        modulo: "usuarios",
+        entidad_tipo: "usuario",
+        entidad_id: usuarioActualizado.id,
+        descripcion: "Edito un usuario.",
+        datos_anteriores: usuarioAnterior,
+        datos_nuevos: {
+          nombres: usuarioActualizado.nombres,
+          apellidos: usuarioActualizado.apellidos,
+          dni: usuarioActualizado.dni,
+          codigo_estudiante: usuarioActualizado.codigo_estudiante,
+          telefono: usuarioActualizado.telefono,
+          rol_id: usuarioActualizado.rol_id,
+          estado: usuarioActualizado.estado,
+        },
+        ip: obtenerIp(request),
+        user_agent: obtenerUserAgent(request),
+      });
+
+      if (
+        Number(usuarioAnterior.rol_id) !==
+        Number(usuarioActualizado.rol_id)
+      ) {
+        await registrarAuditoria({
+          usuario_id: administrador.id,
+          accion: "cambiar_rol",
+          modulo: "usuarios",
+          entidad_tipo: "usuario",
+          entidad_id: usuarioActualizado.id,
+          descripcion: "Cambio el rol de un usuario.",
+          datos_anteriores: { rol_id: usuarioAnterior.rol_id },
+          datos_nuevos: { rol_id: usuarioActualizado.rol_id },
+          ip: obtenerIp(request),
+          user_agent: obtenerUserAgent(request),
+        });
+      }
+
+      if (
+        Boolean(usuarioAnterior.estado) !==
+        Boolean(usuarioActualizado.estado)
+      ) {
+        await registrarAuditoria({
+          usuario_id: administrador.id,
+          accion: usuarioActualizado.estado
+            ? "activar"
+            : "desactivar",
+          modulo: "usuarios",
+          entidad_tipo: "usuario",
+          entidad_id: usuarioActualizado.id,
+          descripcion: usuarioActualizado.estado
+            ? "Activo un usuario."
+            : "Desactivo un usuario.",
+          datos_anteriores: { estado: usuarioAnterior.estado },
+          datos_nuevos: { estado: usuarioActualizado.estado },
+          ip: obtenerIp(request),
+          user_agent: obtenerUserAgent(request),
+        });
+      }
+
       await crearNotificacion({
         usuario_id: usuarioActualizado.id,
         titulo: "Datos de cuenta actualizados",

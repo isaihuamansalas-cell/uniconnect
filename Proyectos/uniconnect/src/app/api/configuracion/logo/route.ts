@@ -5,6 +5,11 @@ import {
   ConfiguracionInstitucional,
   normalizarConfiguracion,
 } from "@/lib/configuracion/defaults";
+import {
+  obtenerIp,
+  obtenerUserAgent,
+  registrarAuditoria,
+} from "@/lib/auditoria/registrarAuditoria";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 
 type UsuarioActivo = {
@@ -143,6 +148,14 @@ export async function POST(request: Request) {
     const path = `logos/logo-${Date.now()}.${extension}`;
     const buffer = await archivo.arrayBuffer();
 
+    const { data: configuracionAnterior } = await supabaseAdmin
+      .from("configuracion")
+      .select(
+        "id, nombre_sistema, nombre_institucion, correo_institucional, telefono, direccion, logo_path, color_principal, color_secundario, updated_at, updated_by"
+      )
+      .eq("id", 1)
+      .maybeSingle();
+
     const { error: errorSubida } = await supabaseAdmin.storage
       .from(bucketInstitucion)
       .upload(path, buffer, {
@@ -181,6 +194,26 @@ export async function POST(request: Request) {
         { status: 400 }
       );
     }
+
+    await registrarAuditoria({
+      usuario_id: administrador.id,
+      accion: "cambiar_logo",
+      modulo: "configuracion",
+      entidad_tipo: "configuracion",
+      entidad_id: "1",
+      descripcion: "Cambio el logo institucional.",
+      datos_anteriores: configuracionAnterior
+        ? {
+            tenia_logo: Boolean(
+              (configuracionAnterior as ConfiguracionInstitucional)
+                .logo_path
+            ),
+          }
+        : null,
+      datos_nuevos: { logo_actualizado: true },
+      ip: obtenerIp(request),
+      user_agent: obtenerUserAgent(request),
+    });
 
     return NextResponse.json({
       mensaje: "Logo actualizado correctamente.",

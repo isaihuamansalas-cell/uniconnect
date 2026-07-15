@@ -1,6 +1,11 @@
 import { createClient } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
 
+import {
+  obtenerIp,
+  obtenerUserAgent,
+  registrarAuditoria,
+} from "@/lib/auditoria/registrarAuditoria";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 
 type NuevoUsuario = {
@@ -174,6 +179,28 @@ export async function POST(request: Request) {
         { status: 400 }
       );
     }
+
+    await registrarAuditoria({
+      usuario_id: administrador.id,
+      accion: "crear",
+      modulo: "usuarios",
+      entidad_tipo: "usuario",
+      entidad_id: cuentaCreada.user.id,
+      descripcion: "Creo un usuario.",
+      datos_nuevos: {
+        id: cuentaCreada.user.id,
+        correo,
+        dni,
+        codigo_estudiante: codigoEstudiante,
+        nombres,
+        apellidos,
+        telefono: body.telefono?.trim() || null,
+        rol_id: rolId,
+        estado: true,
+      },
+      ip: obtenerIp(request),
+      user_agent: obtenerUserAgent(request),
+    });
 
     return NextResponse.json(
       {

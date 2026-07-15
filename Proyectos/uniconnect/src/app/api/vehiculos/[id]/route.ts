@@ -1,6 +1,11 @@
 import { createClient } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
 
+import {
+  obtenerIp,
+  obtenerUserAgent,
+  registrarAuditoria,
+} from "@/lib/auditoria/registrarAuditoria";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 
 type DatosVehiculo = {
@@ -18,6 +23,20 @@ type ContextoRuta = {
   params: Promise<{
     id: string;
   }>;
+};
+
+type VehiculoAnterior = {
+  id: number;
+  usuario_id: string;
+  placa: string;
+  marca: string | null;
+  modelo: string | null;
+  color: string;
+  tipo: string;
+  anio: number | null;
+  foto: string | null;
+  estado: boolean;
+  created_at: string;
 };
 
 async function obtenerUsuarioAutenticado(request: Request) {
@@ -149,7 +168,9 @@ export async function PATCH(
 
     const { data: vehiculoExistente } = await supabaseAdmin
       .from("vehiculos")
-      .select("id")
+      .select(
+        "id, usuario_id, placa, marca, modelo, color, tipo, anio, foto, estado, created_at"
+      )
       .eq("id", vehiculoId)
       .maybeSingle();
 
@@ -159,6 +180,8 @@ export async function PATCH(
         { status: 404 }
       );
     }
+
+    const vehiculoAnterior = vehiculoExistente as VehiculoAnterior;
 
     const { data: propietario, error: errorPropietario } =
       await supabaseAdmin
@@ -219,6 +242,38 @@ export async function PATCH(
         },
         { status: 400 }
       );
+    }
+
+    await registrarAuditoria({
+      usuario_id: responsable.id,
+      accion: "editar",
+      modulo: "vehiculos",
+      entidad_tipo: "vehiculo",
+      entidad_id: String(vehiculo.id),
+      descripcion: "Edito un vehiculo.",
+      datos_anteriores: vehiculoAnterior,
+      datos_nuevos: vehiculo,
+      ip: obtenerIp(request),
+      user_agent: obtenerUserAgent(request),
+    });
+
+    if (
+      Boolean(vehiculoAnterior.estado) !== Boolean(vehiculo.estado)
+    ) {
+      await registrarAuditoria({
+        usuario_id: responsable.id,
+        accion: vehiculo.estado ? "activar" : "desactivar",
+        modulo: "vehiculos",
+        entidad_tipo: "vehiculo",
+        entidad_id: String(vehiculo.id),
+        descripcion: vehiculo.estado
+          ? "Activo un vehiculo."
+          : "Desactivo un vehiculo.",
+        datos_anteriores: { estado: vehiculoAnterior.estado },
+        datos_nuevos: { estado: vehiculo.estado },
+        ip: obtenerIp(request),
+        user_agent: obtenerUserAgent(request),
+      });
     }
 
     return NextResponse.json({

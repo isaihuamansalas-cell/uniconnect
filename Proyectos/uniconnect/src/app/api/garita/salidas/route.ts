@@ -1,6 +1,11 @@
 import { createClient } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
 
+import {
+  obtenerIp,
+  obtenerUserAgent,
+  registrarAuditoria,
+} from "@/lib/auditoria/registrarAuditoria";
 import { crearNotificacion } from "@/lib/notificaciones/crearNotificacion";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 
@@ -292,6 +297,18 @@ export async function POST(request: Request) {
       ruta: "/historial",
       entidad_tipo: "salida",
       entidad_id: String(salida.id),
+    });
+
+    await registrarAuditoria({
+      usuario_id: responsable.id,
+      accion: "registrar",
+      modulo: "salidas",
+      entidad_tipo: "salida",
+      entidad_id: String(salida.id),
+      descripcion: "Registro una salida.",
+      datos_nuevos: salida,
+      ip: obtenerIp(request),
+      user_agent: obtenerUserAgent(request),
     });
 
     return NextResponse.json(

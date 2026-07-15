@@ -1,6 +1,11 @@
 import { createClient, type User } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
 
+import {
+  obtenerIp,
+  obtenerUserAgent,
+  registrarAuditoria,
+} from "@/lib/auditoria/registrarAuditoria";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 
 type PerfilPassword = {
@@ -158,6 +163,19 @@ export async function PATCH(request: Request) {
         { status: 400 }
       );
     }
+
+    await registrarAuditoria({
+      usuario_id: usuarioAutenticado.id,
+      accion: "cambiar_password",
+      modulo: "perfil",
+      entidad_tipo: "usuario",
+      entidad_id: usuarioAutenticado.id,
+      descripcion: "Cambio su contrasena.",
+      datos_anteriores: null,
+      datos_nuevos: null,
+      ip: obtenerIp(request),
+      user_agent: obtenerUserAgent(request),
+    });
 
     return NextResponse.json({
       mensaje: "Contrasena actualizada correctamente.",

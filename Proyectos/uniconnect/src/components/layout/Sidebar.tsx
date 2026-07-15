@@ -60,6 +60,11 @@ const menuItems: MenuItem[] = [
     roles: [1, 2, 3],
   },
   {
+    href: "/auditoria",
+    label: "Auditoria",
+    roles: [1, 2],
+  },
+  {
     href: "/configuracion",
     label: "Configuracion",
     roles: [1, 2, 3, 4, 5],

@@ -1,6 +1,11 @@
 import { createClient } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
 
+import {
+  obtenerIp,
+  obtenerUserAgent,
+  registrarAuditoria,
+} from "@/lib/auditoria/registrarAuditoria";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 
 type ContextoRuta = {
@@ -282,6 +287,19 @@ export async function POST(
         .from(bucketEmprendimientos)
         .remove([emprendimiento.foto]);
     }
+
+    await registrarAuditoria({
+      usuario_id: usuario.id,
+      accion: "actualizar_foto",
+      modulo: "emprendimientos",
+      entidad_tipo: "emprendimiento",
+      entidad_id: String(emprendimientoId),
+      descripcion: "Actualizo la foto de un emprendimiento.",
+      datos_anteriores: { tiene_foto: Boolean(emprendimiento.foto) },
+      datos_nuevos: { tiene_foto: true },
+      ip: obtenerIp(request),
+      user_agent: obtenerUserAgent(request),
+    });
 
     return NextResponse.json({
       mensaje: "Imagen actualizada correctamente.",

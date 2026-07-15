@@ -1,6 +1,11 @@
 import { createClient, type User } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
 
+import {
+  obtenerIp,
+  obtenerUserAgent,
+  registrarAuditoria,
+} from "@/lib/auditoria/registrarAuditoria";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 
 type PerfilFoto = {
@@ -263,6 +268,19 @@ export async function POST(request: Request) {
         .from(bucketUsuarios)
         .remove([perfil.foto]);
     }
+
+    await registrarAuditoria({
+      usuario_id: usuarioAutenticado.id,
+      accion: "actualizar_foto",
+      modulo: "perfil",
+      entidad_tipo: "usuario",
+      entidad_id: usuarioAutenticado.id,
+      descripcion: "Actualizo su foto de perfil.",
+      datos_anteriores: { tiene_foto: Boolean(perfil.foto) },
+      datos_nuevos: { tiene_foto: true },
+      ip: obtenerIp(request),
+      user_agent: obtenerUserAgent(request),
+    });
 
     return NextResponse.json({
       mensaje: "Foto actualizada correctamente.",

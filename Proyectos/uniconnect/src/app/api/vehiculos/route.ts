@@ -1,6 +1,11 @@
 import { createClient } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
 
+import {
+  obtenerIp,
+  obtenerUserAgent,
+  registrarAuditoria,
+} from "@/lib/auditoria/registrarAuditoria";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 
 type NuevoVehiculo = {
@@ -188,6 +193,18 @@ export async function POST(request: Request) {
         { status: 400 }
       );
     }
+
+    await registrarAuditoria({
+      usuario_id: responsable.id,
+      accion: "crear",
+      modulo: "vehiculos",
+      entidad_tipo: "vehiculo",
+      entidad_id: String(vehiculo.id),
+      descripcion: "Registro un vehiculo.",
+      datos_nuevos: vehiculo,
+      ip: obtenerIp(request),
+      user_agent: obtenerUserAgent(request),
+    });
 
     return NextResponse.json(
       {
