@@ -24,7 +24,7 @@ export default function ActividadReciente({
   actividades,
 }: ActividadRecienteProps) {
   return (
-    <section className="rounded-2xl bg-white p-5 shadow-sm">
+    <section className="w-full min-w-0 max-w-full overflow-hidden rounded-2xl bg-white p-4 shadow-sm sm:p-5">
       <h2 className="text-lg font-bold text-slate-900">{titulo}</h2>
 
       {actividades.length === 0 ? (
@@ -32,19 +32,19 @@ export default function ActividadReciente({
           No hay actividad reciente.
         </p>
       ) : (
-        <div className="mt-4 divide-y divide-slate-100">
+        <div className="mt-4 min-w-0 max-w-full divide-y divide-slate-100">
           {actividades.map((actividad) => (
             <Link
               key={`${actividad.tipo}-${actividad.id}`}
               href={actividad.ruta}
-              className="block py-4 transition hover:bg-slate-50"
+              className="block min-w-0 max-w-full py-4 transition hover:bg-slate-50"
             >
-              <div className="flex items-start justify-between gap-3">
+              <div className="flex min-w-0 items-start justify-between gap-3">
                 <div className="min-w-0">
                   <p className="truncate font-semibold text-slate-900">
                     {actividad.titulo}
                   </p>
-                  <p className="mt-1 text-sm text-slate-500">
+                  <p className="mt-1 break-words text-sm text-slate-500">
                     {actividad.descripcion}
                   </p>
                 </div>

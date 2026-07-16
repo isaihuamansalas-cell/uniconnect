@@ -140,9 +140,9 @@ export default function DashboardPage() {
 
   return (
     <MainLayout>
-      <section className="space-y-8">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-          <div>
+      <section className="w-full min-w-0 max-w-full overflow-hidden space-y-8">
+        <div className="flex min-w-0 max-w-full flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+          <div className="min-w-0">
             <p className="text-sm font-medium text-emerald-700">
               {perfil ? nombresRoles[perfil.rol_id] : ""}
             </p>
@@ -203,7 +203,7 @@ export default function DashboardPage() {
           </div>
         ) : (
           <>
-            <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-6">
+            <div className="grid w-full min-w-0 max-w-full gap-4 sm:gap-6 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-6">
               {estadisticas.map((estadistica) => (
                 <StatCard
                   key={estadistica.id}
@@ -215,7 +215,7 @@ export default function DashboardPage() {
             </div>
 
             {puedeVerGraficos && (
-              <div className="grid gap-6 xl:grid-cols-2">
+              <div className="grid w-full min-w-0 max-w-full gap-4 sm:gap-6 xl:grid-cols-2">
                 {datos?.graficos.salidasUltimos7Dias && (
                   <GraficoBarras
                     titulo="Salidas ultimos 7 dias"
@@ -250,7 +250,7 @@ export default function DashboardPage() {
               </div>
             )}
 
-            <div className="grid gap-6 xl:grid-cols-2">
+            <div className="grid w-full min-w-0 max-w-full gap-4 sm:gap-6 xl:grid-cols-2">
               {datos?.actividad.salidas && (
                 <ActividadReciente
                   titulo="Ultimas salidas"

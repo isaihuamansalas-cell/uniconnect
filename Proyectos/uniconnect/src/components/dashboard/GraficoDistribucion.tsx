@@ -17,7 +17,7 @@ export default function GraficoDistribucion({
   const maximo = Math.max(...datos.map((punto) => punto.valor), 0);
 
   return (
-    <section className="rounded-2xl bg-white p-5 shadow-sm">
+    <section className="w-full min-w-0 max-w-full overflow-hidden rounded-2xl bg-white p-4 shadow-sm sm:p-5">
       <h2 className="text-lg font-bold text-slate-900">{titulo}</h2>
       <p className="mt-1 text-sm text-slate-500">{descripcion}</p>
 
@@ -26,7 +26,7 @@ export default function GraficoDistribucion({
           No hay datos para mostrar.
         </p>
       ) : (
-        <div className="mt-5 space-y-4">
+        <div className="mt-5 min-w-0 max-w-full space-y-4">
           {datos.map((punto) => {
             const porcentaje = Math.max(
               4,
@@ -34,9 +34,9 @@ export default function GraficoDistribucion({
             );
 
             return (
-              <div key={punto.etiqueta}>
-                <div className="flex items-center justify-between gap-3 text-sm">
-                  <span className="font-medium text-slate-700">
+              <div key={punto.etiqueta} className="min-w-0 max-w-full">
+                <div className="flex min-w-0 items-center justify-between gap-3 text-sm">
+                  <span className="min-w-0 break-words font-medium text-slate-700">
                     {punto.etiqueta}
                   </span>
                   <span className="font-semibold text-slate-900">
@@ -44,7 +44,7 @@ export default function GraficoDistribucion({
                   </span>
                 </div>
                 <div
-                  className="mt-2 h-3 rounded-full bg-slate-100"
+                  className="mt-2 h-3 max-w-full overflow-hidden rounded-full bg-slate-100"
                   aria-label={`${punto.etiqueta}: ${punto.valor}`}
                 >
                   <div

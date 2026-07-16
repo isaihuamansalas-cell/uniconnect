@@ -20,8 +20,8 @@ export default function GraficoBarras({
   const alto = 180;
 
   return (
-    <section className="rounded-2xl bg-white p-5 shadow-sm">
-      <div>
+    <section className="w-full min-w-0 max-w-full overflow-hidden rounded-2xl bg-white p-4 shadow-sm sm:p-5">
+      <div className="min-w-0">
         <h2 className="text-lg font-bold text-slate-900">{titulo}</h2>
         <p className="mt-1 text-sm text-slate-500">{descripcion}</p>
       </div>
@@ -31,12 +31,14 @@ export default function GraficoBarras({
           No hay datos para mostrar.
         </p>
       ) : (
-        <div className="mt-5 overflow-x-auto">
+        <div className="mt-5 flex w-full min-w-0 max-w-full justify-center overflow-hidden">
           <svg
             role="img"
             aria-label={`${titulo}. ${descripcion}`}
+            width="100%"
+            preserveAspectRatio="xMidYMid meet"
             viewBox={`0 0 ${ancho} ${alto}`}
-            className="h-52 min-w-full"
+            className="block h-auto w-full max-w-full"
           >
             {datos.map((punto, indice) => {
               const barWidth = 28;
