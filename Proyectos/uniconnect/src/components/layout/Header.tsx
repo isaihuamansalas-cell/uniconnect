@@ -7,6 +7,7 @@ import { LogOut, Menu, UserRound } from "lucide-react";
 
 import { usePerfil } from "@/components/auth/PerfilProvider";
 import { useConfiguracion } from "@/components/configuracion/ConfiguracionProvider";
+import BuscadorGlobal from "./BuscadorGlobal";
 import NotificacionesPanel from "./NotificacionesPanel";
 
 type HeaderProps = {
@@ -50,6 +51,8 @@ export default function Header({ onMenuClick }: HeaderProps) {
       </div>
 
       <div className="flex shrink-0 items-center gap-2 sm:gap-4">
+        <BuscadorGlobal accessToken={session?.access_token ?? ""} />
+
         <NotificacionesPanel
           accessToken={session?.access_token ?? ""}
         />

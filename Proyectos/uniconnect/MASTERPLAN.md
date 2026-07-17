@@ -206,6 +206,8 @@ Dashboard con estadisticas reales y graficos nativos implementado
 
 API Dashboard implementada
 
+Buscador Global implementado en Header con API server-side, permisos por rol, debounce y soporte responsive
+
 ---
 
 ## Pendiente
