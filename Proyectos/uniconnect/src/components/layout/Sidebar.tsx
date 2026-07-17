@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 import { usePerfil } from "@/components/auth/PerfilProvider";
 import { useConfiguracion } from "@/components/configuracion/ConfiguracionProvider";
@@ -77,6 +78,7 @@ export default function Sidebar({
 }: SidebarProps) {
   const { configuracion } = useConfiguracion();
   const { perfil, cargandoPerfil } = usePerfil();
+  const pathname = usePathname();
   const logoUrl = obtenerUrlLogo(configuracion.logo_path);
   const rolId = perfil?.rol_id;
   const itemsVisibles = rolId
@@ -87,8 +89,8 @@ export default function Sidebar({
     <aside
       className={
         mobile
-          ? "h-full w-64 overflow-y-auto bg-slate-900 p-6 text-white shadow-2xl"
-          : "sticky top-0 min-h-screen w-64 overflow-y-auto bg-slate-900 p-6 text-white"
+          ? "sidebar-secondary h-full w-64 overflow-y-auto p-6 shadow-2xl"
+          : "sidebar-secondary sticky top-0 min-h-screen w-64 overflow-y-auto p-6"
       }
     >
       <div className="flex items-center gap-3">
@@ -103,7 +105,7 @@ export default function Sidebar({
           />
         )}
 
-        <h1 className="truncate text-2xl font-bold text-emerald-400">
+        <h1 className="truncate text-2xl font-bold text-primary">
           {configuracion.nombre_sistema}
         </h1>
       </div>
@@ -115,16 +117,27 @@ export default function Sidebar({
           </p>
         )}
 
-        {itemsVisibles.map((item) => (
-          <Link
-            key={item.href}
-            href={item.href}
-            onClick={onNavigate}
-            className="rounded-xl px-3 py-2 font-medium text-slate-100 transition hover:bg-slate-800 hover:text-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-400"
-          >
-            {item.label}
-          </Link>
-        ))}
+        {itemsVisibles.map((item) => {
+          const activo =
+            pathname === item.href ||
+            pathname.startsWith(`${item.href}/`);
+
+          return (
+            <Link
+              key={item.href}
+              href={item.href}
+              onClick={onNavigate}
+              aria-current={activo ? "page" : undefined}
+              className={
+                activo
+                  ? "rounded-xl bg-primary px-3 py-2 font-semibold text-white transition focus-primary focus:outline-none"
+                  : "rounded-xl px-3 py-2 font-medium text-slate-100 transition hover:bg-white/10 hover:text-white focus-primary focus:outline-none"
+              }
+            >
+              {item.label}
+            </Link>
+          );
+        })}
       </nav>
     </aside>
   );

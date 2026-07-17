@@ -1,9 +1,11 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { Pencil, Search, UserPlus } from "lucide-react";
+import { Pencil, Search, Trash2, UserPlus } from "lucide-react";
 
+import { usePerfil } from "@/components/auth/PerfilProvider";
 import MainLayout from "@/components/layout/MainLayout";
+import EliminarUsuarioModal from "@/components/usuarios/EliminarUsuarioModal";
 import EditarUsuarioModal, {
   type UsuarioEditable,
 } from "@/components/usuarios/EditarUsuarioModal";
@@ -31,6 +33,7 @@ const nombresRoles: Record<number, string> = {
 };
 
 export default function UsuariosPage() {
+  const { perfil } = usePerfil();
   const [usuarios, setUsuarios] = useState<Usuario[]>([]);
   const [busqueda, setBusqueda] = useState("");
   const [cargando, setCargando] = useState(true);
@@ -44,6 +47,10 @@ export default function UsuariosPage() {
 
   const [usuarioSeleccionado, setUsuarioSeleccionado] =
     useState<UsuarioEditable | null>(null);
+  const [usuarioEliminar, setUsuarioEliminar] =
+    useState<Usuario | null>(null);
+  const [modalEliminarAbierto, setModalEliminarAbierto] =
+    useState(false);
 
   const [actualizacion, setActualizacion] = useState(0);
 
@@ -127,12 +134,25 @@ export default function UsuariosPage() {
     setActualizacion((valorActual) => valorActual + 1);
   }
 
+  function abrirModalEliminar(usuario: Usuario) {
+    setUsuarioEliminar(usuario);
+    setModalEliminarAbierto(true);
+  }
+
+  function cerrarModalEliminar() {
+    setModalEliminarAbierto(false);
+    setUsuarioEliminar(null);
+  }
+
+  const puedeEliminar =
+    perfil?.rol_id === 1 && perfil.estado === true;
+
   return (
     <MainLayout>
       <section>
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <p className="text-sm font-medium text-emerald-700">
+            <p className="text-sm font-medium text-primary">
               Administración
             </p>
 
@@ -149,7 +169,7 @@ export default function UsuariosPage() {
           <button
             type="button"
             onClick={() => setModalNuevoAbierto(true)}
-            className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-700 px-5 py-3 font-semibold text-white transition hover:bg-emerald-800 sm:w-auto"
+            className="inline-flex w-full items-center justify-center gap-2 rounded-xl btn-primary px-5 py-3 font-semibold text-white transition sm:w-auto"
           >
             <UserPlus size={20} />
             Nuevo usuario
@@ -170,7 +190,7 @@ export default function UsuariosPage() {
                 setBusqueda(event.target.value)
               }
               placeholder="Buscar por nombre, DNI, código o correo"
-              className="w-full rounded-xl border border-slate-300 py-3 pl-11 pr-4 outline-none transition focus:border-emerald-600 focus:ring-2 focus:ring-emerald-100"
+              className="w-full rounded-xl border border-slate-300 py-3 pl-11 pr-4 outline-none transition focus-primary"
             />
           </div>
 
@@ -250,7 +270,7 @@ export default function UsuariosPage() {
                         <span
                           className={
                             usuario.estado
-                              ? "rounded-full bg-emerald-100 px-3 py-1 text-sm font-medium text-emerald-700"
+                              ? "rounded-full bg-primary-soft px-3 py-1 text-sm font-medium text-primary"
                               : "rounded-full bg-red-100 px-3 py-1 text-sm font-medium text-red-700"
                           }
                         >
@@ -261,16 +281,37 @@ export default function UsuariosPage() {
                       </td>
 
                       <td className="px-4 py-4">
-                        <button
-                          type="button"
-                          onClick={() =>
-                            abrirModalEditar(usuario)
-                          }
-                          className="inline-flex items-center gap-2 rounded-lg border border-slate-300 px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-100"
-                        >
-                          <Pencil size={17} />
-                          Editar
-                        </button>
+                        <div className="flex flex-wrap gap-2">
+                          <button
+                            type="button"
+                            onClick={() =>
+                              abrirModalEditar(usuario)
+                            }
+                            className="inline-flex items-center gap-2 rounded-lg border border-slate-300 px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-100 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"
+                          >
+                            <Pencil size={17} />
+                            Editar
+                          </button>
+
+                          {puedeEliminar && (
+                            <button
+                              type="button"
+                              onClick={() =>
+                                abrirModalEliminar(usuario)
+                              }
+                              disabled={perfil?.id === usuario.id}
+                              title={
+                                perfil?.id === usuario.id
+                                  ? "No puedes eliminar tu propio usuario"
+                                  : "Eliminar usuario"
+                              }
+                              className="inline-flex items-center gap-2 rounded-lg border border-red-300 px-3 py-2 text-sm font-semibold text-red-700 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-red-900/70 dark:text-red-300 dark:hover:bg-red-950/40"
+                            >
+                              <Trash2 size={17} />
+                              Eliminar
+                            </button>
+                          )}
+                        </div>
                       </td>
                     </tr>
                   ))}
@@ -298,6 +339,13 @@ export default function UsuariosPage() {
         usuario={usuarioSeleccionado}
         onCerrar={cerrarModalEditar}
         onUsuarioActualizado={actualizarLista}
+      />
+
+      <EliminarUsuarioModal
+        abierto={modalEliminarAbierto}
+        usuario={usuarioEliminar}
+        onCerrar={cerrarModalEliminar}
+        onUsuarioEliminado={actualizarLista}
       />
     </MainLayout>
   );

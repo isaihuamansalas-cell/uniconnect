@@ -345,7 +345,7 @@ export default function ConfiguracionPage() {
       <section>
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <p className="text-sm font-medium text-emerald-700 dark:text-emerald-400">
+            <p className="text-primary text-sm font-medium">
               Administracion
             </p>
 
@@ -379,7 +379,7 @@ export default function ConfiguracionPage() {
         )}
 
         {mensaje && (
-          <p className="mt-6 rounded-xl bg-emerald-50 p-4 text-sm font-medium text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300">
+          <p className="mt-6 rounded-xl bg-primary-soft p-4 text-sm font-medium text-primary">
             {mensaje}
           </p>
         )}
@@ -387,7 +387,7 @@ export default function ConfiguracionPage() {
         <div className="mt-8 grid gap-6 xl:grid-cols-[360px_1fr]">
           <div className="rounded-2xl bg-white p-4 shadow-sm dark:border dark:border-slate-800 dark:bg-slate-900 sm:p-6">
             <div className="flex items-center gap-3">
-              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-emerald-100 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300">
+              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary-soft text-primary">
                 <Building2 size={22} />
               </div>
               <div>
@@ -421,7 +421,7 @@ export default function ConfiguracionPage() {
             <label
               className={
                 esAdministrador
-                  ? "mt-5 inline-flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-emerald-700 px-5 py-3 font-semibold text-white transition hover:bg-emerald-800"
+                  ? "btn-primary mt-5 inline-flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl px-5 py-3 font-semibold transition"
                   : "mt-5 inline-flex w-full cursor-not-allowed items-center justify-center gap-2 rounded-xl bg-slate-300 px-5 py-3 font-semibold text-white dark:bg-slate-700 dark:text-slate-300"
               }
             >
@@ -446,7 +446,7 @@ export default function ConfiguracionPage() {
             className="rounded-2xl bg-white p-4 shadow-sm dark:border dark:border-slate-800 dark:bg-slate-900 sm:p-6"
           >
             <div className="flex items-center gap-3">
-              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-emerald-100 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300">
+              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary-soft text-primary">
                 <Palette size={22} />
               </div>
               <div>
@@ -599,7 +599,7 @@ export default function ConfiguracionPage() {
               <button
                 type="submit"
                 disabled={!esAdministrador || guardando}
-                className="inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-700 px-5 py-3 font-semibold text-white transition hover:bg-emerald-800 disabled:cursor-not-allowed disabled:opacity-60"
+                className="btn-primary inline-flex items-center justify-center gap-2 rounded-xl px-5 py-3 font-semibold transition disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {guardando ? (
                   <LoaderCircle size={20} className="animate-spin" />
@@ -622,7 +622,7 @@ export default function ConfiguracionPage() {
         <button
           type="button"
           onClick={() => setModalAbierto(false)}
-          className="inline-flex items-center justify-center rounded-xl bg-emerald-700 px-5 py-3 font-semibold text-white transition hover:bg-emerald-800"
+          className="btn-primary inline-flex items-center justify-center rounded-xl px-5 py-3 font-semibold transition"
         >
           Entendido
         </button>

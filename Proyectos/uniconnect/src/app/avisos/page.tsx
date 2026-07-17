@@ -244,7 +244,7 @@ export default function AvisosPage() {
       <section>
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <p className="text-sm font-medium text-emerald-700">
+            <p className="text-sm font-medium text-primary">
               Comunicacion institucional
             </p>
 
@@ -262,7 +262,7 @@ export default function AvisosPage() {
             <button
               type="button"
               onClick={() => setModalNuevoAbierto(true)}
-              className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-700 px-5 py-3 font-semibold text-white transition hover:bg-emerald-800 sm:w-auto"
+              className="inline-flex w-full items-center justify-center gap-2 rounded-xl btn-primary px-5 py-3 font-semibold text-white transition sm:w-auto"
             >
               <Plus size={20} />
               Nuevo aviso
@@ -338,7 +338,7 @@ export default function AvisosPage() {
                     >
                       <td className="px-4 py-4">
                         <div className="flex items-start gap-3">
-                          <div className="mt-1 flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-emerald-100 text-emerald-700">
+                          <div className="mt-1 flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary-soft text-primary">
                             <Megaphone size={22} />
                           </div>
                           <div>
@@ -386,7 +386,7 @@ export default function AvisosPage() {
                         <span
                           className={
                             aviso.estado
-                              ? "rounded-full bg-emerald-100 px-3 py-1 text-sm font-medium text-emerald-700"
+                              ? "rounded-full bg-primary-soft px-3 py-1 text-sm font-medium text-primary"
                               : "rounded-full bg-red-100 px-3 py-1 text-sm font-medium text-red-700"
                           }
                         >

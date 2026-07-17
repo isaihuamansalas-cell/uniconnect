@@ -110,7 +110,7 @@ export default function LoginPage() {
           />
         )}
 
-        <h1 className="mb-2 text-center text-3xl font-bold text-green-700 dark:text-emerald-400">
+        <h1 className="mb-2 text-center text-3xl font-bold text-primary">
           {configuracion.nombre_sistema}
         </h1>
 
@@ -135,9 +135,9 @@ export default function LoginPage() {
               required
               placeholder={
                 configuracion.correo_institucional ??
-                "correo@suiza.edu.pe"
+                "correo@gmail.com"
               }
-              className="w-full rounded-lg border border-slate-300 bg-white p-3 text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-emerald-600 focus:ring-2 focus:ring-emerald-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:placeholder:text-slate-500 dark:focus:border-emerald-500 dark:focus:ring-emerald-500/25"
+              className="w-full rounded-lg border border-slate-300 bg-white p-3 text-slate-900 outline-none transition placeholder:text-slate-400 focus-primary dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:placeholder:text-slate-500"
             />
           </div>
 
@@ -156,7 +156,7 @@ export default function LoginPage() {
               autoComplete="current-password"
               required
               placeholder="********"
-              className="w-full rounded-lg border border-slate-300 bg-white p-3 text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-emerald-600 focus:ring-2 focus:ring-emerald-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:placeholder:text-slate-500 dark:focus:border-emerald-500 dark:focus:ring-emerald-500/25"
+              className="w-full rounded-lg border border-slate-300 bg-white p-3 text-slate-900 outline-none transition placeholder:text-slate-400 focus-primary dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:placeholder:text-slate-500"
             />
           </div>
 
@@ -169,7 +169,7 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full rounded-lg bg-green-700 p-3 font-semibold text-white hover:bg-green-800 disabled:cursor-not-allowed disabled:opacity-70"
+            className="btn-primary w-full rounded-lg p-3 font-semibold disabled:cursor-not-allowed disabled:opacity-70"
           >
             {loading ? "Ingresando..." : "Iniciar sesion"}
           </button>
@@ -177,7 +177,7 @@ export default function LoginPage() {
           <div className="text-center">
             <Link
               href="/recuperar-password"
-              className="text-sm font-medium text-emerald-700 transition hover:text-emerald-800 hover:underline dark:text-emerald-400 dark:hover:text-emerald-300"
+              className="text-primary text-sm font-medium transition hover:underline"
             >
               ¿Olvidaste tu contraseña?
             </Link>

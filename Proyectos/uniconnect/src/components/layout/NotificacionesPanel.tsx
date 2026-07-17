@@ -196,7 +196,7 @@ export default function NotificacionesPanel({
         aria-haspopup="dialog"
         aria-expanded={abierto}
         onClick={() => setAbierto((valor) => !valor)}
-        className="relative rounded-lg p-2 text-slate-600 transition hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-200 dark:text-slate-200 dark:hover:bg-slate-800 dark:focus:ring-emerald-500/25"
+        className="focus-primary relative rounded-lg p-2 text-slate-600 transition hover:bg-slate-100 focus:outline-none dark:text-slate-200 dark:hover:bg-slate-800"
       >
         <Bell size={21} />
         {noLeidas > 0 && (
@@ -226,7 +226,7 @@ export default function NotificacionesPanel({
               type="button"
               onClick={marcarTodas}
               disabled={actualizando || noLeidas === 0}
-              className="inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold text-emerald-700 transition hover:bg-emerald-50 disabled:cursor-not-allowed disabled:opacity-50 dark:text-emerald-400 dark:hover:bg-emerald-950/40"
+              className="inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold text-primary transition hover:bg-primary-soft disabled:cursor-not-allowed disabled:opacity-50"
             >
               <CheckCheck size={17} />
               Marcar todas
@@ -265,7 +265,7 @@ export default function NotificacionesPanel({
                     className={
                       notificacion.leida
                         ? "mt-1 text-slate-300 dark:text-slate-600"
-                        : "mt-1 text-emerald-600 dark:text-emerald-400"
+                        : "mt-1 text-primary"
                     }
                     aria-hidden="true"
                   >

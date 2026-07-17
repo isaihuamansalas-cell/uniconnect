@@ -459,7 +459,7 @@ export default function ReportesPage() {
       <section>
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between print:hidden">
           <div>
-            <p className="text-sm font-medium text-emerald-700 dark:text-emerald-400">
+            <p className="text-sm font-medium text-primary">
               Administracion
             </p>
 
@@ -622,7 +622,7 @@ export default function ReportesPage() {
                   <button
                     type="submit"
                     disabled={cargandoSalidas}
-                    className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-700 px-5 py-3 font-semibold text-white transition hover:bg-emerald-800 disabled:cursor-not-allowed disabled:opacity-60"
+                    className="inline-flex w-full items-center justify-center gap-2 rounded-xl btn-primary px-5 py-3 font-semibold text-white transition disabled:cursor-not-allowed disabled:opacity-60"
                   >
                     {cargandoSalidas ? (
                       <LoaderCircle

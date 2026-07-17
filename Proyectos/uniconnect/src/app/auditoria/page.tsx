@@ -230,7 +230,7 @@ export default function AuditoriaPage() {
       <section className="space-y-6">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <p className="text-sm font-medium text-emerald-700">
+            <p className="text-sm font-medium text-primary">
               Seguridad
             </p>
             <h1 className="mt-1 text-3xl font-bold text-slate-900">
@@ -245,7 +245,7 @@ export default function AuditoriaPage() {
             type="button"
             onClick={exportarCsv}
             disabled={registros.length === 0}
-            className="inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-700 px-5 py-3 font-semibold text-white transition hover:bg-emerald-800 disabled:cursor-not-allowed disabled:opacity-60"
+            className="inline-flex items-center justify-center gap-2 rounded-xl btn-primary px-5 py-3 font-semibold text-white transition disabled:cursor-not-allowed disabled:opacity-60"
           >
             <Download size={20} />
             Exportar CSV
@@ -343,7 +343,7 @@ export default function AuditoriaPage() {
                 <button
                   type="submit"
                   disabled={cargando}
-                  className="inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-700 px-5 py-3 font-semibold text-white transition hover:bg-emerald-800 disabled:opacity-60"
+                  className="inline-flex items-center justify-center gap-2 rounded-xl btn-primary px-5 py-3 font-semibold text-white transition disabled:opacity-60"
                 >
                   {cargando ? (
                     <LoaderCircle size={20} className="animate-spin" />

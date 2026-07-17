@@ -330,7 +330,7 @@ export default function BuscadorGlobal({
                       }}
                       className={`block rounded-xl px-3 py-2 transition ${
                         activo
-                          ? "bg-emerald-50 dark:bg-emerald-950/40"
+                          ? "bg-primary-soft"
                           : "hover:bg-slate-50 dark:hover:bg-slate-800"
                       }`}
                     >
@@ -340,7 +340,7 @@ export default function BuscadorGlobal({
                       <p className="line-clamp-1 text-xs text-slate-500 dark:text-slate-400">
                         {resultado.descripcion}
                       </p>
-                      <p className="line-clamp-1 text-xs font-medium text-emerald-700 dark:text-emerald-400">
+                      <p className="line-clamp-1 text-xs font-medium text-primary">
                         {resultado.detalle}
                       </p>
                     </Link>
@@ -383,7 +383,7 @@ export default function BuscadorGlobal({
           onKeyDown={manejarTeclado}
           placeholder="Buscar en UniConnect"
           aria-label="Buscar en UniConnect"
-          className="w-full rounded-xl border border-slate-300 bg-white py-2.5 pl-10 pr-4 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-emerald-600 focus:ring-2 focus:ring-emerald-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:placeholder:text-slate-500 dark:focus:border-emerald-500 dark:focus:ring-emerald-500/25"
+          className="w-full rounded-xl border border-slate-300 bg-white py-2.5 pl-10 pr-4 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus-primary dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:placeholder:text-slate-500"
         />
 
         {panelAbierto && (
@@ -419,7 +419,7 @@ export default function BuscadorGlobal({
                   onKeyDown={manejarTeclado}
                   placeholder="Buscar en UniConnect"
                   aria-label="Buscar en UniConnect"
-                  className="w-full rounded-xl border border-slate-300 bg-white py-3 pl-10 pr-4 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-emerald-600 focus:ring-2 focus:ring-emerald-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:placeholder:text-slate-500 dark:focus:border-emerald-500 dark:focus:ring-emerald-500/25"
+                  className="w-full rounded-xl border border-slate-300 bg-white py-3 pl-10 pr-4 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus-primary dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:placeholder:text-slate-500"
                 />
               </div>
 

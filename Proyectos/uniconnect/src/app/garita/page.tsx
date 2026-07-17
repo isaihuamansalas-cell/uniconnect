@@ -226,7 +226,7 @@ export default function GaritaPage() {
       <section>
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <p className="text-sm font-medium text-emerald-700">
+            <p className="text-sm font-medium text-primary">
               Control de garita
             </p>
 
@@ -269,7 +269,7 @@ export default function GaritaPage() {
             <button
               type="submit"
               disabled={buscando}
-              className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-700 px-5 py-3 font-semibold text-white transition hover:bg-emerald-800 disabled:cursor-not-allowed disabled:opacity-60 lg:w-auto"
+              className="inline-flex w-full items-center justify-center gap-2 rounded-xl btn-primary px-5 py-3 font-semibold text-white transition disabled:cursor-not-allowed disabled:opacity-60 lg:w-auto"
             >
               {buscando ? (
                 <LoaderCircle
@@ -291,7 +291,7 @@ export default function GaritaPage() {
           )}
 
           {mensaje && (
-            <p className="mt-5 rounded-xl bg-emerald-50 p-4 text-sm font-medium text-emerald-700">
+            <p className="mt-5 rounded-xl bg-primary-soft p-4 text-sm font-medium text-primary">
               {mensaje}
             </p>
           )}
@@ -311,13 +311,13 @@ export default function GaritaPage() {
                     className="h-20 w-20 rounded-2xl object-cover"
                   />
                 ) : (
-                  <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-emerald-100 text-emerald-700">
+                  <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-primary-soft text-primary">
                     <UserRound size={34} />
                   </div>
                 )}
 
                 <div>
-                  <p className="text-sm font-medium text-emerald-700">
+                  <p className="text-sm font-medium text-primary">
                     Estudiante
                   </p>
 
@@ -328,7 +328,7 @@ export default function GaritaPage() {
                   <span
                     className={
                       estudiante.estado
-                        ? "mt-3 inline-flex rounded-full bg-emerald-100 px-3 py-1 text-sm font-medium text-emerald-700"
+                        ? "mt-3 inline-flex rounded-full bg-primary-soft px-3 py-1 text-sm font-medium text-primary"
                         : "mt-3 inline-flex rounded-full bg-red-100 px-3 py-1 text-sm font-medium text-red-700"
                     }
                   >
@@ -376,7 +376,7 @@ export default function GaritaPage() {
                     !vehiculoSeleccionado ||
                     !estudiante.estado
                   }
-                  className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-700 px-5 py-3 font-semibold text-white transition hover:bg-emerald-800 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
+                  className="inline-flex w-full items-center justify-center gap-2 rounded-xl btn-primary px-5 py-3 font-semibold text-white transition disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
                 >
                   {autorizando ? (
                     <LoaderCircle
@@ -415,8 +415,8 @@ export default function GaritaPage() {
                         }
                         className={
                           seleccionado
-                            ? "rounded-2xl border-2 border-emerald-600 bg-emerald-50 p-4 text-left shadow-sm transition"
-                            : "rounded-2xl border border-slate-200 bg-white p-4 text-left shadow-sm transition hover:border-emerald-300 hover:bg-slate-50"
+                            ? "rounded-2xl border-2 border-primary bg-primary-soft p-4 text-left shadow-sm transition"
+                            : "rounded-2xl border border-slate-200 bg-white p-4 text-left shadow-sm transition hover:border-primary hover:bg-slate-50"
                         }
                       >
                         <div className="flex gap-4">

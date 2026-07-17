@@ -5,6 +5,7 @@ export type AccionAuditoria =
   | "editar"
   | "activar"
   | "desactivar"
+  | "eliminar"
   | "cambiar_rol"
   | "registrar"
   | "actualizar_configuracion"

@@ -293,7 +293,7 @@ export default function PerfilPage() {
     <MainLayout>
       <section className="space-y-8">
         <div>
-          <p className="text-sm font-medium text-emerald-700 dark:text-emerald-400">
+          <p className="text-sm font-medium text-primary">
             Cuenta personal
           </p>
 
@@ -315,7 +315,7 @@ export default function PerfilPage() {
             <div className="space-y-6">
               <section className="rounded-2xl bg-white p-5 shadow-sm dark:border dark:border-slate-800 dark:bg-slate-900 sm:p-6">
                 <div className="flex items-center gap-3">
-                  <div className="rounded-xl bg-emerald-100 p-2 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300">
+                  <div className="rounded-xl bg-primary-soft p-2 text-primary ">
                     <UserRound size={22} />
                   </div>
 
@@ -394,7 +394,7 @@ export default function PerfilPage() {
                   )}
 
                   {mensajeTelefono && (
-                    <p className="mt-4 rounded-xl bg-emerald-50 p-4 text-sm font-medium text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300">
+                    <p className="mt-4 rounded-xl bg-primary-soft p-4 text-sm font-medium text-primary ">
                       {mensajeTelefono}
                     </p>
                   )}
@@ -403,7 +403,7 @@ export default function PerfilPage() {
                     <button
                       type="submit"
                       disabled={guardandoTelefono}
-                      className="inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-700 px-5 py-3 font-semibold text-white transition hover:bg-emerald-800 disabled:opacity-60"
+                      className="inline-flex items-center justify-center gap-2 rounded-xl btn-primary px-5 py-3 font-semibold text-white transition disabled:opacity-60"
                     >
                       {guardandoTelefono ? (
                         <LoaderCircle
@@ -423,7 +423,7 @@ export default function PerfilPage() {
 
               <section className="rounded-2xl bg-white p-5 shadow-sm dark:border dark:border-slate-800 dark:bg-slate-900 sm:p-6">
                 <div className="flex items-center gap-3">
-                  <div className="rounded-xl bg-emerald-100 p-2 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300">
+                  <div className="rounded-xl bg-primary-soft p-2 text-primary ">
                     <ShieldCheck size={22} />
                   </div>
 
@@ -488,7 +488,7 @@ export default function PerfilPage() {
                   )}
 
                   {mensajePassword && (
-                    <p className="rounded-xl bg-emerald-50 p-4 text-sm font-medium text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300">
+                    <p className="rounded-xl bg-primary-soft p-4 text-sm font-medium text-primary ">
                       {mensajePassword}
                     </p>
                   )}
@@ -497,7 +497,7 @@ export default function PerfilPage() {
                     <button
                       type="submit"
                       disabled={cambiandoPassword}
-                      className="inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-700 px-5 py-3 font-semibold text-white transition hover:bg-emerald-800 disabled:opacity-60"
+                      className="inline-flex items-center justify-center gap-2 rounded-xl btn-primary px-5 py-3 font-semibold text-white transition disabled:opacity-60"
                     >
                       {cambiandoPassword && (
                         <LoaderCircle
@@ -516,7 +516,7 @@ export default function PerfilPage() {
 
             <section className="rounded-2xl bg-white p-5 shadow-sm dark:border dark:border-slate-800 dark:bg-slate-900 sm:p-6">
               <div className="flex items-center gap-3">
-                <div className="rounded-xl bg-emerald-100 p-2 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300">
+                <div className="rounded-xl bg-primary-soft p-2 text-primary ">
                   <Camera size={22} />
                 </div>
 
@@ -537,7 +537,7 @@ export default function PerfilPage() {
                   version={perfil?.foto_version ?? ""}
                 />
 
-                <label className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-xl bg-emerald-700 px-5 py-3 font-semibold text-white transition hover:bg-emerald-800">
+                <label className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-xl btn-primary px-5 py-3 font-semibold text-white transition">
                   <Camera size={20} />
                   Seleccionar foto
                   <input
@@ -557,7 +557,7 @@ export default function PerfilPage() {
               )}
 
               {mensajeFoto && (
-                <p className="mt-5 rounded-xl bg-emerald-50 p-4 text-sm font-medium text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300">
+                <p className="mt-5 rounded-xl bg-primary-soft p-4 text-sm font-medium text-primary ">
                   {mensajeFoto}
                 </p>
               )}
@@ -604,7 +604,7 @@ export default function PerfilPage() {
               type="button"
               onClick={guardarFoto}
               disabled={subiendoFoto}
-              className="inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-700 px-5 py-3 font-semibold text-white transition hover:bg-emerald-800 disabled:opacity-60"
+              className="inline-flex items-center justify-center gap-2 rounded-xl btn-primary px-5 py-3 font-semibold text-white transition disabled:opacity-60"
             >
               {subiendoFoto ? (
                 <LoaderCircle size={20} className="animate-spin" />

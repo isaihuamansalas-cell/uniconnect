@@ -48,7 +48,7 @@ export default function GraficoDistribucion({
                   aria-label={`${punto.etiqueta}: ${punto.valor}`}
                 >
                   <div
-                    className="h-3 rounded-full bg-emerald-600"
+                    className="h-3 rounded-full bg-primary"
                     style={{ width: `${porcentaje}%` }}
                   />
                 </div>

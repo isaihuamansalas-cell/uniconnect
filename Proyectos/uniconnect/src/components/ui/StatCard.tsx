@@ -19,13 +19,13 @@ export default function StatCard({
             {title}
           </p>
 
-          <h2 className="mt-2 text-3xl font-bold">
+          <h2 className="mt-2 text-3xl font-bold text-primary">
             {value}
           </h2>
 
         </div>
 
-        <div className="text-4xl">
+        <div className="text-4xl text-primary">
           {icon}
         </div>
 

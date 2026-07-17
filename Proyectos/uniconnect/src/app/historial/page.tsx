@@ -165,7 +165,7 @@ export default function HistorialPage() {
       <section>
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <p className="text-sm font-medium text-emerald-700">
+            <p className="text-sm font-medium text-primary">
               Control de garita
             </p>
 
@@ -182,7 +182,7 @@ export default function HistorialPage() {
             type="button"
             onClick={cargarHistorial}
             disabled={cargando}
-            className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-700 px-5 py-3 font-semibold text-white transition hover:bg-emerald-800 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
+            className="inline-flex w-full items-center justify-center gap-2 rounded-xl btn-primary px-5 py-3 font-semibold text-white transition disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
           >
             {cargando ? (
               <LoaderCircle size={20} className="animate-spin" />
@@ -257,7 +257,7 @@ export default function HistorialPage() {
                     >
                       <td className="px-4 py-4">
                         <div className="flex items-center gap-3">
-                          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-100 text-emerald-700">
+                          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary-soft text-primary">
                             <CalendarClock size={20} />
                           </div>
                           <div>

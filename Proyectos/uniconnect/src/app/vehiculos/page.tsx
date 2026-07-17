@@ -11,10 +11,13 @@ import {
   Pencil,
   Plus,
   Search,
+  Trash2,
 } from "lucide-react";
 
+import { usePerfil } from "@/components/auth/PerfilProvider";
 import MainLayout from "@/components/layout/MainLayout";
 
+import EliminarVehiculoModal from "@/components/vehiculos/EliminarVehiculoModal";
 import FotoVehiculo from "@/components/vehiculos/FotoVehiculo";
 import NuevoVehiculoModal from "@/components/vehiculos/NuevoVehiculoModal";
 
@@ -51,6 +54,7 @@ type Vehiculo = Omit<VehiculoConsulta, "usuarios"> & {
 };
 
 export default function VehiculosPage() {
+  const { perfil } = usePerfil();
   const [vehiculos, setVehiculos] = useState<Vehiculo[]>([]);
 
   const [busqueda, setBusqueda] = useState("");
@@ -65,6 +69,10 @@ export default function VehiculosPage() {
 
   const [vehiculoSeleccionado, setVehiculoSeleccionado] =
     useState<VehiculoEditable | null>(null);
+  const [vehiculoEliminar, setVehiculoEliminar] =
+    useState<Vehiculo | null>(null);
+  const [modalEliminarAbierto, setModalEliminarAbierto] =
+    useState(false);
 
   const [actualizacion, setActualizacion] = useState(0);
 
@@ -193,20 +201,33 @@ export default function VehiculosPage() {
     setVehiculoSeleccionado(null);
   }
 
+  function abrirModalEliminar(vehiculo: Vehiculo) {
+    setVehiculoEliminar(vehiculo);
+    setModalEliminarAbierto(true);
+  }
+
+  function cerrarModalEliminar() {
+    setModalEliminarAbierto(false);
+    setVehiculoEliminar(null);
+  }
+
+  const puedeEliminar =
+    perfil?.rol_id === 1 && perfil.estado === true;
+
   return (
     <MainLayout>
       <section>
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <p className="text-sm font-medium text-emerald-700">
+            <p className="text-sm font-medium text-primary">
               Control vehicular
             </p>
 
-            <h1 className="mt-1 text-3xl font-bold text-slate-900">
+            <h1 className="mt-1 text-3xl font-bold text-slate-900 dark:text-slate-100">
               Vehículos
             </h1>
 
-            <p className="mt-2 text-slate-600">
+            <p className="mt-2 text-slate-600 dark:text-slate-300">
               Consulta y administra los vehículos de estudiantes
               y profesores.
             </p>
@@ -215,18 +236,18 @@ export default function VehiculosPage() {
           <button
             type="button"
             onClick={() => setModalNuevoAbierto(true)}
-            className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-700 px-5 py-3 font-semibold text-white transition hover:bg-emerald-800 sm:w-auto"
+            className="inline-flex w-full items-center justify-center gap-2 rounded-xl btn-primary px-5 py-3 font-semibold text-white transition sm:w-auto"
           >
             <Plus size={20} />
             Nuevo vehículo
           </button>
         </div>
 
-        <div className="mt-8 rounded-2xl bg-white p-4 shadow-sm sm:p-6">
+        <div className="mt-8 rounded-2xl bg-white p-4 shadow-sm dark:border dark:border-slate-800 dark:bg-slate-900 sm:p-6">
           <div className="relative max-w-lg">
             <Search
               size={20}
-              className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500"
             />
 
             <input
@@ -236,7 +257,7 @@ export default function VehiculosPage() {
                 setBusqueda(event.target.value)
               }
               placeholder="Buscar por placa, propietario, DNI o código"
-              className="w-full rounded-xl border border-slate-300 py-3 pl-11 pr-4 outline-none transition focus:border-emerald-600 focus:ring-2 focus:ring-emerald-100"
+              className="w-full rounded-xl border border-slate-300 bg-white py-3 pl-11 pr-4 text-slate-900 outline-none transition placeholder:text-slate-400 focus-primary dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:placeholder:text-slate-500"
             />
           </div>
 
@@ -247,14 +268,14 @@ export default function VehiculosPage() {
           )}
 
           {cargando ? (
-            <p className="mt-8 text-slate-500">
+            <p className="mt-8 text-slate-500 dark:text-slate-400">
               Cargando vehículos...
             </p>
           ) : (
             <div className="mt-6 max-w-full overflow-x-auto">
               <table className="w-full min-w-[1050px] text-left">
                 <thead>
-                  <tr className="border-b border-slate-200 text-sm text-slate-500">
+                  <tr className="border-b border-slate-200 text-sm text-slate-500 dark:border-slate-700 dark:text-slate-300">
                     <th className="px-4 py-3 font-medium">
                       Vehículo
                     </th>
@@ -289,7 +310,7 @@ export default function VehiculosPage() {
                   {vehiculosFiltrados.map((vehiculo) => (
                     <tr
                       key={vehiculo.id}
-                      className="border-b border-slate-100 transition hover:bg-slate-50"
+                      className="border-b border-slate-100 transition hover:bg-slate-50 dark:border-slate-800 dark:hover:bg-slate-800"
                     >
                       <td className="px-4 py-4">
                         <div className="flex items-center gap-3">
@@ -299,18 +320,18 @@ export default function VehiculosPage() {
                               version={`${vehiculo.foto}-${actualizacion}`}
                             />
                           ) : (
-                            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-slate-100 text-slate-600">
+                            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300">
                               <Car size={22} />
                             </div>
                           )}
 
                           <div>
-                            <p className="font-semibold text-slate-900">
+                            <p className="font-semibold text-slate-900 dark:text-slate-100">
                               {vehiculo.marca ?? "Sin marca"}{" "}
                               {vehiculo.modelo ?? ""}
                             </p>
 
-                            <p className="text-sm text-slate-500">
+                            <p className="text-sm text-slate-500 dark:text-slate-400">
                               {vehiculo.anio ??
                                 "Año no registrado"}
                             </p>
@@ -321,31 +342,31 @@ export default function VehiculosPage() {
                       <td className="px-4 py-4">
                         {vehiculo.usuarios ? (
                           <>
-                            <p className="font-medium text-slate-800">
+                            <p className="font-medium text-slate-800 dark:text-slate-100">
                               {vehiculo.usuarios.nombres}{" "}
                               {vehiculo.usuarios.apellidos}
                             </p>
 
-                            <p className="text-sm text-slate-500">
+                            <p className="text-sm text-slate-500 dark:text-slate-400">
                               DNI: {vehiculo.usuarios.dni}
                             </p>
                           </>
                         ) : (
-                          <span className="text-slate-500">
+                          <span className="text-slate-500 dark:text-slate-400">
                             Sin propietario
                           </span>
                         )}
                       </td>
 
-                      <td className="px-4 py-4 font-semibold uppercase text-slate-900">
+                      <td className="px-4 py-4 font-semibold uppercase text-slate-900 dark:text-slate-100">
                         {vehiculo.placa}
                       </td>
 
-                      <td className="px-4 py-4 text-slate-700">
+                      <td className="px-4 py-4 text-slate-700 dark:text-slate-200">
                         {vehiculo.color}
                       </td>
 
-                      <td className="px-4 py-4 text-slate-700">
+                      <td className="px-4 py-4 text-slate-700 dark:text-slate-200">
                         {vehiculo.tipo}
                       </td>
 
@@ -353,8 +374,8 @@ export default function VehiculosPage() {
                         <span
                           className={
                             vehiculo.estado
-                              ? "rounded-full bg-emerald-100 px-3 py-1 text-sm font-medium text-emerald-700"
-                              : "rounded-full bg-red-100 px-3 py-1 text-sm font-medium text-red-700"
+                              ? "rounded-full bg-primary-soft px-3 py-1 text-sm font-medium text-primary"
+                              : "rounded-full bg-red-100 px-3 py-1 text-sm font-medium text-red-700 dark:bg-red-950/40 dark:text-red-300"
                           }
                         >
                           {vehiculo.estado
@@ -364,16 +385,31 @@ export default function VehiculosPage() {
                       </td>
 
                       <td className="px-4 py-4">
-                        <button
-                          type="button"
-                          onClick={() =>
-                            abrirModalEditar(vehiculo)
-                          }
-                          className="inline-flex items-center gap-2 rounded-lg border border-slate-300 px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-100"
-                        >
-                          <Pencil size={17} />
-                          Editar
-                        </button>
+                        <div className="flex flex-wrap gap-2">
+                          <button
+                            type="button"
+                            onClick={() =>
+                              abrirModalEditar(vehiculo)
+                            }
+                            className="inline-flex items-center gap-2 rounded-lg border border-slate-300 px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-100 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"
+                          >
+                            <Pencil size={17} />
+                            Editar
+                          </button>
+
+                          {puedeEliminar && (
+                            <button
+                              type="button"
+                              onClick={() =>
+                                abrirModalEliminar(vehiculo)
+                              }
+                              className="inline-flex items-center gap-2 rounded-lg border border-red-300 px-3 py-2 text-sm font-semibold text-red-700 transition hover:bg-red-50 dark:border-red-900/70 dark:text-red-300 dark:hover:bg-red-950/40"
+                            >
+                              <Trash2 size={17} />
+                              Eliminar
+                            </button>
+                          )}
+                        </div>
                       </td>
                     </tr>
                   ))}
@@ -384,10 +420,10 @@ export default function VehiculosPage() {
                 <div className="py-12 text-center">
                   <Car
                     size={38}
-                    className="mx-auto text-slate-300"
+                    className="mx-auto text-slate-300 dark:text-slate-600"
                   />
 
-                  <p className="mt-3 text-slate-500">
+                  <p className="mt-3 text-slate-500 dark:text-slate-400">
                     No se encontraron vehículos registrados.
                   </p>
                 </div>
@@ -410,6 +446,13 @@ export default function VehiculosPage() {
         vehiculo={vehiculoSeleccionado}
         onCerrar={cerrarModalEditar}
         onVehiculoActualizado={actualizarLista}
+      />
+
+      <EliminarVehiculoModal
+        abierto={modalEliminarAbierto}
+        vehiculo={vehiculoEliminar}
+        onCerrar={cerrarModalEliminar}
+        onVehiculoEliminado={actualizarLista}
       />
     </MainLayout>
   );

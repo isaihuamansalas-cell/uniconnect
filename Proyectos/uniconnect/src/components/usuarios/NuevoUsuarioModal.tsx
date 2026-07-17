@@ -198,7 +198,7 @@ export default function NuevoUsuarioModal({
                 onChange={(event) =>
                   actualizarCampo("rol_id", Number(event.target.value))
                 }
-                className="w-full rounded-xl border border-slate-300 px-4 py-3 outline-none transition focus:border-emerald-600 focus:ring-2 focus:ring-emerald-100"
+                className="w-full rounded-xl border border-slate-300 px-4 py-3 outline-none transition focus-primary"
               >
                 <option value={1}>Administrador</option>
                 <option value={2}>Director</option>
@@ -257,7 +257,7 @@ export default function NuevoUsuarioModal({
                 minLength={8}
                 required
                 placeholder="Mínimo 8 caracteres"
-                className="w-full rounded-xl border border-slate-300 px-4 py-3 pr-12 outline-none transition focus:border-emerald-600 focus:ring-2 focus:ring-emerald-100"
+                className="w-full rounded-xl border border-slate-300 px-4 py-3 pr-12 outline-none transition focus-primary"
               />
 
               <button
@@ -286,7 +286,7 @@ export default function NuevoUsuarioModal({
           )}
 
           {mensaje && (
-            <p className="rounded-xl bg-emerald-50 p-4 text-sm font-medium text-emerald-700">
+            <p className="rounded-xl bg-primary-soft p-4 text-sm font-medium text-primary">
               {mensaje}
             </p>
           )}
@@ -304,7 +304,7 @@ export default function NuevoUsuarioModal({
             <button
               type="submit"
               disabled={guardando}
-              className="inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-700 px-5 py-3 font-semibold text-white transition hover:bg-emerald-800 disabled:cursor-not-allowed disabled:opacity-60"
+              className="inline-flex items-center justify-center gap-2 rounded-xl btn-primary px-5 py-3 font-semibold text-white transition disabled:cursor-not-allowed disabled:opacity-60"
             >
               {guardando && (
                 <LoaderCircle size={20} className="animate-spin" />
@@ -351,7 +351,7 @@ function Campo({
         placeholder={placeholder}
         inputMode={inputMode}
         required={requerido}
-        className="w-full rounded-xl border border-slate-300 px-4 py-3 outline-none transition focus:border-emerald-600 focus:ring-2 focus:ring-emerald-100"
+        className="w-full rounded-xl border border-slate-300 px-4 py-3 outline-none transition focus-primary"
       />
     </div>
   );

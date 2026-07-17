@@ -212,6 +212,10 @@ Modo oscuro global implementado con preferencia persistida, respeto de prefers-c
 
 Contraste del Login corregido para etiquetas, texto de inputs, placeholders, bordes, foco emerald y mensajes de error
 
+Colores institucionales dinamicos implementados con variables CSS desde ConfiguracionProvider, aplicados a botones, Sidebar, focos, enlaces activos, iconos y graficos
+
+Eliminacion definitiva segura de Usuarios y Vehiculos implementada con bloqueo por relaciones, confirmacion estricta, auditoria y limpieza controlada de Storage/Auth
+
 ---
 
 ## Pendiente

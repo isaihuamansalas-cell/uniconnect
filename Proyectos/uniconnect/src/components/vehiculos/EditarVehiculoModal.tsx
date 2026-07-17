@@ -418,8 +418,8 @@ export default function EditarVehiculoModal({
         </div>
 
         {vehiculo?.foto && !vistaPrevia && (
-          <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
-            <p className="mb-3 text-sm font-medium text-slate-700">
+          <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-900">
+            <p className="mb-3 text-sm font-medium text-slate-700 dark:text-slate-300">
               Foto actual
             </p>
 
@@ -427,7 +427,7 @@ export default function EditarVehiculoModal({
               vehiculoId={vehiculo.id}
               version={vehiculo.foto}
               className="h-44 w-full rounded-xl object-cover"
-              fallbackClassName="flex h-44 w-full items-center justify-center rounded-xl bg-slate-100 text-slate-500"
+              fallbackClassName="flex h-44 w-full items-center justify-center rounded-xl bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400"
               iconSize={34}
             />
           </div>
@@ -443,8 +443,8 @@ export default function EditarVehiculoModal({
         </FormField>
 
         {vistaPrevia && (
-          <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
-            <p className="mb-3 text-sm font-medium text-slate-700">
+          <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-900">
+            <p className="mb-3 text-sm font-medium text-slate-700 dark:text-slate-300">
               Vista previa
             </p>
 
@@ -466,17 +466,17 @@ export default function EditarVehiculoModal({
         )}
 
         {mensaje && (
-          <p className="rounded-xl bg-emerald-50 p-4 text-sm font-medium text-emerald-700">
+          <p className="rounded-xl bg-primary-soft p-4 text-sm font-medium text-primary">
             {mensaje}
           </p>
         )}
 
-        <div className="flex flex-col-reverse gap-3 border-t border-slate-200 pt-5 sm:flex-row sm:justify-end">
+        <div className="flex flex-col-reverse gap-3 border-t border-slate-200 pt-5 dark:border-slate-700 sm:flex-row sm:justify-end">
           <button
             type="button"
             onClick={onCerrar}
             disabled={guardando}
-            className="rounded-xl border border-slate-300 px-5 py-3 font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-50"
+            className="rounded-xl border border-slate-300 px-5 py-3 font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-50 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"
           >
             Cancelar
           </button>
@@ -484,7 +484,7 @@ export default function EditarVehiculoModal({
           <button
             type="submit"
             disabled={guardando || cargandoPropietarios}
-            className="inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-700 px-5 py-3 font-semibold text-white hover:bg-emerald-800 disabled:opacity-60"
+            className="inline-flex items-center justify-center gap-2 rounded-xl btn-primary px-5 py-3 font-semibold text-white disabled:opacity-60"
           >
             {guardando && (
               <LoaderCircle size={20} className="animate-spin" />

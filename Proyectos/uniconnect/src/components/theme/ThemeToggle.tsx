@@ -44,7 +44,7 @@ export default function ThemeToggle() {
         esOscuro ? "Cambiar a modo claro" : "Cambiar a modo oscuro"
       }
       title={esOscuro ? "Modo claro" : "Modo oscuro"}
-      className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-slate-300 bg-white text-slate-700 transition hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-200 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
+      className="focus-primary inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-slate-300 bg-white text-slate-700 transition hover:bg-slate-100 focus:outline-none dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
     >
       <Icono size={20} />
     </button>

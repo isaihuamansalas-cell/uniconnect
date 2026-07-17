@@ -72,7 +72,7 @@ export default function RecuperarPasswordPage() {
           />
         )}
 
-        <h1 className="mb-2 text-center text-3xl font-bold text-green-700 dark:text-emerald-400">
+        <h1 className="mb-2 text-center text-3xl font-bold text-primary">
           Recuperar contrasena
         </h1>
 
@@ -104,7 +104,7 @@ export default function RecuperarPasswordPage() {
           )}
 
           {mensaje && (
-            <p className="rounded-lg bg-emerald-50 p-3 text-sm font-medium text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300">
+            <p className="rounded-lg bg-primary-soft p-3 text-sm font-medium text-primary">
               {mensaje}
             </p>
           )}
@@ -112,7 +112,7 @@ export default function RecuperarPasswordPage() {
           <button
             type="submit"
             disabled={enviando}
-            className="w-full rounded-lg bg-green-700 p-3 font-semibold text-white hover:bg-green-800 disabled:cursor-not-allowed disabled:opacity-70"
+            className="btn-primary w-full rounded-lg p-3 font-semibold disabled:cursor-not-allowed disabled:opacity-70"
           >
             {enviando ? "Enviando..." : "Enviar enlace"}
           </button>
@@ -120,7 +120,7 @@ export default function RecuperarPasswordPage() {
           <div className="text-center">
             <Link
               href="/login"
-              className="text-sm font-medium text-emerald-700 transition hover:text-emerald-800 hover:underline dark:text-emerald-400 dark:hover:text-emerald-300"
+              className="text-primary text-sm font-medium transition hover:underline"
             >
               Volver al login
             </Link>

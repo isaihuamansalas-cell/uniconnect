@@ -231,7 +231,7 @@ export default function EmprendimientosPage() {
       <section>
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <p className="text-sm font-medium text-emerald-700">
+            <p className="text-sm font-medium text-primary">
               Comunidad emprendedora
             </p>
 
@@ -249,7 +249,7 @@ export default function EmprendimientosPage() {
             <button
               type="button"
               onClick={() => setModalNuevoAbierto(true)}
-              className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-700 px-5 py-3 font-semibold text-white transition hover:bg-emerald-800 sm:w-auto"
+              className="inline-flex w-full items-center justify-center gap-2 rounded-xl btn-primary px-5 py-3 font-semibold text-white transition sm:w-auto"
             >
               <Plus size={20} />
               Nuevo emprendimiento
@@ -304,7 +304,7 @@ export default function EmprendimientosPage() {
                     (emprendimiento) => (
                       <article
                         key={emprendimiento.id}
-                        className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:border-emerald-200 hover:shadow-md"
+                        className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:border-primary hover:shadow-md"
                       >
                         <div className="aspect-[16/10] bg-slate-100">
                           {emprendimiento.foto ? (
@@ -336,7 +336,7 @@ export default function EmprendimientosPage() {
                             <span
                               className={
                                 emprendimiento.estado
-                                  ? "shrink-0 rounded-full bg-emerald-100 px-3 py-1 text-sm font-medium text-emerald-700"
+                                  ? "shrink-0 rounded-full bg-primary-soft px-3 py-1 text-sm font-medium text-primary"
                                   : "shrink-0 rounded-full bg-red-100 px-3 py-1 text-sm font-medium text-red-700"
                               }
                             >

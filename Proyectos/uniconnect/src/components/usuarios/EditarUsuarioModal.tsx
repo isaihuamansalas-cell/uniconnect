@@ -242,7 +242,7 @@ export default function EditarUsuarioModal({
         )}
 
         {mensaje && (
-          <p className="rounded-xl bg-emerald-50 p-4 text-sm font-medium text-emerald-700">
+          <p className="rounded-xl bg-primary-soft p-4 text-sm font-medium text-primary">
             {mensaje}
           </p>
         )}
@@ -260,7 +260,7 @@ export default function EditarUsuarioModal({
           <button
             type="submit"
             disabled={guardando}
-            className="inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-700 px-5 py-3 font-semibold text-white hover:bg-emerald-800 disabled:opacity-60"
+            className="inline-flex items-center justify-center gap-2 rounded-xl btn-primary px-5 py-3 font-semibold text-white disabled:opacity-60"
           >
             {guardando && (
               <LoaderCircle size={20} className="animate-spin" />

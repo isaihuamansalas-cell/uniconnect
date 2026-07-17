@@ -39,6 +39,8 @@ type VehiculoAnterior = {
   created_at: string;
 };
 
+type VehiculoEliminable = VehiculoAnterior;
+
 async function obtenerUsuarioAutenticado(request: Request) {
   const authorization = request.headers.get("authorization");
 
@@ -282,6 +284,165 @@ export async function PATCH(
     });
   } catch (error) {
     console.error("Error al actualizar vehiculo:", error);
+
+    return NextResponse.json(
+      { error: "Ocurrio un error interno." },
+      { status: 500 }
+    );
+  }
+}
+
+export async function DELETE(
+  request: Request,
+  contexto: ContextoRuta
+) {
+  try {
+    const usuarioAutenticado =
+      await obtenerUsuarioAutenticado(request);
+
+    if (!usuarioAutenticado) {
+      return NextResponse.json(
+        { error: "La sesion no es valida o ha vencido." },
+        { status: 401 }
+      );
+    }
+
+    const { data: administrador, error: errorAdministrador } =
+      await supabaseAdmin
+        .from("usuarios")
+        .select("id, rol_id, estado")
+        .eq("id", usuarioAutenticado.id)
+        .eq("rol_id", 1)
+        .eq("estado", true)
+        .maybeSingle();
+
+    if (errorAdministrador || !administrador) {
+      return NextResponse.json(
+        { error: "No tienes permiso para eliminar vehiculos." },
+        { status: 403 }
+      );
+    }
+
+    const { id } = await contexto.params;
+    const vehiculoId = Number(id);
+
+    if (!Number.isInteger(vehiculoId) || vehiculoId <= 0) {
+      return NextResponse.json(
+        { error: "El vehiculo no es valido." },
+        { status: 400 }
+      );
+    }
+
+    const { data: vehiculo, error: errorVehiculo } =
+      await supabaseAdmin
+        .from("vehiculos")
+        .select(
+          "id, usuario_id, placa, marca, modelo, color, tipo, anio, foto, estado, created_at"
+        )
+        .eq("id", vehiculoId)
+        .maybeSingle();
+
+    if (errorVehiculo) {
+      return NextResponse.json(
+        { error: "No se pudo validar el vehiculo." },
+        { status: 400 }
+      );
+    }
+
+    if (!vehiculo) {
+      return NextResponse.json(
+        { error: "El vehiculo no existe." },
+        { status: 404 }
+      );
+    }
+
+    const { count: salidasRelacionadas, error: errorSalidas } =
+      await supabaseAdmin
+        .from("salidas")
+        .select("id", { count: "exact", head: true })
+        .eq("vehiculo_id", vehiculoId);
+
+    if (errorSalidas) {
+      return NextResponse.json(
+        { error: "No se pudo validar el historial del vehiculo." },
+        { status: 400 }
+      );
+    }
+
+    if ((salidasRelacionadas ?? 0) > 0) {
+      return NextResponse.json(
+        {
+          error:
+            "Este vehiculo tiene salidas registradas y no puede eliminarse definitivamente. Debe desactivarse para conservar el historial.",
+          relaciones: [
+            {
+              tabla: "salidas",
+              descripcion: "salidas registradas",
+              cantidad: salidasRelacionadas ?? 0,
+            },
+          ],
+        },
+        { status: 409 }
+      );
+    }
+
+    const vehiculoEliminable = vehiculo as VehiculoEliminable;
+
+    const { error: errorEliminacion } = await supabaseAdmin
+      .from("vehiculos")
+      .delete()
+      .eq("id", vehiculoId);
+
+    if (errorEliminacion) {
+      return NextResponse.json(
+        {
+          error: `No se pudo eliminar el vehiculo: ${errorEliminacion.message}`,
+        },
+        { status: 400 }
+      );
+    }
+
+    await registrarAuditoria({
+      usuario_id: administrador.id,
+      accion: "eliminar",
+      modulo: "vehiculos",
+      entidad_tipo: "vehiculo",
+      entidad_id: String(vehiculoId),
+      descripcion: "Elimino definitivamente un vehiculo.",
+      datos_anteriores: {
+        id: vehiculoEliminable.id,
+        usuario_id: vehiculoEliminable.usuario_id,
+        placa: vehiculoEliminable.placa,
+        marca: vehiculoEliminable.marca,
+        modelo: vehiculoEliminable.modelo,
+        color: vehiculoEliminable.color,
+        tipo: vehiculoEliminable.tipo,
+        anio: vehiculoEliminable.anio,
+        estado: vehiculoEliminable.estado,
+        tenia_foto: Boolean(vehiculoEliminable.foto),
+      },
+      ip: obtenerIp(request),
+      user_agent: obtenerUserAgent(request),
+    });
+
+    if (vehiculoEliminable.foto) {
+      const { error: errorFoto } = await supabaseAdmin.storage
+        .from("vehiculos")
+        .remove([vehiculoEliminable.foto]);
+
+      if (errorFoto) {
+        console.error(
+          "No se pudo eliminar la foto del vehiculo:",
+          errorFoto.message
+        );
+      }
+    }
+
+    return NextResponse.json({
+      mensaje: "Vehiculo eliminado definitivamente.",
+    });
+  } catch (error) {
+    console.error("Error al eliminar vehiculo:", error);
 
     return NextResponse.json(
       { error: "Ocurrio un error interno." },

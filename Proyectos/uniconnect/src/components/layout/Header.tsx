@@ -86,7 +86,7 @@ export default function Header({ onMenuClick }: HeaderProps) {
             )}
           </div>
 
-          <span className="hidden rounded-lg border border-slate-200 px-3 py-2 text-sm font-semibold text-slate-700 transition hover:border-emerald-200 hover:text-emerald-700 dark:border-slate-700 dark:text-slate-200 dark:hover:border-emerald-500 dark:hover:text-emerald-300 md:inline">
+          <span className="hidden rounded-lg border border-slate-200 px-3 py-2 text-sm font-semibold text-slate-700 transition hover:border-primary hover:text-primary dark:border-slate-700 dark:text-slate-200 md:inline">
             Mi perfil
           </span>
         </Link>
@@ -164,7 +164,7 @@ function FotoPerfilHeader({
 
   if (!fotoUrl) {
     return (
-      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-emerald-700">
+      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary-soft text-primary">
         <UserRound size={21} />
       </div>
     );

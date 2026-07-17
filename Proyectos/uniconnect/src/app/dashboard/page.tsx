@@ -143,7 +143,7 @@ export default function DashboardPage() {
       <section className="w-full min-w-0 max-w-full overflow-hidden space-y-8">
         <div className="flex min-w-0 max-w-full flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div className="min-w-0">
-            <p className="text-sm font-medium text-emerald-700 dark:text-emerald-400">
+            <p className="text-primary text-sm font-medium">
               {perfil ? nombresRoles[perfil.rol_id] : ""}
             </p>
 

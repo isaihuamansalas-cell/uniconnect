@@ -431,7 +431,7 @@ export default function NuevoVehiculoModal({
 
         {!cargandoPropietarios &&
           propietarios.length === 0 && (
-            <p className="rounded-xl bg-amber-50 p-4 text-sm text-amber-800">
+            <p className="rounded-xl bg-amber-50 p-4 text-sm text-amber-800 dark:bg-amber-950/40 dark:text-amber-200">
               No existen profesores o estudiantes activos.
               Primero crea uno desde el módulo Usuarios.
             </p>
@@ -531,8 +531,8 @@ export default function NuevoVehiculoModal({
         </FormField>
 
         {vistaPrevia && (
-          <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
-            <p className="mb-3 text-sm font-medium text-slate-700">
+          <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-900">
+            <p className="mb-3 text-sm font-medium text-slate-700 dark:text-slate-300">
               Vista previa
             </p>
 
@@ -554,17 +554,17 @@ export default function NuevoVehiculoModal({
         )}
 
         {mensaje && (
-          <p className="rounded-xl bg-emerald-50 p-4 text-sm font-medium text-emerald-700">
+          <p className="rounded-xl bg-primary-soft p-4 text-sm font-medium text-primary">
             {mensaje}
           </p>
         )}
 
-        <div className="flex flex-col-reverse gap-3 border-t border-slate-200 pt-5 sm:flex-row sm:justify-end">
+        <div className="flex flex-col-reverse gap-3 border-t border-slate-200 pt-5 dark:border-slate-700 sm:flex-row sm:justify-end">
           <button
             type="button"
             onClick={cerrarModal}
             disabled={guardando}
-            className="rounded-xl border border-slate-300 px-5 py-3 font-semibold text-slate-700 transition hover:bg-slate-50 disabled:opacity-50"
+            className="rounded-xl border border-slate-300 px-5 py-3 font-semibold text-slate-700 transition hover:bg-slate-50 disabled:opacity-50 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"
           >
             Cancelar
           </button>
@@ -576,7 +576,7 @@ export default function NuevoVehiculoModal({
               cargandoPropietarios ||
               propietarios.length === 0
             }
-            className="inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-700 px-5 py-3 font-semibold text-white transition hover:bg-emerald-800 disabled:cursor-not-allowed disabled:opacity-60"
+            className="inline-flex items-center justify-center gap-2 rounded-xl btn-primary px-5 py-3 font-semibold text-white transition disabled:cursor-not-allowed disabled:opacity-60"
           >
             {guardando ? (
               <LoaderCircle

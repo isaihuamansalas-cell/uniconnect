@@ -55,7 +55,7 @@ export default function GraficoBarras({
                     width={barWidth}
                     height={barHeight}
                     rx={6}
-                    className="fill-emerald-600"
+                    className="fill-primary"
                   />
                   <text
                     x={x + barWidth / 2}
