@@ -196,7 +196,7 @@ export default function NotificacionesPanel({
         aria-haspopup="dialog"
         aria-expanded={abierto}
         onClick={() => setAbierto((valor) => !valor)}
-        className="relative rounded-lg p-2 text-slate-600 transition hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-200"
+        className="relative rounded-lg p-2 text-slate-600 transition hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-200 dark:text-slate-200 dark:hover:bg-slate-800 dark:focus:ring-emerald-500/25"
       >
         <Bell size={21} />
         {noLeidas > 0 && (
@@ -210,14 +210,14 @@ export default function NotificacionesPanel({
         <div
           role="dialog"
           aria-label="Centro de notificaciones"
-          className="fixed inset-x-3 top-20 z-50 max-h-[75vh] overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl sm:absolute sm:inset-auto sm:right-0 sm:top-12 sm:w-96"
+          className="fixed inset-x-3 top-20 z-50 max-h-[75vh] overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl dark:border-slate-800 dark:bg-slate-900 sm:absolute sm:inset-auto sm:right-0 sm:top-12 sm:w-96"
         >
-          <div className="flex items-center justify-between gap-3 border-b border-slate-200 px-4 py-3">
+          <div className="flex items-center justify-between gap-3 border-b border-slate-200 px-4 py-3 dark:border-slate-800">
             <div>
-              <h2 className="font-bold text-slate-900">
+              <h2 className="font-bold text-slate-900 dark:text-slate-100">
                 Notificaciones
               </h2>
-              <p className="text-xs text-slate-500">
+              <p className="text-xs text-slate-500 dark:text-slate-400">
                 {noLeidas} sin leer
               </p>
             </div>
@@ -226,7 +226,7 @@ export default function NotificacionesPanel({
               type="button"
               onClick={marcarTodas}
               disabled={actualizando || noLeidas === 0}
-              className="inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold text-emerald-700 transition hover:bg-emerald-50 disabled:cursor-not-allowed disabled:opacity-50"
+              className="inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold text-emerald-700 transition hover:bg-emerald-50 disabled:cursor-not-allowed disabled:opacity-50 dark:text-emerald-400 dark:hover:bg-emerald-950/40"
             >
               <CheckCheck size={17} />
               Marcar todas
@@ -235,37 +235,37 @@ export default function NotificacionesPanel({
 
           <div className="max-h-[calc(75vh-72px)] overflow-y-auto">
             {error && (
-              <p className="m-4 rounded-xl bg-red-50 p-3 text-sm font-medium text-red-700">
+              <p className="m-4 rounded-xl bg-red-50 p-3 text-sm font-medium text-red-700 dark:bg-red-950/40 dark:text-red-300">
                 {error}
               </p>
             )}
 
             {!error && cargando && notificaciones.length === 0 && (
-              <p className="p-6 text-center text-sm text-slate-500">
+              <p className="p-6 text-center text-sm text-slate-500 dark:text-slate-400">
                 Cargando notificaciones...
               </p>
             )}
 
             {!error && !cargando && notificaciones.length === 0 && (
-              <p className="p-6 text-center text-sm text-slate-500">
+              <p className="p-6 text-center text-sm text-slate-500 dark:text-slate-400">
                 No tienes notificaciones.
               </p>
             )}
 
-            <div className="divide-y divide-slate-100">
+            <div className="divide-y divide-slate-100 dark:divide-slate-800">
               {notificaciones.map((notificacion) => (
                 <button
                   key={notificacion.id}
                   type="button"
                   onClick={() => void marcarUna(notificacion)}
                   disabled={actualizando}
-                  className="flex w-full gap-3 px-4 py-4 text-left transition hover:bg-slate-50 focus:bg-slate-50 focus:outline-none disabled:cursor-wait"
+                  className="flex w-full gap-3 px-4 py-4 text-left transition hover:bg-slate-50 focus:bg-slate-50 focus:outline-none disabled:cursor-wait dark:hover:bg-slate-800 dark:focus:bg-slate-800"
                 >
                   <span
                     className={
                       notificacion.leida
-                        ? "mt-1 text-slate-300"
-                        : "mt-1 text-emerald-600"
+                        ? "mt-1 text-slate-300 dark:text-slate-600"
+                        : "mt-1 text-emerald-600 dark:text-emerald-400"
                     }
                     aria-hidden="true"
                   >
@@ -281,19 +281,19 @@ export default function NotificacionesPanel({
 
                   <span className="min-w-0 flex-1">
                     <span className="flex items-center justify-between gap-3">
-                      <span className="truncate text-sm font-semibold text-slate-900">
+                      <span className="truncate text-sm font-semibold text-slate-900 dark:text-slate-100">
                         {notificacion.titulo}
                       </span>
-                      <span className="shrink-0 rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-semibold uppercase text-slate-600">
+                      <span className="shrink-0 rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-semibold uppercase text-slate-600 dark:bg-slate-800 dark:text-slate-300">
                         {notificacion.tipo}
                       </span>
                     </span>
 
-                    <span className="mt-1 block text-sm text-slate-600">
+                    <span className="mt-1 block text-sm text-slate-600 dark:text-slate-300">
                       {notificacion.mensaje}
                     </span>
 
-                    <span className="mt-2 block text-xs text-slate-400">
+                    <span className="mt-2 block text-xs text-slate-400 dark:text-slate-500">
                       {formatearFecha(notificacion.created_at)}
                       {" · "}
                       {notificacion.leida ? "Leida" : "No leida"}

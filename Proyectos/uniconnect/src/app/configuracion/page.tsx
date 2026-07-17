@@ -331,8 +331,8 @@ export default function ConfiguracionPage() {
 
   if (cargandoPerfil) {
     return (
-      <main className="flex min-h-screen items-center justify-center bg-slate-100">
-        <div className="flex items-center gap-3 text-slate-600">
+      <main className="flex min-h-screen items-center justify-center bg-slate-100 dark:bg-slate-950">
+        <div className="flex items-center gap-3 text-slate-600 dark:text-slate-300">
           <LoaderCircle size={22} className="animate-spin" />
           Cargando configuracion...
         </div>
@@ -345,22 +345,22 @@ export default function ConfiguracionPage() {
       <section>
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <p className="text-sm font-medium text-emerald-700">
+            <p className="text-sm font-medium text-emerald-700 dark:text-emerald-400">
               Administracion
             </p>
 
-            <h1 className="mt-1 text-3xl font-bold text-slate-900">
+            <h1 className="mt-1 text-3xl font-bold text-slate-900 dark:text-slate-100">
               Configuracion
             </h1>
 
-            <p className="mt-2 text-slate-600">
+            <p className="mt-2 text-slate-600 dark:text-slate-300">
               Administra la identidad institucional del sistema.
             </p>
           </div>
         </div>
 
         {!esAdministrador && (
-          <div className="mt-8 flex items-start gap-3 rounded-2xl bg-amber-50 p-5 text-amber-800">
+          <div className="mt-8 flex items-start gap-3 rounded-2xl bg-amber-50 p-5 text-amber-800 dark:bg-amber-950/40 dark:text-amber-200">
             <ShieldAlert size={22} className="mt-0.5 shrink-0" />
             <div>
               <p className="font-semibold">Solo lectura</p>
@@ -373,34 +373,34 @@ export default function ConfiguracionPage() {
         )}
 
         {error && (
-          <p className="mt-6 rounded-xl bg-red-50 p-4 text-sm font-medium text-red-700">
+          <p className="mt-6 rounded-xl bg-red-50 p-4 text-sm font-medium text-red-700 dark:bg-red-950/40 dark:text-red-300">
             {error}
           </p>
         )}
 
         {mensaje && (
-          <p className="mt-6 rounded-xl bg-emerald-50 p-4 text-sm font-medium text-emerald-700">
+          <p className="mt-6 rounded-xl bg-emerald-50 p-4 text-sm font-medium text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300">
             {mensaje}
           </p>
         )}
 
         <div className="mt-8 grid gap-6 xl:grid-cols-[360px_1fr]">
-          <div className="rounded-2xl bg-white p-4 shadow-sm sm:p-6">
+          <div className="rounded-2xl bg-white p-4 shadow-sm dark:border dark:border-slate-800 dark:bg-slate-900 sm:p-6">
             <div className="flex items-center gap-3">
-              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-emerald-100 text-emerald-700">
+              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-emerald-100 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300">
                 <Building2 size={22} />
               </div>
               <div>
-                <h2 className="font-bold text-slate-900">
+                <h2 className="font-bold text-slate-900 dark:text-slate-100">
                   Logo institucional
                 </h2>
-                <p className="text-sm text-slate-500">
+                <p className="text-sm text-slate-500 dark:text-slate-400">
                   JPG, PNG, WEBP o SVG. Maximo 2 MB.
                 </p>
               </div>
             </div>
 
-            <div className="mt-6 flex h-44 items-center justify-center rounded-2xl border border-slate-200 bg-slate-50">
+            <div className="mt-6 flex h-44 items-center justify-center rounded-2xl border border-slate-200 bg-slate-50 dark:border-slate-800 dark:bg-slate-800">
               {vistaPreviaLogo || logoUrl ? (
                 <Image
                   src={vistaPreviaLogo ?? logoUrl ?? ""}
@@ -411,7 +411,7 @@ export default function ConfiguracionPage() {
                   className="max-h-36 w-auto object-contain"
                 />
               ) : (
-                <div className="text-center text-slate-400">
+                <div className="text-center text-slate-400 dark:text-slate-500">
                   <ImageUp size={34} className="mx-auto" />
                   <p className="mt-2 text-sm">Sin logo cargado</p>
                 </div>
@@ -422,7 +422,7 @@ export default function ConfiguracionPage() {
               className={
                 esAdministrador
                   ? "mt-5 inline-flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-emerald-700 px-5 py-3 font-semibold text-white transition hover:bg-emerald-800"
-                  : "mt-5 inline-flex w-full cursor-not-allowed items-center justify-center gap-2 rounded-xl bg-slate-300 px-5 py-3 font-semibold text-white"
+                  : "mt-5 inline-flex w-full cursor-not-allowed items-center justify-center gap-2 rounded-xl bg-slate-300 px-5 py-3 font-semibold text-white dark:bg-slate-700 dark:text-slate-300"
               }
             >
               {subiendoLogo ? (
@@ -443,17 +443,17 @@ export default function ConfiguracionPage() {
 
           <form
             onSubmit={guardarConfiguracion}
-            className="rounded-2xl bg-white p-4 shadow-sm sm:p-6"
+            className="rounded-2xl bg-white p-4 shadow-sm dark:border dark:border-slate-800 dark:bg-slate-900 sm:p-6"
           >
             <div className="flex items-center gap-3">
-              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-emerald-100 text-emerald-700">
+              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-emerald-100 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300">
                 <Palette size={22} />
               </div>
               <div>
-                <h2 className="font-bold text-slate-900">
+                <h2 className="font-bold text-slate-900 dark:text-slate-100">
                   Datos generales
                 </h2>
-                <p className="text-sm text-slate-500">
+                <p className="text-sm text-slate-500 dark:text-slate-400">
                   Estos datos se muestran en Login, Header, Sidebar y
                   Reportes.
                 </p>

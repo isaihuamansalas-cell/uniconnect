@@ -115,8 +115,8 @@ export default function RestablecerPasswordPage() {
   }
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-slate-100 p-4">
-      <div className="w-full max-w-md rounded-xl bg-white p-8 shadow-xl">
+    <main className="flex min-h-screen items-center justify-center bg-slate-100 p-4 dark:bg-slate-950">
+      <div className="w-full max-w-md rounded-xl border border-slate-200 bg-white p-8 shadow-xl dark:border-slate-800 dark:bg-slate-900">
         {logoUrl && (
           <Image
             src={logoUrl}
@@ -128,16 +128,16 @@ export default function RestablecerPasswordPage() {
           />
         )}
 
-        <h1 className="mb-2 text-center text-3xl font-bold text-green-700">
+        <h1 className="mb-2 text-center text-3xl font-bold text-green-700 dark:text-emerald-400">
           Restablecer contrasena
         </h1>
 
-        <p className="mb-8 text-center text-gray-500">
+        <p className="mb-8 text-center text-gray-500 dark:text-slate-400">
           {configuracion.nombre_institucion}
         </p>
 
         {verificandoSesion ? (
-          <p className="rounded-lg bg-slate-50 p-3 text-center text-sm font-medium text-slate-600">
+          <p className="rounded-lg bg-slate-50 p-3 text-center text-sm font-medium text-slate-600 dark:bg-slate-800 dark:text-slate-300">
             Verificando enlace de recuperacion...
           </p>
         ) : (
@@ -170,20 +170,20 @@ export default function RestablecerPasswordPage() {
             </FormField>
 
             {!sesionRecuperacionLista && (
-              <p className="rounded-lg bg-amber-50 p-3 text-sm font-medium text-amber-700">
+              <p className="rounded-lg bg-amber-50 p-3 text-sm font-medium text-amber-700 dark:bg-amber-950/40 dark:text-amber-200">
                 El enlace de recuperacion no es valido o ya expiro.
                 Solicita uno nuevo.
               </p>
             )}
 
             {error && (
-              <p className="rounded-lg bg-red-50 p-3 text-sm font-medium text-red-700">
+              <p className="rounded-lg bg-red-50 p-3 text-sm font-medium text-red-700 dark:bg-red-950/40 dark:text-red-300">
                 {error}
               </p>
             )}
 
             {mensaje && (
-              <p className="rounded-lg bg-emerald-50 p-3 text-sm font-medium text-emerald-700">
+              <p className="rounded-lg bg-emerald-50 p-3 text-sm font-medium text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300">
                 {mensaje}
               </p>
             )}
@@ -201,14 +201,14 @@ export default function RestablecerPasswordPage() {
             <div className="flex flex-col items-center gap-2 text-center">
               <Link
                 href="/recuperar-password"
-                className="text-sm font-medium text-emerald-700 transition hover:text-emerald-800 hover:underline"
+                className="text-sm font-medium text-emerald-700 transition hover:text-emerald-800 hover:underline dark:text-emerald-400 dark:hover:text-emerald-300"
               >
                 Solicitar un nuevo enlace
               </Link>
 
               <Link
                 href="/login"
-                className="text-sm font-medium text-slate-600 transition hover:text-slate-800 hover:underline"
+                className="text-sm font-medium text-slate-600 transition hover:text-slate-800 hover:underline dark:text-slate-300 dark:hover:text-slate-100"
               >
                 Volver al login
               </Link>

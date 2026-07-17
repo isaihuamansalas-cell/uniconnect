@@ -10,12 +10,12 @@ export default function StatCard({
   icon,
 }: StatCardProps) {
   return (
-    <div className="rounded-2xl bg-white p-4 shadow-md transition hover:shadow-xl sm:p-6">
+    <div className="rounded-2xl bg-white p-4 text-slate-900 shadow-md transition hover:shadow-xl dark:border dark:border-slate-800 dark:bg-slate-900 dark:text-slate-100 sm:p-6">
       <div className="flex items-center justify-between">
 
         <div>
 
-          <p className="text-sm text-slate-500">
+          <p className="text-sm text-slate-500 dark:text-slate-400">
             {title}
           </p>
 

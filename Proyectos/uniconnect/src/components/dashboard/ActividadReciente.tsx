@@ -24,35 +24,35 @@ export default function ActividadReciente({
   actividades,
 }: ActividadRecienteProps) {
   return (
-    <section className="w-full min-w-0 max-w-full overflow-hidden rounded-2xl bg-white p-4 shadow-sm sm:p-5">
-      <h2 className="text-lg font-bold text-slate-900">{titulo}</h2>
+    <section className="w-full min-w-0 max-w-full overflow-hidden rounded-2xl bg-white p-4 shadow-sm dark:border dark:border-slate-800 dark:bg-slate-900 sm:p-5">
+      <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100">{titulo}</h2>
 
       {actividades.length === 0 ? (
-        <p className="mt-6 rounded-xl bg-slate-50 p-5 text-center text-sm text-slate-500">
+        <p className="mt-6 rounded-xl bg-slate-50 p-5 text-center text-sm text-slate-500 dark:bg-slate-800 dark:text-slate-400">
           No hay actividad reciente.
         </p>
       ) : (
-        <div className="mt-4 min-w-0 max-w-full divide-y divide-slate-100">
+        <div className="mt-4 min-w-0 max-w-full divide-y divide-slate-100 dark:divide-slate-800">
           {actividades.map((actividad) => (
             <Link
               key={`${actividad.tipo}-${actividad.id}`}
               href={actividad.ruta}
-              className="block min-w-0 max-w-full py-4 transition hover:bg-slate-50"
+              className="block min-w-0 max-w-full py-4 transition hover:bg-slate-50 dark:hover:bg-slate-800"
             >
               <div className="flex min-w-0 items-start justify-between gap-3">
                 <div className="min-w-0">
-                  <p className="truncate font-semibold text-slate-900">
+                  <p className="truncate font-semibold text-slate-900 dark:text-slate-100">
                     {actividad.titulo}
                   </p>
-                  <p className="mt-1 break-words text-sm text-slate-500">
+                  <p className="mt-1 break-words text-sm text-slate-500 dark:text-slate-400">
                     {actividad.descripcion}
                   </p>
                 </div>
-                <span className="shrink-0 rounded-full bg-slate-100 px-2 py-1 text-xs font-semibold text-slate-600">
+                <span className="shrink-0 rounded-full bg-slate-100 px-2 py-1 text-xs font-semibold text-slate-600 dark:bg-slate-800 dark:text-slate-300">
                   {actividad.tipo}
                 </span>
               </div>
-              <p className="mt-2 text-xs text-slate-400">
+              <p className="mt-2 text-xs text-slate-400 dark:text-slate-500">
                 {formatoFecha.format(new Date(actividad.fecha))}
               </p>
             </Link>

@@ -130,8 +130,8 @@ export default function DashboardPage() {
 
   if (cargandoPerfil) {
     return (
-      <main className="flex min-h-screen items-center justify-center bg-slate-100 p-4">
-        <p className="font-medium text-slate-600">
+      <main className="flex min-h-screen items-center justify-center bg-slate-100 p-4 dark:bg-slate-950">
+        <p className="font-medium text-slate-600 dark:text-slate-300">
           Cargando tu perfil...
         </p>
       </main>
@@ -143,15 +143,15 @@ export default function DashboardPage() {
       <section className="w-full min-w-0 max-w-full overflow-hidden space-y-8">
         <div className="flex min-w-0 max-w-full flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div className="min-w-0">
-            <p className="text-sm font-medium text-emerald-700">
+            <p className="text-sm font-medium text-emerald-700 dark:text-emerald-400">
               {perfil ? nombresRoles[perfil.rol_id] : ""}
             </p>
 
-            <h1 className="mt-1 text-3xl font-bold text-slate-900 sm:text-4xl">
+            <h1 className="mt-1 text-3xl font-bold text-slate-900 dark:text-slate-100 sm:text-4xl">
               Bienvenido, {perfil?.nombres}
             </h1>
 
-            <p className="mt-2 break-words text-slate-600">
+            <p className="mt-2 break-words text-slate-600 dark:text-slate-300">
               Panel principal de UniConnect
             </p>
           </div>
@@ -160,7 +160,7 @@ export default function DashboardPage() {
             type="button"
             onClick={() => void cargarDashboard()}
             disabled={cargandoDashboard}
-            className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-slate-300 bg-white px-5 py-3 font-semibold text-slate-700 transition hover:bg-slate-50 disabled:opacity-60 sm:w-auto"
+            className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-slate-300 bg-white px-5 py-3 font-semibold text-slate-700 transition hover:bg-slate-50 disabled:opacity-60 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800 sm:w-auto"
           >
             {cargandoDashboard ? (
               <LoaderCircle size={20} className="animate-spin" />
@@ -172,19 +172,19 @@ export default function DashboardPage() {
         </div>
 
         {errorPerfil && (
-          <p className="rounded-lg bg-red-50 p-3 text-red-700">
+          <p className="rounded-lg bg-red-50 p-3 text-red-700 dark:bg-red-950/40 dark:text-red-300">
             {errorPerfil}
           </p>
         )}
 
         {errorDashboard && (
-          <p className="rounded-lg bg-red-50 p-4 text-sm font-medium text-red-700">
+          <p className="rounded-lg bg-red-50 p-4 text-sm font-medium text-red-700 dark:bg-red-950/40 dark:text-red-300">
             {errorDashboard}
           </p>
         )}
 
         {datos?.errores && datos.errores.length > 0 && (
-          <div className="rounded-2xl bg-amber-50 p-4 text-sm font-medium text-amber-800">
+          <div className="rounded-2xl bg-amber-50 p-4 text-sm font-medium text-amber-800 dark:bg-amber-950/40 dark:text-amber-200">
             Algunos datos no pudieron cargarse:
             <ul className="mt-2 list-inside list-disc">
               {datos.errores.map((error) => (
@@ -195,8 +195,8 @@ export default function DashboardPage() {
         )}
 
         {cargandoDashboard && !datos ? (
-          <div className="rounded-2xl bg-white p-6 shadow-sm">
-            <div className="flex items-center gap-3 text-slate-500">
+          <div className="rounded-2xl bg-white p-6 shadow-sm dark:border dark:border-slate-800 dark:bg-slate-900">
+            <div className="flex items-center gap-3 text-slate-500 dark:text-slate-400">
               <LoaderCircle size={20} className="animate-spin" />
               Cargando estadisticas...
             </div>

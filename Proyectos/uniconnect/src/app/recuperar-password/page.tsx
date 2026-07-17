@@ -59,8 +59,8 @@ export default function RecuperarPasswordPage() {
   }
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-slate-100 p-4">
-      <div className="w-full max-w-md rounded-xl bg-white p-8 shadow-xl">
+    <main className="flex min-h-screen items-center justify-center bg-slate-100 p-4 dark:bg-slate-950">
+      <div className="w-full max-w-md rounded-xl border border-slate-200 bg-white p-8 shadow-xl dark:border-slate-800 dark:bg-slate-900">
         {logoUrl && (
           <Image
             src={logoUrl}
@@ -72,11 +72,11 @@ export default function RecuperarPasswordPage() {
           />
         )}
 
-        <h1 className="mb-2 text-center text-3xl font-bold text-green-700">
+        <h1 className="mb-2 text-center text-3xl font-bold text-green-700 dark:text-emerald-400">
           Recuperar contrasena
         </h1>
 
-        <p className="mb-8 text-center text-gray-500">
+        <p className="mb-8 text-center text-gray-500 dark:text-slate-400">
           {configuracion.nombre_institucion}
         </p>
 
@@ -98,13 +98,13 @@ export default function RecuperarPasswordPage() {
           </FormField>
 
           {error && (
-            <p className="rounded-lg bg-red-50 p-3 text-sm font-medium text-red-700">
+            <p className="rounded-lg bg-red-50 p-3 text-sm font-medium text-red-700 dark:bg-red-950/40 dark:text-red-300">
               {error}
             </p>
           )}
 
           {mensaje && (
-            <p className="rounded-lg bg-emerald-50 p-3 text-sm font-medium text-emerald-700">
+            <p className="rounded-lg bg-emerald-50 p-3 text-sm font-medium text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300">
               {mensaje}
             </p>
           )}
@@ -120,7 +120,7 @@ export default function RecuperarPasswordPage() {
           <div className="text-center">
             <Link
               href="/login"
-              className="text-sm font-medium text-emerald-700 transition hover:text-emerald-800 hover:underline"
+              className="text-sm font-medium text-emerald-700 transition hover:text-emerald-800 hover:underline dark:text-emerald-400 dark:hover:text-emerald-300"
             >
               Volver al login
             </Link>

@@ -293,37 +293,37 @@ export default function PerfilPage() {
     <MainLayout>
       <section className="space-y-8">
         <div>
-          <p className="text-sm font-medium text-emerald-700">
+          <p className="text-sm font-medium text-emerald-700 dark:text-emerald-400">
             Cuenta personal
           </p>
 
-          <h1 className="mt-1 text-3xl font-bold text-slate-900">
+          <h1 className="mt-1 text-3xl font-bold text-slate-900 dark:text-slate-100">
             Mi perfil
           </h1>
 
-          <p className="mt-2 text-slate-600">
+          <p className="mt-2 text-slate-600 dark:text-slate-300">
             {configuracion.nombre_institucion}
           </p>
         </div>
 
         {cargandoPerfil ? (
-          <div className="rounded-2xl bg-white p-6 shadow-sm">
-            <p className="text-slate-500">Cargando perfil...</p>
+          <div className="rounded-2xl bg-white p-6 shadow-sm dark:border dark:border-slate-800 dark:bg-slate-900">
+            <p className="text-slate-500 dark:text-slate-400">Cargando perfil...</p>
           </div>
         ) : (
           <div className="grid gap-6 xl:grid-cols-[1.15fr_0.85fr]">
             <div className="space-y-6">
-              <section className="rounded-2xl bg-white p-5 shadow-sm sm:p-6">
+              <section className="rounded-2xl bg-white p-5 shadow-sm dark:border dark:border-slate-800 dark:bg-slate-900 sm:p-6">
                 <div className="flex items-center gap-3">
-                  <div className="rounded-xl bg-emerald-100 p-2 text-emerald-700">
+                  <div className="rounded-xl bg-emerald-100 p-2 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300">
                     <UserRound size={22} />
                   </div>
 
                   <div>
-                    <h2 className="text-xl font-bold text-slate-900">
+                    <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100">
                       Informacion personal
                     </h2>
-                    <p className="text-sm text-slate-500">
+                    <p className="text-sm text-slate-500 dark:text-slate-400">
                       Estos datos solo pueden ser modificados por un
                       administrador.
                     </p>
@@ -369,7 +369,7 @@ export default function PerfilPage() {
 
                 <form
                   onSubmit={guardarTelefono}
-                  className="mt-6 border-t border-slate-200 pt-6"
+                  className="mt-6 border-t border-slate-200 pt-6 dark:border-slate-800"
                 >
                   <FormField label="Telefono">
                     <Input
@@ -388,13 +388,13 @@ export default function PerfilPage() {
                   </FormField>
 
                   {errorTelefono && (
-                    <p className="mt-4 rounded-xl bg-red-50 p-4 text-sm font-medium text-red-700">
+                    <p className="mt-4 rounded-xl bg-red-50 p-4 text-sm font-medium text-red-700 dark:bg-red-950/40 dark:text-red-300">
                       {errorTelefono}
                     </p>
                   )}
 
                   {mensajeTelefono && (
-                    <p className="mt-4 rounded-xl bg-emerald-50 p-4 text-sm font-medium text-emerald-700">
+                    <p className="mt-4 rounded-xl bg-emerald-50 p-4 text-sm font-medium text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300">
                       {mensajeTelefono}
                     </p>
                   )}
@@ -421,17 +421,17 @@ export default function PerfilPage() {
                 </form>
               </section>
 
-              <section className="rounded-2xl bg-white p-5 shadow-sm sm:p-6">
+              <section className="rounded-2xl bg-white p-5 shadow-sm dark:border dark:border-slate-800 dark:bg-slate-900 sm:p-6">
                 <div className="flex items-center gap-3">
-                  <div className="rounded-xl bg-emerald-100 p-2 text-emerald-700">
+                  <div className="rounded-xl bg-emerald-100 p-2 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300">
                     <ShieldCheck size={22} />
                   </div>
 
                   <div>
-                    <h2 className="text-xl font-bold text-slate-900">
+                    <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100">
                       Seguridad y contrasena
                     </h2>
-                    <p className="text-sm text-slate-500">
+                    <p className="text-sm text-slate-500 dark:text-slate-400">
                       Cambia tu contrasena validando primero la actual.
                     </p>
                   </div>
@@ -482,13 +482,13 @@ export default function PerfilPage() {
                   </div>
 
                   {errorPassword && (
-                    <p className="rounded-xl bg-red-50 p-4 text-sm font-medium text-red-700">
+                    <p className="rounded-xl bg-red-50 p-4 text-sm font-medium text-red-700 dark:bg-red-950/40 dark:text-red-300">
                       {errorPassword}
                     </p>
                   )}
 
                   {mensajePassword && (
-                    <p className="rounded-xl bg-emerald-50 p-4 text-sm font-medium text-emerald-700">
+                    <p className="rounded-xl bg-emerald-50 p-4 text-sm font-medium text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300">
                       {mensajePassword}
                     </p>
                   )}
@@ -514,17 +514,17 @@ export default function PerfilPage() {
               </section>
             </div>
 
-            <section className="rounded-2xl bg-white p-5 shadow-sm sm:p-6">
+            <section className="rounded-2xl bg-white p-5 shadow-sm dark:border dark:border-slate-800 dark:bg-slate-900 sm:p-6">
               <div className="flex items-center gap-3">
-                <div className="rounded-xl bg-emerald-100 p-2 text-emerald-700">
+                <div className="rounded-xl bg-emerald-100 p-2 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300">
                   <Camera size={22} />
                 </div>
 
                 <div>
-                  <h2 className="text-xl font-bold text-slate-900">
+                  <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100">
                     Foto
                   </h2>
-                  <p className="text-sm text-slate-500">
+                  <p className="text-sm text-slate-500 dark:text-slate-400">
                     Formatos permitidos: JPG, PNG o WEBP. Maximo 2 MB.
                   </p>
                 </div>
@@ -551,13 +551,13 @@ export default function PerfilPage() {
               </div>
 
               {errorFoto && (
-                <p className="mt-5 rounded-xl bg-red-50 p-4 text-sm font-medium text-red-700">
+                <p className="mt-5 rounded-xl bg-red-50 p-4 text-sm font-medium text-red-700 dark:bg-red-950/40 dark:text-red-300">
                   {errorFoto}
                 </p>
               )}
 
               {mensajeFoto && (
-                <p className="mt-5 rounded-xl bg-emerald-50 p-4 text-sm font-medium text-emerald-700">
+                <p className="mt-5 rounded-xl bg-emerald-50 p-4 text-sm font-medium text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300">
                   {mensajeFoto}
                 </p>
               )}
@@ -585,17 +585,17 @@ export default function PerfilPage() {
           )}
 
           {errorFoto && (
-            <p className="rounded-xl bg-red-50 p-4 text-sm font-medium text-red-700">
+            <p className="rounded-xl bg-red-50 p-4 text-sm font-medium text-red-700 dark:bg-red-950/40 dark:text-red-300">
               {errorFoto}
             </p>
           )}
 
-          <div className="flex flex-col-reverse gap-3 border-t border-slate-200 pt-5 sm:flex-row sm:justify-end">
+          <div className="flex flex-col-reverse gap-3 border-t border-slate-200 pt-5 dark:border-slate-800 sm:flex-row sm:justify-end">
             <button
               type="button"
               onClick={cancelarFoto}
               disabled={subiendoFoto}
-              className="rounded-xl border border-slate-300 px-5 py-3 font-semibold text-slate-700 transition hover:bg-slate-50 disabled:opacity-50"
+              className="rounded-xl border border-slate-300 px-5 py-3 font-semibold text-slate-700 transition hover:bg-slate-50 disabled:opacity-50 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"
             >
               Cancelar
             </button>
@@ -692,7 +692,7 @@ function FotoPerfilGrande({
 
   if (!fotoUrl) {
     return (
-      <div className="flex aspect-square w-full max-w-xs items-center justify-center rounded-2xl bg-slate-100 text-slate-500">
+      <div className="flex aspect-square w-full max-w-xs items-center justify-center rounded-2xl bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400">
         <UserRound size={72} />
       </div>
     );

@@ -7,6 +7,7 @@ import { LogOut, Menu, UserRound } from "lucide-react";
 
 import { usePerfil } from "@/components/auth/PerfilProvider";
 import { useConfiguracion } from "@/components/configuracion/ConfiguracionProvider";
+import ThemeToggle from "@/components/theme/ThemeToggle";
 import BuscadorGlobal from "./BuscadorGlobal";
 import NotificacionesPanel from "./NotificacionesPanel";
 
@@ -28,23 +29,23 @@ export default function Header({ onMenuClick }: HeaderProps) {
     usePerfil();
 
   return (
-    <header className="flex min-h-20 items-center justify-between gap-4 border-b border-slate-200 bg-white px-4 sm:px-6 lg:px-8">
+    <header className="flex min-h-20 items-center justify-between gap-4 border-b border-slate-200 bg-white px-4 dark:border-slate-800 dark:bg-slate-900 sm:px-6 lg:px-8">
       <div className="flex min-w-0 items-center gap-3">
         <button
           type="button"
           onClick={onMenuClick}
           aria-label="Abrir menu"
-          className="rounded-lg p-2 text-slate-700 transition hover:bg-slate-100 lg:hidden"
+          className="rounded-lg p-2 text-slate-700 transition hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800 lg:hidden"
         >
           <Menu size={22} />
         </button>
 
         <div className="min-w-0">
-          <h2 className="text-xl font-semibold text-slate-900">
+          <h2 className="text-xl font-semibold text-slate-900 dark:text-slate-100">
             Panel principal
           </h2>
 
-          <p className="truncate text-sm text-slate-500">
+          <p className="truncate text-sm text-slate-500 dark:text-slate-400">
             {configuracion.nombre_institucion}
           </p>
         </div>
@@ -57,9 +58,11 @@ export default function Header({ onMenuClick }: HeaderProps) {
           accessToken={session?.access_token ?? ""}
         />
 
+        <ThemeToggle />
+
         <Link
           href="/perfil"
-          className="flex min-w-0 items-center gap-3 rounded-xl px-2 py-1 transition hover:bg-slate-100"
+          className="flex min-w-0 items-center gap-3 rounded-xl px-2 py-1 transition hover:bg-slate-100 dark:hover:bg-slate-800"
         >
           <FotoPerfilHeader
             accessToken={session?.access_token ?? ""}
@@ -69,21 +72,21 @@ export default function Header({ onMenuClick }: HeaderProps) {
 
           <div className="hidden sm:block">
             {cargandoPerfil ? (
-              <p className="text-sm text-slate-500">Cargando...</p>
+              <p className="text-sm text-slate-500 dark:text-slate-400">Cargando...</p>
             ) : (
               <>
-                <p className="max-w-48 truncate text-sm font-semibold text-slate-900">
+                <p className="max-w-48 truncate text-sm font-semibold text-slate-900 dark:text-slate-100">
                   {perfil?.nombres} {perfil?.apellidos}
                 </p>
 
-                <p className="text-xs text-slate-500">
+                <p className="text-xs text-slate-500 dark:text-slate-400">
                   {perfil ? nombresRoles[perfil.rol_id] : "Sin perfil"}
                 </p>
               </>
             )}
           </div>
 
-          <span className="hidden rounded-lg border border-slate-200 px-3 py-2 text-sm font-semibold text-slate-700 transition hover:border-emerald-200 hover:text-emerald-700 md:inline">
+          <span className="hidden rounded-lg border border-slate-200 px-3 py-2 text-sm font-semibold text-slate-700 transition hover:border-emerald-200 hover:text-emerald-700 dark:border-slate-700 dark:text-slate-200 dark:hover:border-emerald-500 dark:hover:text-emerald-300 md:inline">
             Mi perfil
           </span>
         </Link>

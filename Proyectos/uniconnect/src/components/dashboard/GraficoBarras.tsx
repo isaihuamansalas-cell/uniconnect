@@ -20,14 +20,14 @@ export default function GraficoBarras({
   const alto = 180;
 
   return (
-    <section className="w-full min-w-0 max-w-full overflow-hidden rounded-2xl bg-white p-4 shadow-sm sm:p-5">
+    <section className="w-full min-w-0 max-w-full overflow-hidden rounded-2xl bg-white p-4 shadow-sm dark:border dark:border-slate-800 dark:bg-slate-900 sm:p-5">
       <div className="min-w-0">
-        <h2 className="text-lg font-bold text-slate-900">{titulo}</h2>
-        <p className="mt-1 text-sm text-slate-500">{descripcion}</p>
+        <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100">{titulo}</h2>
+        <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">{descripcion}</p>
       </div>
 
       {!tieneDatos ? (
-        <p className="mt-8 rounded-xl bg-slate-50 p-6 text-center text-sm text-slate-500">
+        <p className="mt-8 rounded-xl bg-slate-50 p-6 text-center text-sm text-slate-500 dark:bg-slate-800 dark:text-slate-400">
           No hay datos para mostrar.
         </p>
       ) : (
@@ -61,7 +61,7 @@ export default function GraficoBarras({
                     x={x + barWidth / 2}
                     y={y - 8}
                     textAnchor="middle"
-                    className="fill-slate-700 text-[12px] font-semibold"
+                    className="fill-slate-700 text-[12px] font-semibold dark:fill-slate-200"
                   >
                     {punto.valor}
                   </text>
@@ -69,7 +69,7 @@ export default function GraficoBarras({
                     x={x + barWidth / 2}
                     y={160}
                     textAnchor="middle"
-                    className="fill-slate-500 text-[12px]"
+                    className="fill-slate-500 text-[12px] dark:fill-slate-400"
                   >
                     {punto.etiqueta}
                   </text>

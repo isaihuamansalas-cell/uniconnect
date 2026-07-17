@@ -445,8 +445,8 @@ export default function ReportesPage() {
 
   if (cargando) {
     return (
-      <main className="flex min-h-screen items-center justify-center bg-slate-100">
-        <div className="flex items-center gap-3 text-slate-600">
+      <main className="flex min-h-screen items-center justify-center bg-slate-100 dark:bg-slate-950">
+        <div className="flex items-center gap-3 text-slate-600 dark:text-slate-300">
           <LoaderCircle size={22} className="animate-spin" />
           Cargando reportes...
         </div>
@@ -459,15 +459,15 @@ export default function ReportesPage() {
       <section>
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between print:hidden">
           <div>
-            <p className="text-sm font-medium text-emerald-700">
+            <p className="text-sm font-medium text-emerald-700 dark:text-emerald-400">
               Administracion
             </p>
 
-            <h1 className="mt-1 text-3xl font-bold text-slate-900">
+            <h1 className="mt-1 text-3xl font-bold text-slate-900 dark:text-slate-100">
               Reportes
             </h1>
 
-            <p className="mt-2 text-slate-600">
+            <p className="mt-2 text-slate-600 dark:text-slate-300">
               {rolId
                 ? `${nombresRoles[rolId] ?? "Usuario"} activo`
                 : "Consulta estadisticas y salidas autorizadas."}
@@ -476,7 +476,7 @@ export default function ReportesPage() {
         </div>
 
         {error && (
-          <p className="mt-6 rounded-xl bg-red-50 p-4 text-sm font-medium text-red-700 print:hidden">
+          <p className="mt-6 rounded-xl bg-red-50 p-4 text-sm font-medium text-red-700 dark:bg-red-950/40 dark:text-red-300 print:hidden">
             {error}
           </p>
         )}
@@ -512,11 +512,11 @@ export default function ReportesPage() {
         )}
 
         {rolId === 3 && (
-          <div className="mt-8 rounded-2xl bg-white p-4 shadow-sm print:hidden sm:p-6">
-            <p className="font-semibold text-slate-900">
+          <div className="mt-8 rounded-2xl bg-white p-4 shadow-sm dark:border dark:border-slate-800 dark:bg-slate-900 print:hidden sm:p-6">
+            <p className="font-semibold text-slate-900 dark:text-slate-100">
               Acceso limitado
             </p>
-            <p className="mt-2 text-slate-600">
+            <p className="mt-2 text-slate-600 dark:text-slate-300">
               Tu rol puede ver estadisticas generales, pero no datos
               sensibles ni detalle de salidas.
             </p>
@@ -524,14 +524,14 @@ export default function ReportesPage() {
         )}
 
         {puedeVerSalidas && (
-          <div className="mt-8 rounded-2xl bg-white p-4 shadow-sm print:shadow-none sm:p-6">
+          <div className="mt-8 rounded-2xl bg-white p-4 shadow-sm dark:border dark:border-slate-800 dark:bg-slate-900 print:bg-white print:shadow-none sm:p-6">
             <div className="print:hidden">
               <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
                 <div>
-                  <h2 className="text-xl font-bold text-slate-900">
+                  <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100">
                     Historial operativo de salidas
                   </h2>
-                  <p className="mt-1 text-sm text-slate-500">
+                  <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
                     Filtra por fecha, DNI, codigo institucional o placa.
                   </p>
                 </div>
@@ -541,7 +541,7 @@ export default function ReportesPage() {
                     type="button"
                     onClick={exportarCsv}
                     disabled={salidas.length === 0}
-                    className="inline-flex items-center gap-2 rounded-xl border border-slate-300 px-4 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-60"
+                    className="inline-flex items-center gap-2 rounded-xl border border-slate-300 px-4 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-60 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"
                   >
                     <Download size={18} />
                     Excel CSV
@@ -551,7 +551,7 @@ export default function ReportesPage() {
                     type="button"
                     onClick={imprimirReporte}
                     disabled={salidas.length === 0}
-                    className="inline-flex items-center gap-2 rounded-xl border border-slate-300 px-4 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-60"
+                    className="inline-flex items-center gap-2 rounded-xl border border-slate-300 px-4 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-60 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"
                   >
                     <Printer size={18} />
                     PDF
@@ -638,7 +638,7 @@ export default function ReportesPage() {
               </form>
 
               {errorSalidas && (
-                <p className="mt-5 rounded-xl bg-red-50 p-4 text-sm font-medium text-red-700">
+                <p className="mt-5 rounded-xl bg-red-50 p-4 text-sm font-medium text-red-700 dark:bg-red-950/40 dark:text-red-300">
                   {errorSalidas}
                 </p>
               )}
@@ -655,7 +655,7 @@ export default function ReportesPage() {
             </div>
 
             {cargandoSalidas ? (
-              <div className="mt-8 flex items-center gap-3 text-slate-500 print:hidden">
+              <div className="mt-8 flex items-center gap-3 text-slate-500 dark:text-slate-400 print:hidden">
                 <LoaderCircle size={20} className="animate-spin" />
                 Cargando salidas...
               </div>
@@ -663,7 +663,7 @@ export default function ReportesPage() {
               <div className="mt-6 max-w-full overflow-x-auto">
                 <table className="w-full min-w-[1180px] text-left text-sm print:min-w-0 print:text-xs">
                   <thead>
-                    <tr className="border-b border-slate-200 text-slate-500">
+                    <tr className="border-b border-slate-200 text-slate-500 dark:border-slate-800 dark:text-slate-400">
                       <th className="px-4 py-3 font-medium">Fecha</th>
                       <th className="px-4 py-3 font-medium">Hora</th>
                       <th className="px-4 py-3 font-medium">
@@ -687,7 +687,7 @@ export default function ReportesPage() {
                     {salidas.map((salida) => (
                       <tr
                         key={salida.id}
-                        className="border-b border-slate-100 transition hover:bg-slate-50"
+                        className="border-b border-slate-100 transition hover:bg-slate-50 dark:border-slate-800 dark:hover:bg-slate-800"
                       >
                         <td className="px-4 py-4">
                           {obtenerFecha(salida)}
@@ -695,23 +695,23 @@ export default function ReportesPage() {
                         <td className="px-4 py-4">
                           {obtenerHora(salida)}
                         </td>
-                        <td className="px-4 py-4 font-medium text-slate-900">
+                        <td className="px-4 py-4 font-medium text-slate-900 dark:text-slate-100">
                           {obtenerNombre(salida.estudiante)}
                         </td>
-                        <td className="px-4 py-4 text-slate-700">
+                        <td className="px-4 py-4 text-slate-700 dark:text-slate-300">
                           {salida.estudiante?.dni ?? "No disponible"}
                         </td>
-                        <td className="px-4 py-4 text-slate-700">
+                        <td className="px-4 py-4 text-slate-700 dark:text-slate-300">
                           {salida.estudiante?.codigo_estudiante ??
                             "No registrado"}
                         </td>
-                        <td className="px-4 py-4 text-slate-700">
+                        <td className="px-4 py-4 text-slate-700 dark:text-slate-300">
                           {obtenerVehiculo(salida.vehiculo)}
                         </td>
-                        <td className="px-4 py-4 font-semibold uppercase text-slate-900">
+                        <td className="px-4 py-4 font-semibold uppercase text-slate-900 dark:text-slate-100">
                           {salida.vehiculo?.placa ?? "Sin placa"}
                         </td>
-                        <td className="px-4 py-4 text-slate-700">
+                        <td className="px-4 py-4 text-slate-700 dark:text-slate-300">
                           {obtenerNombre(salida.garita)}
                         </td>
                       </tr>
@@ -723,9 +723,9 @@ export default function ReportesPage() {
                   <div className="py-12 text-center print:hidden">
                     <FileDown
                       size={38}
-                      className="mx-auto text-slate-300"
+                      className="mx-auto text-slate-300 dark:text-slate-600"
                     />
-                    <p className="mt-3 text-slate-500">
+                    <p className="mt-3 text-slate-500 dark:text-slate-400">
                       No se encontraron salidas con los filtros
                       aplicados.
                     </p>

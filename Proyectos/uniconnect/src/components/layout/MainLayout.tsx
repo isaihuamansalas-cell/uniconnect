@@ -45,7 +45,7 @@ export default function MainLayout({ children }: Props) {
   }, [menuMovilAbierto]);
 
   return (
-    <div className="flex min-h-screen min-w-0 bg-slate-100">
+    <div className="flex min-h-screen min-w-0 bg-slate-100 dark:bg-slate-950">
 
       <div className="hidden lg:block">
         <Sidebar />
@@ -79,7 +79,7 @@ export default function MainLayout({ children }: Props) {
           onMenuClick={() => setMenuMovilAbierto(true)}
         />
 
-        <main className="min-h-screen min-w-0 bg-slate-100 p-4 sm:p-6 lg:p-8">
+        <main className="min-h-screen min-w-0 bg-slate-100 p-4 dark:bg-slate-950 sm:p-6 lg:p-8">
           {children}
         </main>
 

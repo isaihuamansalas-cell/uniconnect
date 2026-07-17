@@ -208,6 +208,10 @@ API Dashboard implementada
 
 Buscador Global implementado en Header con API server-side, permisos por rol, debounce y soporte responsive
 
+Modo oscuro global implementado con preferencia persistida, respeto de prefers-color-scheme y toggle en Login/Header
+
+Contraste del Login corregido para etiquetas, texto de inputs, placeholders, bordes, foco emerald y mensajes de error
+
 ---
 
 ## Pendiente

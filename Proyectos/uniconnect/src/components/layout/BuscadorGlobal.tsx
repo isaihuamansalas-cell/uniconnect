@@ -267,28 +267,28 @@ export default function BuscadorGlobal({
   }
 
   const panelResultados = (
-    <div className="max-h-[70vh] overflow-y-auto rounded-2xl border border-slate-200 bg-white p-2 shadow-xl">
+    <div className="max-h-[70vh] overflow-y-auto rounded-2xl border border-slate-200 bg-white p-2 shadow-xl dark:border-slate-800 dark:bg-slate-900">
       {cargando && (
-        <div className="flex items-center gap-2 px-3 py-4 text-sm text-slate-500">
+        <div className="flex items-center gap-2 px-3 py-4 text-sm text-slate-500 dark:text-slate-400">
           <LoaderCircle size={18} className="animate-spin" />
           Buscando...
         </div>
       )}
 
       {!cargando && error && (
-        <p className="px-3 py-4 text-sm font-medium text-red-600">
+        <p className="px-3 py-4 text-sm font-medium text-red-600 dark:text-red-300">
           {error}
         </p>
       )}
 
       {!cargando && !error && !puedeBuscar && (
-        <p className="px-3 py-4 text-sm text-slate-500">
+        <p className="px-3 py-4 text-sm text-slate-500 dark:text-slate-400">
           Ingresa al menos 2 caracteres.
         </p>
       )}
 
       {!cargando && !error && puedeBuscar && !tieneResultados && (
-        <p className="px-3 py-4 text-sm text-slate-500">
+        <p className="px-3 py-4 text-sm text-slate-500 dark:text-slate-400">
           Sin resultados.
         </p>
       )}
@@ -306,7 +306,7 @@ export default function BuscadorGlobal({
 
           return (
             <div key={modulo.id} className="py-1">
-              <div className="flex items-center gap-2 px-3 py-2 text-xs font-bold uppercase tracking-wide text-slate-500">
+              <div className="flex items-center gap-2 px-3 py-2 text-xs font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">
                 <Icono size={15} />
                 {modulo.titulo}
               </div>
@@ -330,17 +330,17 @@ export default function BuscadorGlobal({
                       }}
                       className={`block rounded-xl px-3 py-2 transition ${
                         activo
-                          ? "bg-emerald-50"
-                          : "hover:bg-slate-50"
+                          ? "bg-emerald-50 dark:bg-emerald-950/40"
+                          : "hover:bg-slate-50 dark:hover:bg-slate-800"
                       }`}
                     >
-                      <p className="line-clamp-1 text-sm font-semibold text-slate-900">
+                      <p className="line-clamp-1 text-sm font-semibold text-slate-900 dark:text-slate-100">
                         {resultado.titulo}
                       </p>
-                      <p className="line-clamp-1 text-xs text-slate-500">
+                      <p className="line-clamp-1 text-xs text-slate-500 dark:text-slate-400">
                         {resultado.descripcion}
                       </p>
-                      <p className="line-clamp-1 text-xs font-medium text-emerald-700">
+                      <p className="line-clamp-1 text-xs font-medium text-emerald-700 dark:text-emerald-400">
                         {resultado.detalle}
                       </p>
                     </Link>
@@ -362,7 +362,7 @@ export default function BuscadorGlobal({
           setPanelMovilAbierto(true);
           setPanelAbierto(true);
         }}
-        className="rounded-lg p-2 text-slate-700 transition hover:bg-slate-100 md:hidden"
+        className="rounded-lg p-2 text-slate-700 transition hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800 md:hidden"
       >
         <Search size={21} />
       </button>
@@ -370,7 +370,7 @@ export default function BuscadorGlobal({
       <div className="relative hidden w-72 md:block xl:w-96">
         <Search
           size={18}
-          className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
+          className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500"
         />
         <input
           type="search"
@@ -383,7 +383,7 @@ export default function BuscadorGlobal({
           onKeyDown={manejarTeclado}
           placeholder="Buscar en UniConnect"
           aria-label="Buscar en UniConnect"
-          className="w-full rounded-xl border border-slate-300 bg-white py-2.5 pl-10 pr-4 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-emerald-600 focus:ring-2 focus:ring-emerald-100"
+          className="w-full rounded-xl border border-slate-300 bg-white py-2.5 pl-10 pr-4 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-emerald-600 focus:ring-2 focus:ring-emerald-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:placeholder:text-slate-500 dark:focus:border-emerald-500 dark:focus:ring-emerald-500/25"
         />
 
         {panelAbierto && (
@@ -399,14 +399,14 @@ export default function BuscadorGlobal({
           onMouseDown={cerrarPaneles}
         >
           <div
-            className="rounded-2xl bg-white p-3 shadow-2xl"
+            className="rounded-2xl bg-white p-3 shadow-2xl dark:border dark:border-slate-800 dark:bg-slate-900"
             onMouseDown={(event) => event.stopPropagation()}
           >
             <div className="flex items-center gap-2">
               <div className="relative min-w-0 flex-1">
                 <Search
                   size={18}
-                  className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
+                  className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500"
                 />
                 <input
                   ref={inputMovilRef}
@@ -419,7 +419,7 @@ export default function BuscadorGlobal({
                   onKeyDown={manejarTeclado}
                   placeholder="Buscar en UniConnect"
                   aria-label="Buscar en UniConnect"
-                  className="w-full rounded-xl border border-slate-300 bg-white py-3 pl-10 pr-4 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-emerald-600 focus:ring-2 focus:ring-emerald-100"
+                  className="w-full rounded-xl border border-slate-300 bg-white py-3 pl-10 pr-4 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-emerald-600 focus:ring-2 focus:ring-emerald-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:placeholder:text-slate-500 dark:focus:border-emerald-500 dark:focus:ring-emerald-500/25"
                 />
               </div>
 
@@ -427,7 +427,7 @@ export default function BuscadorGlobal({
                 type="button"
                 aria-label="Cerrar buscador"
                 onClick={cerrarPaneles}
-                className="rounded-lg p-2 text-slate-600 transition hover:bg-slate-100"
+                className="rounded-lg p-2 text-slate-600 transition hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
               >
                 <X size={21} />
               </button>

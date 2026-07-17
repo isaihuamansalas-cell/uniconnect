@@ -17,7 +17,7 @@ export default function FormField({
     <div>
       <label
         htmlFor={htmlFor}
-        className="mb-2 block text-sm font-medium text-slate-700"
+        className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-200"
       >
         {label}
       </label>
@@ -25,7 +25,7 @@ export default function FormField({
       {children}
 
       {error && (
-        <p className="mt-1 text-sm font-medium text-red-600">
+        <p className="mt-1 text-sm font-medium text-red-600 dark:text-red-300">
           {error}
         </p>
       )}
