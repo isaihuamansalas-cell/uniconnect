@@ -7,6 +7,7 @@ import {
   registrarAuditoria,
 } from "@/lib/auditoria/registrarAuditoria";
 import { supabaseAdmin } from "@/lib/supabase/admin";
+import { autorizarApi } from "@/lib/auth/autorizarApi";
 
 type NuevoUsuario = {
   correo?: string;
@@ -18,6 +19,29 @@ type NuevoUsuario = {
   telefono?: string | null;
   rol_id?: number;
 };
+
+export async function GET(request: Request) {
+  try {
+    const autorizacion = await autorizarApi(request, [1]);
+    if (!autorizacion.autorizado) {
+      return NextResponse.json(
+        { error: autorizacion.status === 401 ? "La sesion no es valida o ha vencido." : "No tienes permiso para consultar usuarios." },
+        { status: autorizacion.status }
+      );
+    }
+
+    const { data, error } = await supabaseAdmin
+      .from("usuarios")
+      .select("id, nombres, apellidos, correo, dni, codigo_estudiante, telefono, rol_id, estado")
+      .order("nombres", { ascending: true })
+      .limit(500);
+    if (error) throw error;
+    return NextResponse.json({ usuarios: data ?? [] });
+  } catch (error) {
+    console.error("Error al consultar usuarios:", error);
+    return NextResponse.json({ error: "No se pudo cargar la lista de usuarios." }, { status: 500 });
+  }
+}
 
 export async function POST(request: Request) {
   try {

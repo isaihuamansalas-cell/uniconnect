@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { LoaderCircle } from "lucide-react";
 
 import { usePerfil } from "@/components/auth/PerfilProvider";
 import Sidebar from "./Sidebar";
@@ -13,6 +14,7 @@ type Props = {
 
 export default function MainLayout({ children }: Props) {
   const router = useRouter();
+  const pathname = usePathname();
   const { perfil, cargandoPerfil, cargandoSesion } = usePerfil();
   const [menuMovilAbierto, setMenuMovilAbierto] = useState(false);
 
@@ -21,6 +23,30 @@ export default function MainLayout({ children }: Props) {
       router.replace("/login");
     }
   }, [cargandoPerfil, cargandoSesion, perfil, router]);
+
+  const rolesPorRuta: Record<string, readonly number[]> = {
+    "/usuarios": [1],
+    "/vehiculos": [1, 3],
+    "/configuracion": [1, 2, 3, 4, 5],
+    "/garita": [1, 4],
+    "/historial": [1, 2, 4],
+    "/auditoria": [1, 2],
+    "/reportes": [1, 2, 3],
+    "/perfil": [1, 2, 3, 4, 5],
+    "/dashboard": [1, 2, 3, 4, 5],
+  };
+  const rutaProtegida = Object.keys(rolesPorRuta).find(
+    (ruta) => pathname === ruta || pathname.startsWith(`${ruta}/`)
+  );
+  const tienePermiso = !rutaProtegida || Boolean(
+    perfil && rolesPorRuta[rutaProtegida].includes(perfil.rol_id)
+  );
+
+  useEffect(() => {
+    if (!cargandoSesion && !cargandoPerfil && perfil && !tienePermiso) {
+      router.replace("/dashboard");
+    }
+  }, [cargandoPerfil, cargandoSesion, perfil, router, tienePermiso]);
 
   useEffect(() => {
     if (!menuMovilAbierto) {
@@ -43,6 +69,17 @@ export default function MainLayout({ children }: Props) {
       window.removeEventListener("keydown", cerrarConEscape);
     };
   }, [menuMovilAbierto]);
+
+  if (cargandoSesion || cargandoPerfil || !perfil || !tienePermiso) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-slate-100 dark:bg-slate-950">
+        <div className="flex items-center gap-3 text-primary" role="status" aria-live="polite">
+          <LoaderCircle className="animate-spin" size={30} />
+          <span className="font-semibold">Validando acceso institucional...</span>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex min-h-screen min-w-0 bg-slate-100 dark:bg-slate-950">

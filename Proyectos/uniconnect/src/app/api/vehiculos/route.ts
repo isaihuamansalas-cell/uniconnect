@@ -7,6 +7,7 @@ import {
   registrarAuditoria,
 } from "@/lib/auditoria/registrarAuditoria";
 import { supabaseAdmin } from "@/lib/supabase/admin";
+import { autorizarApi } from "@/lib/auth/autorizarApi";
 
 type NuevoVehiculo = {
   usuario_id?: string;
@@ -17,6 +18,28 @@ type NuevoVehiculo = {
   tipo?: string;
   anio?: number | null;
 };
+
+export async function GET(request: Request) {
+  try {
+    const autorizacion = await autorizarApi(request, [1, 3]);
+    if (!autorizacion.autorizado) {
+      return NextResponse.json(
+        { error: autorizacion.status === 401 ? "La sesion no es valida o ha vencido." : "No tienes permiso para consultar vehiculos." },
+        { status: autorizacion.status }
+      );
+    }
+    const { data, error } = await supabaseAdmin
+      .from("vehiculos")
+      .select("id, usuario_id, placa, marca, modelo, color, tipo, anio, foto, estado, created_at, usuarios(nombres, apellidos, dni, codigo_estudiante)")
+      .order("created_at", { ascending: false })
+      .limit(500);
+    if (error) throw error;
+    return NextResponse.json({ vehiculos: data ?? [] });
+  } catch (error) {
+    console.error("Error al consultar vehiculos:", error);
+    return NextResponse.json({ error: "No se pudo cargar la lista de vehiculos." }, { status: 500 });
+  }
+}
 
 async function obtenerUsuarioAutenticado(request: Request) {
   const authorization = request.headers.get("authorization");

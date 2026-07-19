@@ -59,38 +59,22 @@ export default function UsuariosPage() {
       setCargando(true);
       setError("");
 
-      const { data, error: errorConsulta } = await supabase
-        .from("usuarios")
-        .select(
-          `
-            id,
-            nombres,
-            apellidos,
-            correo,
-            dni,
-            codigo_estudiante,
-            telefono,
-            rol_id,
-            estado
-          `
-        )
-        .order("nombres", { ascending: true });
-
-      if (errorConsulta) {
-        console.error(
-          "Error al cargar usuarios:",
-          errorConsulta
-        );
-
-        setError(
-          "No se pudo cargar la lista de usuarios."
-        );
-
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return;
+      const respuesta = await fetch("/api/admin/usuarios", {
+        headers: { Authorization: `Bearer ${session.access_token}` },
+        cache: "no-store",
+      });
+      const resultado = (await respuesta.json()) as {
+        usuarios?: Usuario[];
+        error?: string;
+      };
+      if (!respuesta.ok) {
+        setError(resultado.error ?? "No se pudo cargar la lista de usuarios.");
         setCargando(false);
         return;
       }
-
-      setUsuarios(data ?? []);
+      setUsuarios(resultado.usuarios ?? []);
       setCargando(false);
     }
 

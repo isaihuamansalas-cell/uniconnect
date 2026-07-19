@@ -99,6 +99,18 @@ export function PerfilProvider({ children }: Props) {
     setPerfil(null);
   }, []);
 
+  const expulsarUsuario = useCallback(async () => {
+    perfilCargadoParaUsuario.current = null;
+    setPerfil(null);
+    setSession(null);
+    setErrorPerfil("");
+    setCargandoPerfil(false);
+    setCargandoSesion(false);
+    await supabase.auth.signOut();
+    router.replace("/login");
+    router.refresh();
+  }, [router]);
+
   const cargarPerfilPorUsuario = useCallback(
     async (user: User, accessToken: string, forzar = false) => {
       if (
@@ -127,7 +139,7 @@ export function PerfilProvider({ children }: Props) {
             "No se pudo cargar la informacion del usuario."
         );
         if (respuesta.status === 401 || respuesta.status === 403) {
-          await supabase.auth.signOut();
+          await expulsarUsuario();
         }
         setCargandoPerfil(false);
         return;
@@ -138,7 +150,7 @@ export function PerfilProvider({ children }: Props) {
         setErrorPerfil(
           "Tu cuenta autenticada no existe en el registro de usuarios."
         );
-        await supabase.auth.signOut();
+        await expulsarUsuario();
         setCargandoPerfil(false);
         return;
       }
@@ -148,7 +160,7 @@ export function PerfilProvider({ children }: Props) {
       setPerfil(perfilUsuario);
       setCargandoPerfil(false);
     },
-    [limpiarPerfil]
+    [expulsarUsuario, limpiarPerfil]
   );
 
   const recargarPerfil = useCallback(async () => {
@@ -204,7 +216,8 @@ export function PerfilProvider({ children }: Props) {
       ) {
         void cargarPerfilPorUsuario(
           nuevaSession.user,
-          nuevaSession.access_token
+          nuevaSession.access_token,
+          event === "TOKEN_REFRESHED" || event === "USER_UPDATED"
         );
       }
     });
@@ -213,6 +226,22 @@ export function PerfilProvider({ children }: Props) {
       subscription.unsubscribe();
     };
   }, [cargarPerfilPorUsuario, esRutaRecuperacion, limpiarPerfil]);
+
+  useEffect(() => {
+    if (esRutaRecuperacion) return;
+    const revalidar = () => void recargarPerfil();
+    const intervalo = window.setInterval(revalidar, 30_000);
+    const alCambiarVisibilidad = () => {
+      if (document.visibilityState === "visible") revalidar();
+    };
+    window.addEventListener("focus", revalidar);
+    document.addEventListener("visibilitychange", alCambiarVisibilidad);
+    return () => {
+      window.clearInterval(intervalo);
+      window.removeEventListener("focus", revalidar);
+      document.removeEventListener("visibilitychange", alCambiarVisibilidad);
+    };
+  }, [esRutaRecuperacion, recargarPerfil]);
 
   const cerrarSesion = useCallback(async () => {
     setCargandoSesion(true);

@@ -19,16 +19,11 @@ import {
 } from "lucide-react";
 
 import { useConfiguracion } from "@/components/configuracion/ConfiguracionProvider";
+import { usePerfil } from "@/components/auth/PerfilProvider";
 import MainLayout from "@/components/layout/MainLayout";
 import { FormField, Input, Modal, Select } from "@/components/ui";
 import { obtenerUrlLogo } from "@/lib/configuracion/defaults";
 import { supabase } from "@/lib/supabase/client";
-
-type Perfil = {
-  id: string;
-  rol_id: number;
-  estado: boolean;
-};
 
 type FormularioConfiguracion = {
   nombre_sistema: string;
@@ -103,8 +98,7 @@ export default function ConfiguracionPage() {
     recargarConfiguracion,
   } = useConfiguracion();
 
-  const [perfil, setPerfil] = useState<Perfil | null>(null);
-  const [cargandoPerfil, setCargandoPerfil] = useState(true);
+  const { perfil, cargandoPerfil } = usePerfil();
   const [guardando, setGuardando] = useState(false);
   const [subiendoLogo, setSubiendoLogo] = useState(false);
   const [error, setError] = useState("");
@@ -144,36 +138,6 @@ export default function ConfiguracionPage() {
       color_secundario: configuracion.color_secundario,
     });
   }, [configuracion]);
-
-  useEffect(() => {
-    async function cargarPerfil() {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-
-      if (!user) {
-        router.replace("/login");
-        return;
-      }
-
-      const { data, error } = await supabase
-        .from("usuarios")
-        .select("id, rol_id, estado")
-        .eq("id", user.id)
-        .single();
-
-      if (error) {
-        setError("No se pudo validar tu perfil.");
-        setCargandoPerfil(false);
-        return;
-      }
-
-      setPerfil(data as Perfil);
-      setCargandoPerfil(false);
-    }
-
-    cargarPerfil();
-  }, [router]);
 
   function actualizarCampo(
     campo: keyof FormularioConfiguracion,

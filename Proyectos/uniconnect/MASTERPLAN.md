@@ -238,6 +238,16 @@ Exportacion CSV completa del historial filtrado mediante lotes server-side imple
 
 Fotos privadas de estudiantes y vehiculos habilitadas para los roles autorizados del Historial
 
+Fase 1 de auditoria de seguridad completada: lecturas de Usuarios y Vehiculos migradas a APIs server-side con Bearer token, usuario activo, rol, campos explicitos y limites
+
+Lectura directa del perfil en Configuracion eliminada; se reutiliza el PerfilProvider validado
+
+MainLayout bloqueado con loader institucional hasta resolver sesion, perfil activo y permisos de ruta
+
+PerfilProvider endurecido para revalidar en TOKEN_REFRESHED, USER_UPDATED, foco, visibilidad y cada 30 segundos; usuarios inactivos son expulsados y su estado local se limpia
+
+Proteccion central de rutas aplicada a Dashboard, Usuarios, Vehiculos, Configuracion, Garita, Historial, Auditoria, Reportes y Perfil
+
 ---
 
 ## Pendiente

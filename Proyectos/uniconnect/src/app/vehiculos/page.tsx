@@ -80,35 +80,21 @@ export default function VehiculosPage() {
     setCargando(true);
     setError("");
 
-    const { data, error: errorConsulta } = await supabase
-      .from("vehiculos")
-      .select(`
-        id,
-        usuario_id,
-        placa,
-        marca,
-        modelo,
-        color,
-        tipo,
-        anio,
-        foto,
-        estado,
-        created_at,
-        usuarios (
-          nombres,
-          apellidos,
-          dni,
-          codigo_estudiante
-        )
-      `)
-      .order("created_at", {
-        ascending: false,
-      });
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) return;
+    const respuesta = await fetch("/api/vehiculos", {
+      headers: { Authorization: `Bearer ${session.access_token}` },
+      cache: "no-store",
+    });
+    const resultado = (await respuesta.json()) as {
+      vehiculos?: VehiculoConsulta[];
+      error?: string;
+    };
 
-    if (errorConsulta) {
+    if (!respuesta.ok) {
       console.error(
         "Error al cargar vehículos:",
-        errorConsulta
+        resultado.error
       );
 
       setError(
@@ -119,7 +105,7 @@ export default function VehiculosPage() {
       return;
     }
 
-    const datos = (data ?? []) as VehiculoConsulta[];
+    const datos = resultado.vehiculos ?? [];
 
     const vehiculosNormalizados: Vehiculo[] = datos.map(
       (vehiculo) => ({
