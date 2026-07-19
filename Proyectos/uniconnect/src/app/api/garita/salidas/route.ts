@@ -30,6 +30,7 @@ type UsuarioResumen = {
   apellidos: string;
   dni: string;
   codigo_estudiante: string | null;
+  foto: string | null;
 };
 
 type VehiculoResumen = {
@@ -40,6 +41,21 @@ type VehiculoResumen = {
   color: string;
   tipo: string;
 };
+
+const intervaloDuplicadoMilisegundos = 2 * 60 * 1000;
+
+function obtenerInicioDiaLima() {
+  const partes = new Intl.DateTimeFormat("en-US", {
+    timeZone: "America/Lima",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).formatToParts(new Date());
+  const valor = (tipo: Intl.DateTimeFormatPartTypes) =>
+    partes.find((parte) => parte.type === tipo)?.value ?? "";
+
+  return `${valor("year")}-${valor("month")}-${valor("day")}T00:00:00-05:00`;
+}
 
 async function obtenerUsuarioAutenticado(request: Request) {
   const authorization = request.headers.get("authorization");
@@ -97,9 +113,11 @@ async function validarResponsable(
 
 export async function GET(request: Request) {
   try {
+    const { searchParams } = new URL(request.url);
+    const esHistorialReciente = searchParams.get("vista") === "reciente";
     const responsable = await validarResponsable(
       request,
-      [1, 2, 4]
+      esHistorialReciente ? [1, 4] : [1, 2, 4]
     );
 
     if (!responsable) {
@@ -109,20 +127,27 @@ export async function GET(request: Request) {
       );
     }
 
-    const { data: salidas, error: errorSalidas } =
-      await supabaseAdmin
+    let consultaSalidas = supabaseAdmin
         .from("salidas")
         .select(
           "id, vehiculo_id, estudiante_id, garita_id, fecha, hora, created_at"
         )
-        .order("created_at", { ascending: false })
-        .limit(100);
+        .order("created_at", { ascending: false });
+
+    if (esHistorialReciente) {
+      consultaSalidas = consultaSalidas
+        .gte("created_at", obtenerInicioDiaLima())
+        .limit(5);
+    } else {
+      consultaSalidas = consultaSalidas.limit(100);
+    }
+
+    const { data: salidas, error: errorSalidas } = await consultaSalidas;
 
     if (errorSalidas) {
+      console.error("Error al consultar historial de salidas:", errorSalidas.message);
       return NextResponse.json(
-        {
-          error: `No se pudo cargar el historial: ${errorSalidas.message}`,
-        },
+        { error: "No se pudo cargar el historial." },
         { status: 400 }
       );
     }
@@ -145,7 +170,7 @@ export async function GET(request: Request) {
         ? await supabaseAdmin
             .from("usuarios")
             .select(
-              "id, nombres, apellidos, dni, codigo_estudiante"
+              "id, nombres, apellidos, dni, codigo_estudiante, foto"
             )
             .in("id", idsUsuarios)
         : { data: [], error: null };
@@ -189,8 +214,33 @@ export async function GET(request: Request) {
       salidas: registros.map((salida) => ({
         ...salida,
         estudiante:
-          usuariosPorId.get(salida.estudiante_id) ?? null,
-        garita: usuariosPorId.get(salida.garita_id) ?? null,
+          (() => {
+            const estudiante = usuariosPorId.get(salida.estudiante_id);
+            return estudiante
+              ? {
+                  id: estudiante.id,
+                  nombres: estudiante.nombres,
+                  apellidos: estudiante.apellidos,
+                  dni: estudiante.dni,
+                  codigo_estudiante: estudiante.codigo_estudiante,
+                  tiene_foto: Boolean(estudiante.foto),
+                  foto_version: estudiante.foto ? String(Date.now()) : "",
+                }
+              : null;
+          })(),
+        garita:
+          (() => {
+            const garita = usuariosPorId.get(salida.garita_id);
+            return garita
+              ? {
+                  id: garita.id,
+                  nombres: garita.nombres,
+                  apellidos: garita.apellidos,
+                  dni: garita.dni,
+                  codigo_estudiante: garita.codigo_estudiante,
+                }
+              : null;
+          })(),
         vehiculo:
           vehiculosPorId.get(salida.vehiculo_id) ?? null,
       })),
@@ -267,6 +317,40 @@ export async function POST(request: Request) {
       );
     }
 
+    const limiteDuplicado = new Date(
+      Date.now() - intervaloDuplicadoMilisegundos
+    ).toISOString();
+    const { data: salidaReciente, error: errorSalidaReciente } =
+      await supabaseAdmin
+        .from("salidas")
+        .select("id, created_at")
+        .eq("vehiculo_id", vehiculoId)
+        .gte("created_at", limiteDuplicado)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+    if (errorSalidaReciente) {
+      console.error(
+        "Error al validar salida duplicada:",
+        errorSalidaReciente.message
+      );
+      return NextResponse.json(
+        { error: "No se pudo validar el registro de salida." },
+        { status: 500 }
+      );
+    }
+
+    if (salidaReciente) {
+      return NextResponse.json(
+        {
+          error:
+            "Este vehiculo ya tiene una salida registrada en los ultimos 2 minutos.",
+        },
+        { status: 409 }
+      );
+    }
+
     const { data: salida, error: errorSalida } =
       await supabaseAdmin
         .from("salidas")
@@ -281,10 +365,9 @@ export async function POST(request: Request) {
         .single();
 
     if (errorSalida) {
+      console.error("Error al insertar salida:", errorSalida.message);
       return NextResponse.json(
-        {
-          error: `No se pudo registrar la salida: ${errorSalida.message}`,
-        },
+        { error: "No se pudo registrar la salida." },
         { status: 400 }
       );
     }

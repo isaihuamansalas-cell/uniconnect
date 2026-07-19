@@ -216,6 +216,20 @@ Colores institucionales dinamicos implementados con variables CSS desde Configur
 
 Eliminacion definitiva segura de Usuarios y Vehiculos implementada con bloqueo por relaciones, confirmacion estricta, auditoria y limpieza controlada de Storage/Auth
 
+Control de Garita mejorado con busqueda por DNI, codigo institucional y placa
+
+Visualizacion de estudiantes y vehiculos activos e inactivos implementada en Garita
+
+Fotos privadas de estudiantes protegidas para Administrador y Garita
+
+Confirmacion accesible de salidas mediante modal implementada
+
+Proteccion server-side contra salidas repetidas del mismo vehiculo dentro de 2 minutos implementada
+
+Historial operativo con las ultimas 5 salidas del dia implementado en Garita
+
+Control de Garita optimizado para celular, tablet, modo claro y modo oscuro
+
 ---
 
 ## Pendiente
