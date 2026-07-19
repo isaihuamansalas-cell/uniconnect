@@ -45,7 +45,7 @@ export async function GET(request: Request, contexto: ContextoRuta) {
       .from("usuarios")
       .select("id")
       .eq("id", usuarioAutenticado.id)
-      .in("rol_id", [1, 4])
+      .in("rol_id", [1, 2, 4])
       .eq("estado", true)
       .maybeSingle();
 

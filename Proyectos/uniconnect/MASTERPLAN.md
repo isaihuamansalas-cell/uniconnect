@@ -230,6 +230,14 @@ Historial operativo con las ultimas 5 salidas del dia implementado en Garita
 
 Control de Garita optimizado para celular, tablet, modo claro y modo oscuro
 
+Historial completo de salidas con paginacion y filtros server-side implementado
+
+Historial responsive con tabla de escritorio y tarjetas para celular y tablet implementado
+
+Exportacion CSV completa del historial filtrado mediante lotes server-side implementada
+
+Fotos privadas de estudiantes y vehiculos habilitadas para los roles autorizados del Historial
+
 ---
 
 ## Pendiente

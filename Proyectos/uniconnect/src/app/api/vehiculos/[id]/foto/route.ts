@@ -76,7 +76,7 @@ export async function GET(
       .from("usuarios")
       .select("id")
       .eq("id", usuarioAutenticado.id)
-      .in("rol_id", [1, 3, 4])
+      .in("rol_id", [1, 2, 3, 4])
       .eq("estado", true)
       .maybeSingle();
 
