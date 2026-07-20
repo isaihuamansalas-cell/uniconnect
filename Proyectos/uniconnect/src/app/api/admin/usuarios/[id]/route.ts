@@ -1,5 +1,6 @@
 import { createClient } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
+import { respuestaErrorApi } from "@/lib/api/respuestas";
 
 import {
   obtenerIp,
@@ -309,12 +310,7 @@ export async function PATCH(
         .single();
 
     if (errorActualizacion) {
-      return NextResponse.json(
-        {
-          error: `No se pudo actualizar el usuario: ${errorActualizacion.message}`,
-        },
-        { status: 400 }
-      );
+      return respuestaErrorApi("actualizar usuario", errorActualizacion, "No se pudo guardar el registro.");
     }
 
     const cambioAdministrativo =
@@ -522,12 +518,7 @@ export async function DELETE(
       .eq("id", id);
 
     if (errorEliminacionPerfil) {
-      return NextResponse.json(
-        {
-          error: `No se pudo eliminar el usuario: ${errorEliminacionPerfil.message}`,
-        },
-        { status: 400 }
-      );
+      return respuestaErrorApi("eliminar usuario", errorEliminacionPerfil);
     }
 
     const { error: errorAuth } =

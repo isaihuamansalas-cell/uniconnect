@@ -1,5 +1,6 @@
 import { createClient, type User } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
+import { respuestaErrorApi } from "@/lib/api/respuestas";
 
 import {
   obtenerIp,
@@ -182,10 +183,7 @@ export async function PATCH(request: Request) {
       .single();
 
     if (error) {
-      return NextResponse.json(
-        { error: `No se pudo actualizar el perfil: ${error.message}` },
-        { status: 400 }
-      );
+      return respuestaErrorApi("actualizar perfil", error, "No se pudo guardar el registro.");
     }
 
     if (perfilActual.telefono !== telefono) {

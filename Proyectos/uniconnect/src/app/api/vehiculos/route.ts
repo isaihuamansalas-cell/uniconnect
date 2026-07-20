@@ -1,5 +1,6 @@
 import { createClient } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
+import { respuestaErrorApi } from "@/lib/api/respuestas";
 
 import {
   obtenerIp,
@@ -209,12 +210,7 @@ export async function POST(request: Request) {
         .single();
 
     if (errorVehiculo) {
-      return NextResponse.json(
-        {
-          error: `No se pudo registrar el vehículo: ${errorVehiculo.message}`,
-        },
-        { status: 400 }
-      );
+      return respuestaErrorApi("registrar vehiculo", errorVehiculo, "No se pudo guardar el registro.");
     }
 
     await registrarAuditoria({

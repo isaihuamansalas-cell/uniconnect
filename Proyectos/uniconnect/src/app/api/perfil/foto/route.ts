@@ -1,5 +1,6 @@
 import { createClient, type User } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
+import { respuestaErrorApi } from "@/lib/api/respuestas";
 
 import {
   obtenerIp,
@@ -228,12 +229,7 @@ export async function POST(request: Request) {
       });
 
     if (errorSubida) {
-      return NextResponse.json(
-        {
-          error: `No se pudo subir la imagen: ${errorSubida.message}`,
-        },
-        { status: 400 }
-      );
+      return respuestaErrorApi("subir foto de perfil", errorSubida, "No se pudo guardar el registro.");
     }
 
     const { data: perfilActualizado, error: errorActualizacion } =

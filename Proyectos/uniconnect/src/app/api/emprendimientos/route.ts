@@ -1,5 +1,6 @@
 import { createClient } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
+import { respuestaErrorApi } from "@/lib/api/respuestas";
 
 import {
   obtenerIp,
@@ -131,12 +132,7 @@ export async function GET(request: Request) {
       .order("created_at", { ascending: false });
 
     if (errorEmprendimientos) {
-      return NextResponse.json(
-        {
-          error: `No se pudieron cargar los emprendimientos: ${errorEmprendimientos.message}`,
-        },
-        { status: 400 }
-      );
+      return respuestaErrorApi("listar emprendimientos", errorEmprendimientos, "No se pudo cargar la informacion.");
     }
 
     const registros =
@@ -235,12 +231,7 @@ export async function POST(request: Request) {
         .single();
 
     if (errorCreacion) {
-      return NextResponse.json(
-        {
-          error: `No se pudo crear el emprendimiento: ${errorCreacion.message}`,
-        },
-        { status: 400 }
-      );
+      return respuestaErrorApi("crear emprendimiento", errorCreacion, "No se pudo guardar el registro.");
     }
 
     await registrarAuditoria({

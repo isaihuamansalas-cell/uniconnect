@@ -39,23 +39,29 @@ export default function RecuperarPasswordPage() {
     setError("");
     setMensaje("");
 
-    const { error: errorRecuperacion } =
-      await supabase.auth.resetPasswordForEmail(correo.trim(), {
-        redirectTo: obtenerUrlRestablecimiento(),
-      });
+    try {
+      const { error: errorRecuperacion } =
+        await supabase.auth.resetPasswordForEmail(correo.trim(), {
+          redirectTo: obtenerUrlRestablecimiento(),
+        });
 
-    if (errorRecuperacion) {
+      if (errorRecuperacion) {
+        setError(
+          "No se pudo enviar la solicitud. Intenta nuevamente en unos minutos."
+        );
+        return;
+      }
+
+      setMensaje(
+        "Si el correo esta registrado, recibiras un enlace para restablecer tu contrasena."
+      );
+    } catch {
       setError(
         "No se pudo enviar la solicitud. Intenta nuevamente en unos minutos."
       );
+    } finally {
       setEnviando(false);
-      return;
     }
-
-    setMensaje(
-      "Si el correo esta registrado, recibiras un enlace para restablecer tu contrasena."
-    );
-    setEnviando(false);
   }
 
   return (

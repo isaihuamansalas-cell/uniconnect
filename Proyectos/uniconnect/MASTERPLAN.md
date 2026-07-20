@@ -248,6 +248,8 @@ PerfilProvider endurecido para revalidar en TOKEN_REFRESHED, USER_UPDATED, foco,
 
 Proteccion central de rutas aplicada a Dashboard, Usuarios, Vehiculos, Configuracion, Garita, Historial, Auditoria, Reportes y Perfil
 
+Fase 2A de auditoria tecnica completada: recuperacion de contrasena restringida al flujo PASSWORD_RECOVERY, PerfilProvider protegido contra fallos de red y respuestas obsoletas, errores internos de Supabase saneados en APIs y login con mensajes controlados
+
 ---
 
 ## Pendiente

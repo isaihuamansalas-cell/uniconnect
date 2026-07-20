@@ -5,5 +5,12 @@ const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 
 export const supabase = createClient(
   supabaseUrl,
-  supabaseAnonKey
+  supabaseAnonKey,
+  {
+    auth: {
+      // Los callbacks sensibles se procesan expresamente en su pagina.
+      // Evita que una sesion ordinaria se confunda con una recuperacion.
+      detectSessionInUrl: false,
+    },
+  }
 );

@@ -1,5 +1,6 @@
 import { createClient } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
+import { respuestaErrorApi } from "@/lib/api/respuestas";
 
 import {
   obtenerIp,
@@ -219,12 +220,7 @@ export async function PATCH(
         .single();
 
     if (errorActualizacion) {
-      return NextResponse.json(
-        {
-          error: `No se pudo actualizar el aviso: ${errorActualizacion.message}`,
-        },
-        { status: 400 }
-      );
+      return respuestaErrorApi("actualizar aviso", errorActualizacion, "No se pudo guardar el registro.");
     }
 
     await registrarAuditoria({

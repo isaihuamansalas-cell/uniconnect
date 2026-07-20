@@ -1,5 +1,6 @@
 import { createClient } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
+import { respuestaErrorApi } from "@/lib/api/respuestas";
 
 import {
   obtenerIp,
@@ -166,13 +167,10 @@ export async function POST(request: Request) {
       });
 
     if (errorCuenta || !cuentaCreada.user) {
-      return NextResponse.json(
-        {
-          error:
-            errorCuenta?.message ??
-            "No se pudo crear la cuenta de acceso.",
-        },
-        { status: 400 }
+      return respuestaErrorApi(
+        "crear cuenta de acceso",
+        errorCuenta ?? new Error("Supabase no devolvio el usuario creado."),
+        "No se pudo guardar el registro."
       );
     }
 
@@ -198,10 +196,7 @@ export async function POST(request: Request) {
         cuentaCreada.user.id
       );
 
-      return NextResponse.json(
-        { error: `No se pudo guardar el perfil: ${errorPerfil.message}` },
-        { status: 400 }
-      );
+      return respuestaErrorApi("guardar perfil de usuario", errorPerfil, "No se pudo guardar el registro.");
     }
 
     await registrarAuditoria({

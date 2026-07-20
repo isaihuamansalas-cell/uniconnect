@@ -1,5 +1,6 @@
 import { createClient, type User } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
+import { respuestaErrorApi } from "@/lib/api/respuestas";
 
 import { supabaseAdmin } from "@/lib/supabase/admin";
 
@@ -106,12 +107,7 @@ export async function PATCH(
       .maybeSingle();
 
     if (error) {
-      return NextResponse.json(
-        {
-          error: `No se pudo actualizar la notificacion: ${error.message}`,
-        },
-        { status: 400 }
-      );
+      return respuestaErrorApi("actualizar notificacion", error);
     }
 
     if (!notificacion) {

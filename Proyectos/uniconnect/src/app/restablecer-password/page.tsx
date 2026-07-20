@@ -5,7 +5,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
-import { usePerfil } from "@/components/auth/PerfilProvider";
 import { useConfiguracion } from "@/components/configuracion/ConfiguracionProvider";
 import { FormField, Input } from "@/components/ui";
 import { obtenerUrlLogo } from "@/lib/configuracion/defaults";
@@ -13,7 +12,6 @@ import { supabase } from "@/lib/supabase/client";
 
 export default function RestablecerPasswordPage() {
   const router = useRouter();
-  const { cerrarSesion } = usePerfil();
   const { configuracion } = useConfiguracion();
   const logoUrl = obtenerUrlLogo(configuracion.logo_path);
 
@@ -28,34 +26,78 @@ export default function RestablecerPasswordPage() {
 
   useEffect(() => {
     let componenteActivo = true;
+    let recuperacionConfirmada = false;
 
-    async function verificarSesion() {
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
-
-      if (!componenteActivo) {
-        return;
-      }
-
-      setSesionRecuperacionLista(Boolean(session?.user));
+    function confirmarRecuperacion() {
+      if (!componenteActivo) return;
+      recuperacionConfirmada = true;
+      setSesionRecuperacionLista(true);
+      setError("");
       setVerificandoSesion(false);
+    }
+
+    async function procesarEnlaceRecuperacion() {
+      try {
+        const parametros = new URLSearchParams(window.location.search);
+        const fragmento = new URLSearchParams(
+          window.location.hash.replace(/^#/, "")
+        );
+
+        if (parametros.get("error") || fragmento.get("error")) {
+          throw new Error("Enlace de recuperacion rechazado.");
+        }
+
+        const codigo = parametros.get("code");
+        if (codigo) {
+          const { data, error: errorIntercambio } =
+            await supabase.auth.exchangeCodeForSession(codigo);
+          if (errorIntercambio || !data.session?.user) {
+            throw new Error("No se pudo intercambiar el codigo de recuperacion.");
+          }
+          confirmarRecuperacion();
+          window.history.replaceState({}, "", window.location.pathname);
+          return;
+        }
+
+        const esFragmentoRecuperacion =
+          fragmento.get("type") === "recovery";
+        const accessToken = fragmento.get("access_token");
+        const refreshToken = fragmento.get("refresh_token");
+
+        if (esFragmentoRecuperacion && accessToken && refreshToken) {
+          const { data, error: errorSesion } = await supabase.auth.setSession({
+            access_token: accessToken,
+            refresh_token: refreshToken,
+          });
+          if (errorSesion || !data.session?.user) {
+            throw new Error("No se pudo iniciar la sesion de recuperacion.");
+          }
+          confirmarRecuperacion();
+          window.history.replaceState({}, "", window.location.pathname);
+          return;
+        }
+
+        // Una sesion persistida normal no acredita una recuperacion.
+        if (!recuperacionConfirmada && componenteActivo) {
+          setSesionRecuperacionLista(false);
+          setVerificandoSesion(false);
+        }
+      } catch {
+        if (!componenteActivo) return;
+        setSesionRecuperacionLista(false);
+        setVerificandoSesion(false);
+      }
     }
 
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((event, session) => {
-      if (
-        event === "PASSWORD_RECOVERY" ||
-        event === "SIGNED_IN" ||
-        event === "INITIAL_SESSION"
-      ) {
-        setSesionRecuperacionLista(Boolean(session?.user));
-        setVerificandoSesion(false);
+      if (event === "PASSWORD_RECOVERY" && session?.user) {
+        confirmarRecuperacion();
       }
     });
 
-    void verificarSesion();
+    void procesarEnlaceRecuperacion();
 
     return () => {
       componenteActivo = false;
@@ -88,30 +130,38 @@ export default function RestablecerPasswordPage() {
 
     setActualizando(true);
 
-    const { error: errorActualizacion } =
-      await supabase.auth.updateUser({
+    try {
+      const { error: errorActualizacion } = await supabase.auth.updateUser({
         password,
       });
 
-    if (errorActualizacion) {
+      if (errorActualizacion) {
+        setError(
+          "No se pudo actualizar la contrasena. Solicita un nuevo enlace e intenta nuevamente."
+        );
+        return;
+      }
+
+      setSesionRecuperacionLista(false);
+      setPassword("");
+      setConfirmacion("");
+      setMensaje(
+        "Contrasena actualizada correctamente. Seras redirigido al login."
+      );
+
+      try {
+        await supabase.auth.signOut();
+      } finally {
+        router.replace("/login");
+        router.refresh();
+      }
+    } catch {
       setError(
         "No se pudo actualizar la contrasena. Solicita un nuevo enlace e intenta nuevamente."
       );
+    } finally {
       setActualizando(false);
-      return;
     }
-
-    setMensaje(
-      "Contrasena actualizada correctamente. Seras redirigido al login."
-    );
-    setPassword("");
-    setConfirmacion("");
-
-    window.setTimeout(() => {
-      void cerrarSesion();
-      router.replace("/login");
-      router.refresh();
-    }, 1200);
   }
 
   return (

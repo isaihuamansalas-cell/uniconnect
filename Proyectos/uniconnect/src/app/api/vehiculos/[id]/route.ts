@@ -1,5 +1,6 @@
 import { createClient } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
+import { respuestaErrorApi } from "@/lib/api/respuestas";
 
 import {
   obtenerIp,
@@ -238,12 +239,7 @@ export async function PATCH(
         .single();
 
     if (errorActualizacion) {
-      return NextResponse.json(
-        {
-          error: `No se pudo actualizar el vehiculo: ${errorActualizacion.message}`,
-        },
-        { status: 400 }
-      );
+      return respuestaErrorApi("actualizar vehiculo", errorActualizacion, "No se pudo guardar el registro.");
     }
 
     await registrarAuditoria({
@@ -394,12 +390,7 @@ export async function DELETE(
       .eq("id", vehiculoId);
 
     if (errorEliminacion) {
-      return NextResponse.json(
-        {
-          error: `No se pudo eliminar el vehiculo: ${errorEliminacion.message}`,
-        },
-        { status: 400 }
-      );
+      return respuestaErrorApi("eliminar vehiculo", errorEliminacion);
     }
 
     await registrarAuditoria({

@@ -1,5 +1,6 @@
 import { createClient, type User } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
+import { respuestaErrorApi } from "@/lib/api/respuestas";
 
 import { supabaseAdmin } from "@/lib/supabase/admin";
 
@@ -94,12 +95,7 @@ export async function GET(request: Request) {
       .limit(30);
 
     if (error) {
-      return NextResponse.json(
-        {
-          error: `No se pudieron cargar las notificaciones: ${error.message}`,
-        },
-        { status: 400 }
-      );
+      return respuestaErrorApi("listar notificaciones", error, "No se pudo cargar la informacion.");
     }
 
     const { count, error: errorConteo } = await supabaseAdmin
@@ -151,12 +147,7 @@ export async function PATCH(request: Request) {
       .eq("leida", false);
 
     if (error) {
-      return NextResponse.json(
-        {
-          error: `No se pudieron actualizar las notificaciones: ${error.message}`,
-        },
-        { status: 400 }
-      );
+      return respuestaErrorApi("actualizar notificaciones", error);
     }
 
     return NextResponse.json({

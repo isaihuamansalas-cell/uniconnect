@@ -1,5 +1,6 @@
 import { createClient } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
+import { respuestaErrorApi } from "@/lib/api/respuestas";
 
 import {
   ConfiguracionInstitucional,
@@ -165,12 +166,7 @@ export async function POST(request: Request) {
       });
 
     if (errorSubida) {
-      return NextResponse.json(
-        {
-          error: `No se pudo subir el logo: ${errorSubida.message}`,
-        },
-        { status: 400 }
-      );
+      return respuestaErrorApi("subir logo", errorSubida, "No se pudo guardar el registro.");
     }
 
     const { data, error: errorActualizacion } = await supabaseAdmin
@@ -187,12 +183,7 @@ export async function POST(request: Request) {
       .single();
 
     if (errorActualizacion) {
-      return NextResponse.json(
-        {
-          error: `No se pudo guardar el logo: ${errorActualizacion.message}`,
-        },
-        { status: 400 }
-      );
+      return respuestaErrorApi("guardar logo", errorActualizacion, "No se pudo guardar el registro.");
     }
 
     await registrarAuditoria({

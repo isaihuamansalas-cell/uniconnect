@@ -1,5 +1,6 @@
 import { createClient } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
+import { respuestaErrorApi } from "@/lib/api/respuestas";
 
 import { supabaseAdmin } from "@/lib/supabase/admin";
 
@@ -331,12 +332,7 @@ export async function GET(request: Request) {
     const { data: salidas, error: errorSalidas } = await consulta;
 
     if (errorSalidas) {
-      return NextResponse.json(
-        {
-          error: `No se pudieron cargar las salidas: ${errorSalidas.message}`,
-        },
-        { status: 400 }
-      );
+      return respuestaErrorApi("cargar salidas de reportes", errorSalidas, "No se pudo cargar la informacion.");
     }
 
     const registros = (salidas ?? []) as SalidaBase[];

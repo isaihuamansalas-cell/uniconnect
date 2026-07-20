@@ -34,16 +34,18 @@ export default function LoginPage() {
     setLoading(true);
     setErrorLogin("");
 
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email: correo,
-      password,
-    });
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: correo,
+        password,
+      });
 
-    if (error) {
-      setErrorLogin(error.message);
-      setLoading(false);
-      return;
-    }
+      if (error) {
+        setErrorLogin(
+          "Credenciales incorrectas, cuenta no disponible o error temporal."
+        );
+        return;
+      }
 
     if (!data.session || !data.user) {
       await supabase.auth.signOut();
@@ -87,9 +89,15 @@ export default function LoginPage() {
       return;
     }
 
-    router.replace("/dashboard");
-    router.refresh();
-    setLoading(false);
+      router.replace("/dashboard");
+      router.refresh();
+    } catch {
+      setErrorLogin(
+        "Credenciales incorrectas, cuenta no disponible o error temporal."
+      );
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (

@@ -1,5 +1,6 @@
 import { createClient, type User } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
+import { respuestaErrorApi } from "@/lib/api/respuestas";
 
 import {
   type DatosAuditoria,
@@ -166,10 +167,7 @@ export async function GET(request: Request) {
     const { data, error, count } = await consulta;
 
     if (error) {
-      return NextResponse.json(
-        { error: `No se pudo cargar auditoria: ${error.message}` },
-        { status: 400 }
-      );
+      return respuestaErrorApi("cargar auditoria", error, "No se pudo cargar la informacion.");
     }
 
     const registros = (data ?? []) as AuditoriaRegistro[];

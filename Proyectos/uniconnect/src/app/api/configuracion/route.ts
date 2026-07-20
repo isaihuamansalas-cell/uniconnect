@@ -1,5 +1,6 @@
 import { createClient } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
+import { respuestaErrorApi } from "@/lib/api/respuestas";
 
 import {
   ConfiguracionInstitucional,
@@ -224,12 +225,7 @@ export async function PATCH(request: Request) {
       .single();
 
     if (error) {
-      return NextResponse.json(
-        {
-          error: `No se pudo actualizar la configuracion: ${error.message}`,
-        },
-        { status: 400 }
-      );
+      return respuestaErrorApi("actualizar configuracion", error, "No se pudo guardar el registro.");
     }
 
     await registrarAuditoria({

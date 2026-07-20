@@ -42,23 +42,9 @@ type PerfilContexto = {
 
 const PerfilContext = createContext<PerfilContexto | null>(null);
 
-type Props = {
-  children: ReactNode;
-};
+type Props = { children: ReactNode };
 
-type PerfilConsulta = {
-  id: string;
-  nombres: string;
-  apellidos: string;
-  correo: string;
-  dni: string;
-  codigo_estudiante: string | null;
-  telefono: string | null;
-  rol_id: number;
-  estado: boolean;
-  tiene_foto: boolean;
-  foto_version: string;
-};
+type PerfilConsulta = PerfilUsuario;
 
 type RespuestaPerfil = {
   perfil?: PerfilConsulta;
@@ -66,19 +52,7 @@ type RespuestaPerfil = {
 };
 
 function normalizarPerfil(perfil: PerfilConsulta): PerfilUsuario {
-  return {
-    id: perfil.id,
-    nombres: perfil.nombres,
-    apellidos: perfil.apellidos,
-    correo: perfil.correo,
-    dni: perfil.dni,
-    codigo_estudiante: perfil.codigo_estudiante,
-    telefono: perfil.telefono,
-    rol_id: perfil.rol_id,
-    estado: perfil.estado,
-    tiene_foto: perfil.tiene_foto,
-    foto_version: perfil.foto_version,
-  };
+  return { ...perfil };
 }
 
 export function PerfilProvider({ children }: Props) {
@@ -90,142 +64,205 @@ export function PerfilProvider({ children }: Props) {
   const [cargandoSesion, setCargandoSesion] = useState(true);
   const [errorPerfil, setErrorPerfil] = useState("");
   const perfilCargadoParaUsuario = useRef<string | null>(null);
+  const solicitudPerfil = useRef<AbortController | null>(null);
+  const versionSolicitud = useRef(0);
+  const componenteMontado = useRef(true);
+  const redireccionandoAlLogin = useRef(false);
   const esRutaRecuperacion =
     pathname === "/recuperar-password" ||
     pathname === "/restablecer-password";
 
-  const limpiarPerfil = useCallback(() => {
-    perfilCargadoParaUsuario.current = null;
-    setPerfil(null);
+  const cancelarSolicitudPerfil = useCallback(() => {
+    versionSolicitud.current += 1;
+    solicitudPerfil.current?.abort();
+    solicitudPerfil.current = null;
   }, []);
 
-  const expulsarUsuario = useCallback(async () => {
+  const limpiarEstadoAutenticado = useCallback(() => {
+    cancelarSolicitudPerfil();
     perfilCargadoParaUsuario.current = null;
     setPerfil(null);
     setSession(null);
     setErrorPerfil("");
     setCargandoPerfil(false);
     setCargandoSesion(false);
-    await supabase.auth.signOut();
+  }, [cancelarSolicitudPerfil]);
+
+  const redirigirAlLogin = useCallback(() => {
+    if (redireccionandoAlLogin.current || esRutaRecuperacion) return;
+    redireccionandoAlLogin.current = true;
     router.replace("/login");
     router.refresh();
-  }, [router]);
+  }, [esRutaRecuperacion, router]);
+
+  const expulsarUsuario = useCallback(async () => {
+    limpiarEstadoAutenticado();
+    try {
+      await supabase.auth.signOut();
+    } catch {
+      // La limpieza y redireccion local deben continuar aunque falle la red.
+    } finally {
+      if (componenteMontado.current) redirigirAlLogin();
+    }
+  }, [limpiarEstadoAutenticado, redirigirAlLogin]);
 
   const cargarPerfilPorUsuario = useCallback(
     async (user: User, accessToken: string, forzar = false) => {
-      if (
-        !forzar &&
-        perfilCargadoParaUsuario.current === user.id
-      ) {
-        return;
-      }
+      if (!forzar && perfilCargadoParaUsuario.current === user.id) return;
+
+      cancelarSolicitudPerfil();
+      const controlador = new AbortController();
+      solicitudPerfil.current = controlador;
+      const versionActual = versionSolicitud.current;
 
       setCargandoPerfil(true);
       setErrorPerfil("");
 
-      const respuesta = await fetch("/api/perfil", {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-        cache: "no-store",
-      });
+      try {
+        const respuesta = await fetch("/api/perfil", {
+          headers: { Authorization: `Bearer ${accessToken}` },
+          cache: "no-store",
+          signal: controlador.signal,
+        });
 
-      const resultado = (await respuesta.json()) as RespuestaPerfil;
-
-      if (!respuesta.ok) {
-        limpiarPerfil();
-        setErrorPerfil(
-          resultado.error ??
-            "No se pudo cargar la informacion del usuario."
-        );
-        if (respuesta.status === 401 || respuesta.status === 403) {
-          await expulsarUsuario();
+        let resultado: RespuestaPerfil;
+        try {
+          resultado = (await respuesta.json()) as RespuestaPerfil;
+        } catch {
+          resultado = {};
         }
-        setCargandoPerfil(false);
-        return;
-      }
 
-      if (!resultado.perfil) {
-        limpiarPerfil();
-        setErrorPerfil(
-          "Tu cuenta autenticada no existe en el registro de usuarios."
-        );
-        await expulsarUsuario();
-        setCargandoPerfil(false);
-        return;
-      }
+        if (
+          controlador.signal.aborted ||
+          versionActual !== versionSolicitud.current ||
+          !componenteMontado.current
+        ) {
+          return;
+        }
 
-      const perfilUsuario = normalizarPerfil(resultado.perfil);
-      perfilCargadoParaUsuario.current = user.id;
-      setPerfil(perfilUsuario);
-      setCargandoPerfil(false);
+        if (!respuesta.ok) {
+          perfilCargadoParaUsuario.current = null;
+          setPerfil(null);
+          setErrorPerfil(
+            resultado.error ?? "No se pudo cargar la informacion del usuario."
+          );
+          if (respuesta.status === 401 || respuesta.status === 403) {
+            await expulsarUsuario();
+          }
+          return;
+        }
+
+        if (!resultado.perfil) {
+          setErrorPerfil(
+            "Tu cuenta autenticada no existe en el registro de usuarios."
+          );
+          await expulsarUsuario();
+          return;
+        }
+
+        perfilCargadoParaUsuario.current = user.id;
+        setPerfil(normalizarPerfil(resultado.perfil));
+      } catch (error) {
+        if (error instanceof DOMException && error.name === "AbortError") return;
+        if (versionActual !== versionSolicitud.current || !componenteMontado.current) return;
+        perfilCargadoParaUsuario.current = null;
+        setPerfil(null);
+        setErrorPerfil("No se pudo cargar la informacion del usuario.");
+      } finally {
+        if (
+          versionActual === versionSolicitud.current &&
+          componenteMontado.current
+        ) {
+          solicitudPerfil.current = null;
+          setCargandoPerfil(false);
+        }
+      }
     },
-    [expulsarUsuario, limpiarPerfil]
+    [cancelarSolicitudPerfil, expulsarUsuario]
   );
 
   const recargarPerfil = useCallback(async () => {
+    if (esRutaRecuperacion) return;
     setCargandoPerfil(true);
     setErrorPerfil("");
 
-    const {
-      data: { session: sesionActual },
-      error,
-    } = await supabase.auth.getSession();
+    try {
+      const { data, error } = await supabase.auth.getSession();
+      if (error || !data.session?.user) {
+        limpiarEstadoAutenticado();
+        return;
+      }
 
-    if (error || !sesionActual?.user) {
-      setSession(null);
-      limpiarPerfil();
-      setCargandoPerfil(false);
-      return;
+      setSession(data.session);
+      setCargandoSesion(false);
+      await cargarPerfilPorUsuario(
+        data.session.user,
+        data.session.access_token,
+        true
+      );
+    } catch {
+      if (!componenteMontado.current) return;
+      setErrorPerfil("No se pudo validar la sesion.");
+    } finally {
+      if (componenteMontado.current && !solicitudPerfil.current) {
+        setCargandoPerfil(false);
+        setCargandoSesion(false);
+      }
     }
-
-    setSession(sesionActual);
-    await cargarPerfilPorUsuario(
-      sesionActual.user,
-      sesionActual.access_token,
-      true
-    );
-  }, [cargarPerfilPorUsuario, limpiarPerfil]);
+  }, [cargarPerfilPorUsuario, esRutaRecuperacion, limpiarEstadoAutenticado]);
 
   useEffect(() => {
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((event, nuevaSession) => {
-      setSession(nuevaSession);
-      setCargandoSesion(false);
+    componenteMontado.current = true;
+    redireccionandoAlLogin.current = false;
 
-      if (esRutaRecuperacion) {
-        limpiarPerfil();
-        setErrorPerfil("");
-        setCargandoPerfil(false);
-        return;
-      }
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, nuevaSession) => {
+        if (!componenteMontado.current) return;
 
-      if (event === "SIGNED_OUT" || !nuevaSession?.user) {
-        limpiarPerfil();
-        setErrorPerfil("");
-        setCargandoPerfil(false);
-        return;
-      }
+        if (esRutaRecuperacion) {
+          cancelarSolicitudPerfil();
+          perfilCargadoParaUsuario.current = null;
+          setPerfil(null);
+          setErrorPerfil("");
+          setCargandoPerfil(false);
+          setCargandoSesion(false);
+          return;
+        }
 
-      if (
-        event === "SIGNED_IN" ||
-        event === "INITIAL_SESSION" ||
-        event === "TOKEN_REFRESHED" ||
-        event === "USER_UPDATED"
-      ) {
-        void cargarPerfilPorUsuario(
-          nuevaSession.user,
-          nuevaSession.access_token,
-          event === "TOKEN_REFRESHED" || event === "USER_UPDATED"
-        );
+        if (event === "SIGNED_OUT" || !nuevaSession?.user) {
+          limpiarEstadoAutenticado();
+          return;
+        }
+
+        setSession(nuevaSession);
+        setCargandoSesion(false);
+
+        if (
+          event === "SIGNED_IN" ||
+          event === "INITIAL_SESSION" ||
+          event === "TOKEN_REFRESHED" ||
+          event === "USER_UPDATED"
+        ) {
+          void cargarPerfilPorUsuario(
+            nuevaSession.user,
+            nuevaSession.access_token,
+            event === "TOKEN_REFRESHED" || event === "USER_UPDATED"
+          );
+        }
       }
-    });
+    );
 
     return () => {
+      componenteMontado.current = false;
+      cancelarSolicitudPerfil();
       subscription.unsubscribe();
     };
-  }, [cargarPerfilPorUsuario, esRutaRecuperacion, limpiarPerfil]);
+  }, [
+    cancelarSolicitudPerfil,
+    cargarPerfilPorUsuario,
+    esRutaRecuperacion,
+    limpiarEstadoAutenticado,
+  ]);
 
   useEffect(() => {
     if (esRutaRecuperacion) return;
@@ -244,64 +281,58 @@ export function PerfilProvider({ children }: Props) {
   }, [esRutaRecuperacion, recargarPerfil]);
 
   const cerrarSesion = useCallback(async () => {
+    if (redireccionandoAlLogin.current) return;
     setCargandoSesion(true);
     setCargandoPerfil(true);
-    setErrorPerfil("");
+    cancelarSolicitudPerfil();
+    perfilCargadoParaUsuario.current = null;
     setSession(null);
-    limpiarPerfil();
+    setPerfil(null);
+    setErrorPerfil("");
 
-    await supabase.auth.signOut();
+    try {
+      await supabase.auth.signOut();
+    } catch {
+      // La limpieza y redireccion local deben continuar aunque falle la red.
+    } finally {
+      if (componenteMontado.current) {
+        setCargandoSesion(false);
+        setCargandoPerfil(false);
+        redirigirAlLogin();
+      }
+    }
+  }, [cancelarSolicitudPerfil, redirigirAlLogin]);
 
-    setCargandoSesion(false);
-    setCargandoPerfil(false);
-    router.replace("/login");
-    router.refresh();
-  }, [limpiarPerfil, router]);
+  const actualizarPerfilLocal = useCallback((perfilActualizado: PerfilUsuario) => {
+    perfilCargadoParaUsuario.current = perfilActualizado.id;
+    setPerfil(perfilActualizado);
+  }, []);
 
-  const actualizarPerfilLocal = useCallback(
-    (perfilActualizado: PerfilUsuario) => {
-      perfilCargadoParaUsuario.current = perfilActualizado.id;
-      setPerfil(perfilActualizado);
-    },
-    []
-  );
+  const valor = useMemo<PerfilContexto>(() => ({
+    perfil,
+    session,
+    cargandoPerfil,
+    cargandoSesion,
+    errorPerfil,
+    recargarPerfil,
+    actualizarPerfilLocal,
+    cerrarSesion,
+  }), [
+    actualizarPerfilLocal,
+    cargandoPerfil,
+    cargandoSesion,
+    cerrarSesion,
+    errorPerfil,
+    perfil,
+    recargarPerfil,
+    session,
+  ]);
 
-  const valor = useMemo<PerfilContexto>(
-    () => ({
-      perfil,
-      session,
-      cargandoPerfil,
-      cargandoSesion,
-      errorPerfil,
-      recargarPerfil,
-      actualizarPerfilLocal,
-      cerrarSesion,
-    }),
-    [
-      actualizarPerfilLocal,
-      cargandoPerfil,
-      cargandoSesion,
-      cerrarSesion,
-      errorPerfil,
-      perfil,
-      recargarPerfil,
-      session,
-    ]
-  );
-
-  return (
-    <PerfilContext.Provider value={valor}>
-      {children}
-    </PerfilContext.Provider>
-  );
+  return <PerfilContext.Provider value={valor}>{children}</PerfilContext.Provider>;
 }
 
 export function usePerfil() {
   const contexto = useContext(PerfilContext);
-
-  if (!contexto) {
-    throw new Error("usePerfil debe usarse dentro de PerfilProvider.");
-  }
-
+  if (!contexto) throw new Error("usePerfil debe usarse dentro de PerfilProvider.");
   return contexto;
 }
