@@ -25,7 +25,7 @@ const nombresRoles: Record<number, string> = {
 
 export default function Header({ onMenuClick }: HeaderProps) {
   const { configuracion } = useConfiguracion();
-  const { perfil, session, cargandoPerfil, cerrarSesion } =
+  const { perfil, session, cargandoPerfil, cerrandoSesion, cerrarSesion } =
     usePerfil();
   const [menuCuentaAbierto, setMenuCuentaAbierto] = useState(false);
   const menuCuentaRef = useRef<HTMLDivElement | null>(null);
@@ -112,10 +112,14 @@ export default function Header({ onMenuClick }: HeaderProps) {
 
         <button
           type="button"
-          onClick={cerrarSesion}
+          onClick={() => {
+            setMenuCuentaAbierto(false);
+            void cerrarSesion();
+          }}
+          disabled={cerrandoSesion}
           title="Cerrar sesion"
           aria-label="Cerrar sesion"
-          className="rounded-lg p-2 text-red-600 transition hover:bg-red-50"
+          className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-lg p-2 text-red-600 transition hover:bg-red-50 disabled:cursor-wait disabled:opacity-60 dark:hover:bg-red-950/30"
         >
           <LogOut size={21} />
         </button>
@@ -142,7 +146,7 @@ export default function Header({ onMenuClick }: HeaderProps) {
                 <p className="text-xs text-slate-500 dark:text-slate-400">{perfil ? nombresRoles[perfil.rol_id] : "Sin perfil"}</p>
               </div>
               <Link role="menuitem" href="/perfil" onClick={() => setMenuCuentaAbierto(false)} className="mt-1 flex min-h-11 items-center gap-3 rounded-xl px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800"><UserRound size={19} />Mi perfil</Link>
-              <button role="menuitem" type="button" onClick={() => { setMenuCuentaAbierto(false); void cerrarSesion(); }} className="flex min-h-11 w-full items-center gap-3 rounded-xl px-3 py-2 text-left text-sm font-semibold text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30"><LogOut size={19} />Cerrar sesion</button>
+              <button role="menuitem" type="button" disabled={cerrandoSesion} onClick={() => { setMenuCuentaAbierto(false); void cerrarSesion(); }} className="flex min-h-11 w-full items-center gap-3 rounded-xl px-3 py-2 text-left text-sm font-semibold text-red-600 hover:bg-red-50 disabled:cursor-wait disabled:opacity-60 dark:hover:bg-red-950/30"><LogOut size={19} />{cerrandoSesion ? "Cerrando..." : "Cerrar sesion"}</button>
             </div>
           )}
         </div>

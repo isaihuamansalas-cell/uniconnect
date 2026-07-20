@@ -35,6 +35,7 @@ type PerfilContexto = {
   session: Session | null;
   cargaInicial: boolean;
   revalidandoPerfil: boolean;
+  cerrandoSesion: boolean;
   cargandoPerfil: boolean;
   cargandoSesion: boolean;
   errorPerfil: string;
@@ -65,6 +66,7 @@ export function PerfilProvider({ children }: Props) {
   const [session, setSession] = useState<Session | null>(null);
   const [cargaInicial, setCargaInicial] = useState(true);
   const [revalidandoPerfil, setRevalidandoPerfil] = useState(false);
+  const [cerrandoSesion, setCerrandoSesion] = useState(false);
   const [cargandoSesion, setCargandoSesion] = useState(true);
   const [errorPerfil, setErrorPerfil] = useState("");
   const perfilCargadoParaUsuario = useRef<string | null>(null);
@@ -72,6 +74,7 @@ export function PerfilProvider({ children }: Props) {
   const versionSolicitud = useRef(0);
   const componenteMontado = useRef(true);
   const redireccionandoAlLogin = useRef(false);
+  const cierreSesionEnCurso = useRef(false);
   const esRutaRecuperacion =
     pathname === "/recuperar-password" ||
     pathname === "/restablecer-password";
@@ -102,11 +105,17 @@ export function PerfilProvider({ children }: Props) {
   }, [esRutaRecuperacion, router]);
 
   const expulsarUsuario = useCallback(async () => {
+    if (cierreSesionEnCurso.current) return;
+    cierreSesionEnCurso.current = true;
+    setCerrandoSesion(true);
     limpiarEstadoAutenticado();
     try {
-      await supabase.auth.signOut();
+      const cierreRemoto = supabase.auth.signOut();
+      redirigirAlLogin();
+      const { error } = await cierreRemoto;
+      if (error) console.error("No se pudo completar el cierre remoto de sesion.");
     } catch {
-      // La limpieza y redireccion local deben continuar aunque falle la red.
+      console.error("No se pudo completar el cierre remoto de sesion.");
     } finally {
       if (componenteMontado.current) redirigirAlLogin();
     }
@@ -192,7 +201,7 @@ export function PerfilProvider({ children }: Props) {
   );
 
   const recargarPerfil = useCallback(async () => {
-    if (esRutaRecuperacion) return;
+    if (esRutaRecuperacion || cierreSesionEnCurso.current) return;
     if (solicitudPerfil.current) return;
     setRevalidandoPerfil(true);
     setErrorPerfil("");
@@ -232,6 +241,8 @@ export function PerfilProvider({ children }: Props) {
   useEffect(() => {
     componenteMontado.current = true;
     redireccionandoAlLogin.current = false;
+    cierreSesionEnCurso.current = false;
+    setCerrandoSesion(false);
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, nuevaSession) => {
@@ -248,10 +259,20 @@ export function PerfilProvider({ children }: Props) {
           return;
         }
 
-        if (event === "SIGNED_OUT" || !nuevaSession?.user) {
+        if (event === "SIGNED_OUT") {
+          cierreSesionEnCurso.current = true;
+          setCerrandoSesion(true);
+          limpiarEstadoAutenticado();
+          redirigirAlLogin();
+          return;
+        }
+
+        if (!nuevaSession?.user) {
           limpiarEstadoAutenticado();
           return;
         }
+
+        if (cierreSesionEnCurso.current) return;
 
         setSession(nuevaSession);
         setCargandoSesion(false);
@@ -286,11 +307,14 @@ export function PerfilProvider({ children }: Props) {
     cargarPerfilPorUsuario,
     esRutaRecuperacion,
     limpiarEstadoAutenticado,
+    redirigirAlLogin,
   ]);
 
   useEffect(() => {
-    if (esRutaRecuperacion) return;
-    const revalidar = () => void recargarPerfil();
+    if (esRutaRecuperacion || cerrandoSesion || !session) return;
+    const revalidar = () => {
+      if (!cierreSesionEnCurso.current) void recargarPerfil();
+    };
     const intervalo = window.setInterval(revalidar, 5 * 60 * 1000);
     const alCambiarVisibilidad = () => {
       if (document.visibilityState === "visible") revalidar();
@@ -302,10 +326,12 @@ export function PerfilProvider({ children }: Props) {
       window.removeEventListener("focus", revalidar);
       document.removeEventListener("visibilitychange", alCambiarVisibilidad);
     };
-  }, [esRutaRecuperacion, recargarPerfil]);
+  }, [cerrandoSesion, esRutaRecuperacion, recargarPerfil, session]);
 
   const cerrarSesion = useCallback(async () => {
-    if (redireccionandoAlLogin.current) return;
+    if (cierreSesionEnCurso.current) return;
+    cierreSesionEnCurso.current = true;
+    setCerrandoSesion(true);
     setCargandoSesion(true);
     cancelarSolicitudPerfil();
     limpiarCacheFotosPrivadas();
@@ -313,16 +339,19 @@ export function PerfilProvider({ children }: Props) {
     setSession(null);
     setPerfil(null);
     setErrorPerfil("");
+    setCargaInicial(false);
+    setRevalidandoPerfil(false);
 
     try {
-      await supabase.auth.signOut();
+      const cierreRemoto = supabase.auth.signOut();
+      redirigirAlLogin();
+      const { error } = await cierreRemoto;
+      if (error) console.error("No se pudo completar el cierre remoto de sesion.");
     } catch {
-      // La limpieza y redireccion local deben continuar aunque falle la red.
+      console.error("No se pudo completar el cierre remoto de sesion.");
     } finally {
       if (componenteMontado.current) {
         setCargandoSesion(false);
-        setCargaInicial(false);
-        setRevalidandoPerfil(false);
         redirigirAlLogin();
       }
     }
@@ -338,6 +367,7 @@ export function PerfilProvider({ children }: Props) {
     session,
     cargaInicial,
     revalidandoPerfil,
+    cerrandoSesion,
     cargandoPerfil: cargaInicial,
     cargandoSesion,
     errorPerfil,
@@ -347,6 +377,7 @@ export function PerfilProvider({ children }: Props) {
   }), [
     actualizarPerfilLocal,
     cargaInicial,
+    cerrandoSesion,
     cargandoSesion,
     cerrarSesion,
     errorPerfil,

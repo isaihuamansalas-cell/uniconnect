@@ -256,6 +256,8 @@ Correccion global de modales completada: foco inicial ejecutado solo al abrir, r
 
 PerfilProvider corregido para separar la carga inicial de las revalidaciones silenciosas: intervalo de 5 minutos, conservacion de la interfaz y formularios ante foco, visibilidad, cambios de token/usuario y fallos temporales de red
 
+Cierre de sesion inmediato e idempotente implementado: limpieza local y redireccion sin esperar la respuesta remota de Supabase, revalidaciones suspendidas y controles protegidos contra doble clic
+
 ---
 
 ## Pendiente

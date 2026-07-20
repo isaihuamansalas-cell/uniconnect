@@ -15,14 +15,14 @@ type Props = {
 export default function MainLayout({ children }: Props) {
   const router = useRouter();
   const pathname = usePathname();
-  const { perfil, cargaInicial, cargandoSesion } = usePerfil();
+  const { perfil, cargaInicial, cargandoSesion, cerrandoSesion } = usePerfil();
   const [menuMovilAbierto, setMenuMovilAbierto] = useState(false);
 
   useEffect(() => {
-    if (!cargandoSesion && !cargaInicial && !perfil) {
+    if (!cerrandoSesion && !cargandoSesion && !cargaInicial && !perfil) {
       router.replace("/login");
     }
-  }, [cargaInicial, cargandoSesion, perfil, router]);
+  }, [cargaInicial, cargandoSesion, cerrandoSesion, perfil, router]);
 
   const rolesPorRuta: Record<string, readonly number[]> = {
     "/usuarios": [1],
@@ -76,6 +76,17 @@ export default function MainLayout({ children }: Props) {
         <div className="flex items-center gap-3 text-primary" role="status" aria-live="polite">
           <LoaderCircle className="animate-spin" size={30} />
           <span className="font-semibold">Validando acceso institucional...</span>
+        </div>
+      </div>
+    );
+  }
+
+  if (cerrandoSesion) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-slate-100 dark:bg-slate-950">
+        <div className="flex items-center gap-3 text-primary" role="status" aria-live="polite">
+          <LoaderCircle className="animate-spin" size={30} />
+          <span className="font-semibold">Cerrando sesion...</span>
         </div>
       </div>
     );
