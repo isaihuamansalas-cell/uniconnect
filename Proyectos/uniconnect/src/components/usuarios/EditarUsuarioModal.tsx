@@ -230,13 +230,13 @@ export default function EditarUsuarioModal({
           />
         </FormField>
 
-        <p className="text-sm text-slate-500">
+        <p className="text-sm text-slate-500 dark:text-slate-400">
           El correo no se modifica desde este formulario porque también
           pertenece a Supabase Auth.
         </p>
 
         {error && (
-          <p className="rounded-xl bg-red-50 p-4 text-sm font-medium text-red-700">
+          <p className="rounded-xl bg-red-50 p-4 text-sm font-medium text-red-700 dark:bg-red-950/40 dark:text-red-300">
             {error}
           </p>
         )}
@@ -247,12 +247,12 @@ export default function EditarUsuarioModal({
           </p>
         )}
 
-        <div className="flex flex-col-reverse gap-3 border-t border-slate-200 pt-5 sm:flex-row sm:justify-end">
+        <div className="flex flex-col-reverse gap-3 border-t border-slate-200 pt-5 dark:border-slate-800 sm:flex-row sm:justify-end">
           <button
             type="button"
             onClick={onCerrar}
             disabled={guardando}
-            className="rounded-xl border border-slate-300 px-5 py-3 font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-50"
+            className="rounded-xl border border-slate-300 px-5 py-3 font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-50 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"
           >
             Cancelar
           </button>

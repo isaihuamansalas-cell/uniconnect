@@ -252,6 +252,8 @@ Fase 2A de auditoria tecnica completada: recuperacion de contrasena restringida 
 
 Fase 2B de auditoria tecnica completada: Avisos y Emprendimientos paginados con filtros server-side, propietarios con busqueda limitada, Reportes reutilizando Historial y exportacion completa por lotes, fotos privadas con carga por viewport y cache temporal, Header movil compacto y polling de notificaciones controlado por visibilidad
 
+Correccion global de modales completada: foco inicial ejecutado solo al abrir, restauracion al cerrar, bloqueo de scroll, Escape estable y formularios con contraste consistente en modo claro y oscuro
+
 ---
 
 ## Pendiente

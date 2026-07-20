@@ -165,7 +165,7 @@ export default function NuevoAvisoModal({
             rows={5}
             required
             placeholder="Escribe el contenido del aviso"
-            className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 outline-none transition placeholder:text-slate-400 focus-primary"
+            className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 outline-none transition placeholder:text-slate-400 focus-primary focus:ring-2 focus:ring-primary/20 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:placeholder:text-slate-400"
           />
         </FormField>
 
@@ -238,7 +238,7 @@ export default function NuevoAvisoModal({
         </div>
 
         {error && (
-          <p className="rounded-xl bg-red-50 p-4 text-sm font-medium text-red-700">
+          <p className="rounded-xl bg-red-50 p-4 text-sm font-medium text-red-700 dark:bg-red-950/40 dark:text-red-300">
             {error}
           </p>
         )}
@@ -249,12 +249,12 @@ export default function NuevoAvisoModal({
           </p>
         )}
 
-        <div className="flex flex-col-reverse gap-3 border-t border-slate-200 pt-5 sm:flex-row sm:justify-end">
+        <div className="flex flex-col-reverse gap-3 border-t border-slate-200 pt-5 dark:border-slate-800 sm:flex-row sm:justify-end">
           <button
             type="button"
             onClick={cerrarModal}
             disabled={guardando}
-            className="rounded-xl border border-slate-300 px-5 py-3 font-semibold text-slate-700 transition hover:bg-slate-50 disabled:opacity-50"
+            className="rounded-xl border border-slate-300 px-5 py-3 font-semibold text-slate-700 transition hover:bg-slate-50 disabled:opacity-50 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"
           >
             Cancelar
           </button>

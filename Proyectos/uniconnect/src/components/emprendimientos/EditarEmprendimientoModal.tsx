@@ -249,17 +249,17 @@ export default function EditarEmprendimientoModal({
             }
             rows={5}
             required
-            className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 outline-none transition placeholder:text-slate-400 focus-primary"
+            className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 outline-none transition placeholder:text-slate-400 focus-primary focus:ring-2 focus:ring-primary/20 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:placeholder:text-slate-400"
           />
         </FormField>
 
         {emprendimiento?.foto && !vistaPrevia && (
-          <div className="overflow-hidden rounded-xl border border-slate-200 bg-slate-50">
+          <div className="overflow-hidden rounded-xl border border-slate-200 bg-slate-50 dark:border-slate-700 dark:bg-slate-800">
             <FotoEmprendimiento
               emprendimientoId={emprendimiento.id}
               version={emprendimiento.foto}
               className="h-56 w-full object-cover"
-              fallbackClassName="flex h-56 w-full items-center justify-center bg-slate-100 text-slate-500"
+              fallbackClassName="flex h-56 w-full items-center justify-center bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400"
             />
           </div>
         )}
@@ -288,7 +288,7 @@ export default function EditarEmprendimientoModal({
         </div>
 
         {vistaPrevia && (
-          <div className="overflow-hidden rounded-xl border border-slate-200 bg-slate-50">
+          <div className="overflow-hidden rounded-xl border border-slate-200 bg-slate-50 dark:border-slate-700 dark:bg-slate-800">
             <Image
               src={vistaPrevia}
               alt="Vista previa del emprendimiento"
@@ -301,7 +301,7 @@ export default function EditarEmprendimientoModal({
         )}
 
         {error && (
-          <p className="rounded-xl bg-red-50 p-4 text-sm font-medium text-red-700">
+          <p className="rounded-xl bg-red-50 p-4 text-sm font-medium text-red-700 dark:bg-red-950/40 dark:text-red-300">
             {error}
           </p>
         )}
@@ -312,12 +312,12 @@ export default function EditarEmprendimientoModal({
           </p>
         )}
 
-        <div className="flex flex-col-reverse gap-3 border-t border-slate-200 pt-5 sm:flex-row sm:justify-end">
+        <div className="flex flex-col-reverse gap-3 border-t border-slate-200 pt-5 dark:border-slate-800 sm:flex-row sm:justify-end">
           <button
             type="button"
             onClick={onCerrar}
             disabled={guardando}
-            className="rounded-xl border border-slate-300 px-5 py-3 font-semibold text-slate-700 transition hover:bg-slate-50 disabled:opacity-50"
+            className="rounded-xl border border-slate-300 px-5 py-3 font-semibold text-slate-700 transition hover:bg-slate-50 disabled:opacity-50 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"
           >
             Cancelar
           </button>

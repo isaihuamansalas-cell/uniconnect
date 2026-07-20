@@ -1,8 +1,9 @@
 "use client";
 
 import { FormEvent, useState } from "react";
-import { Eye, EyeOff, LoaderCircle, X } from "lucide-react";
+import { Eye, EyeOff, LoaderCircle } from "lucide-react";
 
+import { FormField, Input, Modal, Select } from "@/components/ui";
 import { supabase } from "@/lib/supabase/client";
 
 type NuevoUsuarioModalProps = {
@@ -45,10 +46,6 @@ export default function NuevoUsuarioModal({
   const [guardando, setGuardando] = useState(false);
   const [error, setError] = useState("");
   const [mensaje, setMensaje] = useState("");
-
-  if (!abierto) {
-    return null;
-  }
 
   function actualizarCampo(
     campo: keyof FormularioUsuario,
@@ -135,31 +132,8 @@ export default function NuevoUsuarioModal({
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 p-4">
-      <div className="max-h-[92vh] w-full max-w-2xl overflow-y-auto rounded-2xl bg-white shadow-2xl">
-        <div className="flex items-center justify-between border-b border-slate-200 px-6 py-5">
-          <div>
-            <h2 className="text-xl font-bold text-slate-900">
-              Nuevo usuario
-            </h2>
-
-            <p className="mt-1 text-sm text-slate-500">
-              Crea la cuenta y el perfil dentro de UniConnect.
-            </p>
-          </div>
-
-          <button
-            type="button"
-            onClick={cerrarModal}
-            disabled={guardando}
-            aria-label="Cerrar formulario"
-            className="rounded-lg p-2 text-slate-500 transition hover:bg-slate-100"
-          >
-            <X size={22} />
-          </button>
-        </div>
-
-        <form onSubmit={crearUsuario} className="space-y-5 p-6">
+    <Modal abierto={abierto} titulo="Nuevo usuario" descripcion="Crea la cuenta y el perfil dentro de UniConnect." onCerrar={cerrarModal} impedirCerrar={guardando}>
+        <form onSubmit={crearUsuario} className="space-y-5">
           <div className="grid gap-5 sm:grid-cols-2">
             <Campo
               etiqueta="Nombres"
@@ -188,25 +162,20 @@ export default function NuevoUsuarioModal({
               inputMode="numeric"
             />
 
-            <div>
-              <label className="mb-2 block text-sm font-medium text-slate-700">
-                Rol
-              </label>
-
-              <select
+            <FormField label="Rol">
+              <Select
                 value={formulario.rol_id}
                 onChange={(event) =>
                   actualizarCampo("rol_id", Number(event.target.value))
                 }
-                className="w-full rounded-xl border border-slate-300 px-4 py-3 outline-none transition focus-primary"
               >
                 <option value={1}>Administrador</option>
                 <option value={2}>Director</option>
                 <option value={3}>Profesor</option>
                 <option value={4}>Garita</option>
                 <option value={5}>Estudiante</option>
-              </select>
-            </div>
+              </Select>
+            </FormField>
 
             {formulario.rol_id === 5 && (
               <Campo
@@ -242,13 +211,13 @@ export default function NuevoUsuarioModal({
             placeholder="usuario@suiza.edu.pe"
           />
 
-          <div>
-            <label className="mb-2 block text-sm font-medium text-slate-700">
+          <FormField label="Contrasena temporal">
+            <label className="sr-only">
               Contraseña temporal
             </label>
 
             <div className="relative">
-              <input
+              <Input
                 type={mostrarPassword ? "text" : "password"}
                 value={formulario.password}
                 onChange={(event) =>
@@ -257,7 +226,7 @@ export default function NuevoUsuarioModal({
                 minLength={8}
                 required
                 placeholder="Mínimo 8 caracteres"
-                className="w-full rounded-xl border border-slate-300 px-4 py-3 pr-12 outline-none transition focus-primary"
+                className="pr-12"
               />
 
               <button
@@ -268,7 +237,7 @@ export default function NuevoUsuarioModal({
                     ? "Ocultar contraseña"
                     : "Mostrar contraseña"
                 }
-                className="absolute right-3 top-1/2 -translate-y-1/2 rounded-lg p-1 text-slate-500 hover:bg-slate-100"
+                className="absolute right-3 top-1/2 -translate-y-1/2 rounded-lg p-1 text-slate-500 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
               >
                 {mostrarPassword ? (
                   <EyeOff size={20} />
@@ -277,10 +246,10 @@ export default function NuevoUsuarioModal({
                 )}
               </button>
             </div>
-          </div>
+          </FormField>
 
           {error && (
-            <p className="rounded-xl bg-red-50 p-4 text-sm font-medium text-red-700">
+            <p className="rounded-xl bg-red-50 p-4 text-sm font-medium text-red-700 dark:bg-red-950/40 dark:text-red-300">
               {error}
             </p>
           )}
@@ -291,12 +260,12 @@ export default function NuevoUsuarioModal({
             </p>
           )}
 
-          <div className="flex flex-col-reverse gap-3 border-t border-slate-200 pt-5 sm:flex-row sm:justify-end">
+          <div className="flex flex-col-reverse gap-3 border-t border-slate-200 pt-5 dark:border-slate-800 sm:flex-row sm:justify-end">
             <button
               type="button"
               onClick={cerrarModal}
               disabled={guardando}
-              className="rounded-xl border border-slate-300 px-5 py-3 font-semibold text-slate-700 transition hover:bg-slate-50 disabled:opacity-50"
+              className="rounded-xl border border-slate-300 px-5 py-3 font-semibold text-slate-700 transition hover:bg-slate-50 disabled:opacity-50 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"
             >
               Cancelar
             </button>
@@ -314,8 +283,7 @@ export default function NuevoUsuarioModal({
             </button>
           </div>
         </form>
-      </div>
-    </div>
+    </Modal>
   );
 }
 
@@ -339,20 +307,15 @@ function Campo({
   requerido = true,
 }: CampoProps) {
   return (
-    <div>
-      <label className="mb-2 block text-sm font-medium text-slate-700">
-        {etiqueta}
-      </label>
-
-      <input
+    <FormField label={etiqueta}>
+      <Input
         type={type}
         value={value}
         onChange={(event) => onChange(event.target.value)}
         placeholder={placeholder}
         inputMode={inputMode}
         required={requerido}
-        className="w-full rounded-xl border border-slate-300 px-4 py-3 outline-none transition focus-primary"
       />
-    </div>
+    </FormField>
   );
 }

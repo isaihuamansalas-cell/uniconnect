@@ -31,27 +31,40 @@ export default function Modal({
   const tituloId = useId();
   const descripcionId = useId();
   const dialogoRef = useRef<HTMLDivElement>(null);
+  const onCerrarRef = useRef(onCerrar);
+  const impedirCerrarRef = useRef(impedirCerrar);
+  const focoInicialRefInterna = useRef(focoInicialRef);
+
+  onCerrarRef.current = onCerrar;
+  impedirCerrarRef.current = impedirCerrar;
+  focoInicialRefInterna.current = focoInicialRef;
 
   useEffect(() => {
     if (!abierto) return;
 
     const elementoAnterior = document.activeElement;
+    const overflowAnterior = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
     const temporizador = window.setTimeout(() => {
-      focoInicialRef?.current?.focus();
-      if (!focoInicialRef?.current) dialogoRef.current?.focus();
+      const focoInicial = focoInicialRefInterna.current?.current;
+      if (focoInicial) focoInicial.focus();
+      else dialogoRef.current?.focus();
     }, 0);
 
     function manejarTecla(event: KeyboardEvent) {
-      if (event.key === "Escape" && !impedirCerrar) onCerrar();
+      if (event.key === "Escape" && !impedirCerrarRef.current) {
+        onCerrarRef.current();
+      }
     }
 
     document.addEventListener("keydown", manejarTecla);
     return () => {
       window.clearTimeout(temporizador);
       document.removeEventListener("keydown", manejarTecla);
+      document.body.style.overflow = overflowAnterior;
       if (elementoAnterior instanceof HTMLElement) elementoAnterior.focus();
     };
-  }, [abierto, focoInicialRef, impedirCerrar, onCerrar]);
+  }, [abierto]);
 
   if (!abierto) return null;
 
@@ -59,7 +72,7 @@ export default function Modal({
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 p-3 sm:p-4"
       onMouseDown={() => {
-        if (!impedirCerrar) onCerrar();
+        if (!impedirCerrarRef.current) onCerrarRef.current();
       }}
     >
       <div
@@ -87,7 +100,7 @@ export default function Modal({
 
           <button
             type="button"
-            onClick={onCerrar}
+            onClick={() => onCerrarRef.current()}
             disabled={impedirCerrar}
             aria-label="Cerrar ventana"
             className="rounded-lg p-2 text-slate-500 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-40 dark:text-slate-300 dark:hover:bg-slate-800"
