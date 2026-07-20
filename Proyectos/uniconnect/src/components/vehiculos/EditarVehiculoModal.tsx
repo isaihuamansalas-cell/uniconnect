@@ -4,10 +4,11 @@ import {
   ChangeEvent,
   FormEvent,
   useEffect,
+  useRef,
   useState,
 } from "react";
 import Image from "next/image";
-import { LoaderCircle } from "lucide-react";
+import { LoaderCircle, Search } from "lucide-react";
 
 import {
   FormField,
@@ -24,12 +25,14 @@ type Propietario = {
   apellidos: string;
   dni: string;
   codigo_estudiante: string | null;
-  rol_id: number;
 };
+
+type RespuestaPropietarios = { propietarios?: Propietario[]; error?: string };
 
 export type VehiculoEditable = {
   id: number;
   usuario_id: string;
+  propietario: Omit<Propietario, "id">;
   placa: string;
   marca: string | null;
   modelo: string | null;
@@ -68,6 +71,7 @@ export default function EditarVehiculoModal({
 }: EditarVehiculoModalProps) {
   const [propietarios, setPropietarios] = useState<Propietario[]>([]);
   const [propietarioId, setPropietarioId] = useState("");
+  const [busquedaPropietario, setBusquedaPropietario] = useState("");
 
   const [placa, setPlaca] = useState("");
   const [marca, setMarca] = useState("");
@@ -85,11 +89,14 @@ export default function EditarVehiculoModal({
   const [fotoSeleccionada, setFotoSeleccionada] =
     useState<File | null>(null);
   const [vistaPrevia, setVistaPrevia] = useState("");
+  const solicitudPropietariosRef = useRef(0);
 
   useEffect(() => {
     if (!vehiculo) return;
 
     setPropietarioId(vehiculo.usuario_id);
+    setPropietarios([{ id: vehiculo.usuario_id, ...vehiculo.propietario }]);
+    setBusquedaPropietario("");
     setPlaca(vehiculo.placa);
     setMarca(vehiculo.marca ?? "");
     setModelo(vehiculo.modelo ?? "");
@@ -112,9 +119,14 @@ export default function EditarVehiculoModal({
   }, [vistaPrevia]);
 
   useEffect(() => {
-    if (!abierto) return;
-
-    async function cargarPropietarios() {
+    const texto = busquedaPropietario.trim();
+    if (!abierto || texto.length < 2) {
+      setCargandoPropietarios(false);
+      return;
+    }
+    const controlador = new AbortController();
+    const solicitud = ++solicitudPropietariosRef.current;
+    const temporizador = window.setTimeout(async () => {
       setCargandoPropietarios(true);
       setError("");
 
@@ -131,15 +143,17 @@ export default function EditarVehiculoModal({
 
       try {
         const respuesta = await fetch(
-          "/api/vehiculos/propietarios",
+          `/api/vehiculos/propietarios?q=${encodeURIComponent(texto)}`,
           {
             headers: {
               Authorization: `Bearer ${session.access_token}`,
             },
+            signal: controlador.signal,
           }
         );
 
-        const resultado = await respuesta.json();
+        const resultado = (await respuesta.json()) as RespuestaPropietarios;
+        if (controlador.signal.aborted || solicitud !== solicitudPropietariosRef.current) return;
 
         if (!respuesta.ok) {
           setError(
@@ -149,17 +163,22 @@ export default function EditarVehiculoModal({
           return;
         }
 
-        setPropietarios(resultado.propietarios ?? []);
+        setPropietarios((actuales) => {
+          const seleccionado = actuales.find((item) => item.id === propietarioId);
+          const nuevos = resultado.propietarios ?? [];
+          return seleccionado && !nuevos.some((item) => item.id === seleccionado.id)
+            ? [seleccionado, ...nuevos] : nuevos;
+        });
       } catch (errorInesperado) {
+        if (errorInesperado instanceof DOMException && errorInesperado.name === "AbortError") return;
         console.error(errorInesperado);
         setError("No se pudo conectar con el servidor.");
       } finally {
-        setCargandoPropietarios(false);
+        if (solicitud === solicitudPropietariosRef.current) setCargandoPropietarios(false);
       }
-    }
-
-    cargarPropietarios();
-  }, [abierto]);
+    }, 350);
+    return () => { window.clearTimeout(temporizador); controlador.abort(); };
+  }, [abierto, busquedaPropietario, propietarioId]);
 
   function seleccionarFoto(
     event: ChangeEvent<HTMLInputElement>
@@ -316,6 +335,12 @@ export default function EditarVehiculoModal({
       }}
     >
       <form onSubmit={actualizarVehiculo} className="space-y-5">
+        <FormField label="Buscar propietario">
+          <div className="relative">
+            <Search size={19} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+            <Input value={busquedaPropietario} onChange={(event) => setBusquedaPropietario(event.target.value)} placeholder="Nombre, DNI o codigo" className="pl-10" />
+          </div>
+        </FormField>
         <FormField label="Propietario">
           <Select
             value={propietarioId}
@@ -441,6 +466,10 @@ export default function EditarVehiculoModal({
             disabled={guardando}
           />
         </FormField>
+
+        {!cargandoPropietarios && busquedaPropietario.trim().length >= 2 && propietarios.length === 1 && propietarios[0]?.id === propietarioId && (
+          <p className="rounded-xl bg-amber-50 p-3 text-sm text-amber-800 dark:bg-amber-950/40 dark:text-amber-200">No se encontraron otros propietarios con esos datos.</p>
+        )}
 
         {vistaPrevia && (
           <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-900">

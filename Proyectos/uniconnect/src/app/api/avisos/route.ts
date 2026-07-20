@@ -51,6 +51,43 @@ const destinatariosPermitidos = [
   "Area academica",
   "Ciclo especifico",
 ];
+const tamanosPaginaPermitidos = [10, 20, 50] as const;
+
+function parametroTexto(url: URL, nombre: string, maximo: number) {
+  return (url.searchParams.get(nombre)?.trim() ?? "").slice(0, maximo);
+}
+
+function parametrosListado(url: URL) {
+  const page = Number(url.searchParams.get("page") ?? "1");
+  const pageSize = Number(url.searchParams.get("pageSize") ?? "10");
+  if (!Number.isSafeInteger(page) || page < 1) return null;
+  if (!tamanosPaginaPermitidos.includes(pageSize as 10 | 20 | 50)) return null;
+  const estado = parametroTexto(url, "estado", 10).toLowerCase();
+  if (estado && !["todos", "activo", "inactivo"].includes(estado)) return null;
+  return {
+    page,
+    pageSize: pageSize as 10 | 20 | 50,
+    titulo: parametroTexto(url, "titulo", 100),
+    contenido: parametroTexto(url, "contenido", 200),
+    autor: parametroTexto(url, "autor", 100),
+    tipo: parametroTexto(url, "tipo", 50),
+    destinatario: parametroTexto(url, "destinatario", 50),
+    estado,
+  };
+}
+
+async function idsAutoresCoincidentes(texto: string) {
+  if (!texto) return null;
+  const seguro = texto.replace(/[,().%_]/g, " ").replace(/\s+/g, " ").trim();
+  if (!seguro) return [];
+  const { data, error } = await supabaseAdmin
+    .from("usuarios")
+    .select("id")
+    .or(`nombres.ilike.%${seguro}%,apellidos.ilike.%${seguro}%`)
+    .range(0, 499);
+  if (error) throw error;
+  return (data ?? []).map((autor) => String(autor.id));
+}
 
 async function obtenerUsuarioAutenticado(request: Request) {
   const authorization = request.headers.get("authorization");
@@ -170,13 +207,38 @@ export async function GET(request: Request) {
       );
     }
 
-    const { data: avisos, error: errorAvisos } =
-      await supabaseAdmin
-        .from("avisos")
-        .select(
-          "id, titulo, contenido, autor_id, tipo, destinatario, area_academica, ciclo, estado, created_at, updated_at"
-        )
-        .order("created_at", { ascending: false });
+    const parametros = parametrosListado(new URL(request.url));
+    if (!parametros) {
+      return NextResponse.json({ error: "Los parametros de paginacion o filtros no son validos." }, { status: 400 });
+    }
+
+    const autoresFiltrados = await idsAutoresCoincidentes(parametros.autor);
+    if (autoresFiltrados?.length === 0) {
+      return NextResponse.json({
+        avisos: [], puedeGestionar: rolesGestionAvisos.includes(Number(responsable.rol_id)),
+        page: parametros.page, pageSize: parametros.pageSize, total: 0, totalPages: 0,
+      });
+    }
+
+    let consulta = supabaseAdmin
+      .from("avisos")
+      .select(
+        "id, titulo, contenido, autor_id, tipo, destinatario, area_academica, ciclo, estado, created_at, updated_at",
+        { count: "exact" }
+      );
+    if (parametros.titulo) consulta = consulta.ilike("titulo", `%${parametros.titulo}%`);
+    if (parametros.contenido) consulta = consulta.ilike("contenido", `%${parametros.contenido}%`);
+    if (parametros.tipo) consulta = consulta.eq("tipo", parametros.tipo);
+    if (parametros.destinatario) consulta = consulta.eq("destinatario", parametros.destinatario);
+    if (parametros.estado === "activo") consulta = consulta.eq("estado", true);
+    if (parametros.estado === "inactivo") consulta = consulta.eq("estado", false);
+    if (autoresFiltrados) consulta = consulta.in("autor_id", autoresFiltrados);
+
+    const desde = (parametros.page - 1) * parametros.pageSize;
+    const { data: avisos, error: errorAvisos, count } = await consulta
+      .order("created_at", { ascending: false })
+      .order("id", { ascending: false })
+      .range(desde, desde + parametros.pageSize - 1);
 
     if (errorAvisos) {
       return respuestaErrorApi("listar avisos", errorAvisos, "No se pudo cargar la informacion.");
@@ -217,6 +279,10 @@ export async function GET(request: Request) {
       puedeGestionar: rolesGestionAvisos.includes(
         Number(responsable.rol_id)
       ),
+      page: parametros.page,
+      pageSize: parametros.pageSize,
+      total: count ?? 0,
+      totalPages: count ? Math.ceil(count / parametros.pageSize) : 0,
     });
   } catch (error) {
     console.error("Error al listar avisos:", error);

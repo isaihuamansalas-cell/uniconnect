@@ -32,6 +32,9 @@ export default function NotificacionesPanel({
 }: NotificacionesPanelProps) {
   const router = useRouter();
   const contenedorRef = useRef<HTMLDivElement | null>(null);
+  const controladorRef = useRef<AbortController | null>(null);
+  const solicitudRef = useRef(0);
+  const peticionEnCursoRef = useRef(false);
   const [abierto, setAbierto] = useState(false);
   const [notificaciones, setNotificaciones] = useState<
     Notificacion[]
@@ -48,7 +51,12 @@ export default function NotificacionesPanel({
       setError("");
       return;
     }
+    if (document.visibilityState !== "visible" || peticionEnCursoRef.current) return;
 
+    const controlador = new AbortController();
+    controladorRef.current = controlador;
+    const solicitud = ++solicitudRef.current;
+    peticionEnCursoRef.current = true;
     setCargando(true);
 
     try {
@@ -57,10 +65,12 @@ export default function NotificacionesPanel({
           Authorization: `Bearer ${accessToken}`,
         },
         cache: "no-store",
+        signal: controlador.signal,
       });
 
       const resultado =
         (await respuesta.json()) as RespuestaNotificaciones;
+      if (controlador.signal.aborted || solicitud !== solicitudRef.current) return;
 
       if (!respuesta.ok) {
         setError(
@@ -74,32 +84,54 @@ export default function NotificacionesPanel({
       setNoLeidas(resultado.noLeidas ?? 0);
       setError("");
     } catch (errorInesperado) {
+      if (errorInesperado instanceof DOMException && errorInesperado.name === "AbortError") return;
       console.error(
         "Error al cargar notificaciones:",
         errorInesperado
       );
       setError("No se pudieron cargar las notificaciones.");
     } finally {
-      setCargando(false);
+      if (solicitud === solicitudRef.current) {
+        peticionEnCursoRef.current = false;
+        controladorRef.current = null;
+        setCargando(false);
+      }
     }
   }, [accessToken]);
 
   useEffect(() => {
+    let intervalo: number | null = null;
+    const detener = () => {
+      if (intervalo !== null) window.clearInterval(intervalo);
+      intervalo = null;
+      controladorRef.current?.abort();
+      controladorRef.current = null;
+      peticionEnCursoRef.current = false;
+      solicitudRef.current += 1;
+      setCargando(false);
+    };
     if (!accessToken) {
+      detener();
       setNotificaciones([]);
       setNoLeidas(0);
       setAbierto(false);
       return;
     }
 
-    void cargarNotificaciones();
-
-    const intervalo = window.setInterval(() => {
+    const iniciar = () => {
+      if (document.visibilityState !== "visible" || intervalo !== null) return;
       void cargarNotificaciones();
-    }, 45000);
+      intervalo = window.setInterval(() => void cargarNotificaciones(), 45000);
+    };
+    const cambiarVisibilidad = () => {
+      if (document.visibilityState === "visible") iniciar(); else detener();
+    };
+    iniciar();
+    document.addEventListener("visibilitychange", cambiarVisibilidad);
 
     return () => {
-      window.clearInterval(intervalo);
+      document.removeEventListener("visibilitychange", cambiarVisibilidad);
+      detener();
     };
   }, [accessToken, cargarNotificaciones]);
 
@@ -138,9 +170,13 @@ export default function NotificacionesPanel({
     }
 
     setActualizando(true);
+    controladorRef.current?.abort();
+    peticionEnCursoRef.current = false;
+    solicitudRef.current += 1;
 
-    if (!notificacion.leida) {
-      const respuesta = await fetch(
+    try {
+      if (!notificacion.leida) {
+        const respuesta = await fetch(
         `/api/notificaciones/${notificacion.id}`,
         {
           method: "PATCH",
@@ -150,16 +186,12 @@ export default function NotificacionesPanel({
         }
       );
 
-      if (respuesta.ok) {
-        await cargarNotificaciones();
+        if (respuesta.ok) await cargarNotificaciones();
       }
-    }
-
-    setActualizando(false);
-    setAbierto(false);
-
-    if (notificacion.ruta?.startsWith("/")) {
-      router.push(notificacion.ruta);
+    } finally {
+      setActualizando(false);
+      setAbierto(false);
+      if (notificacion.ruta?.startsWith("/")) router.push(notificacion.ruta);
     }
   }
 
@@ -169,19 +201,21 @@ export default function NotificacionesPanel({
     }
 
     setActualizando(true);
-
-    const respuesta = await fetch("/api/notificaciones", {
+    controladorRef.current?.abort();
+    peticionEnCursoRef.current = false;
+    solicitudRef.current += 1;
+    try {
+      const respuesta = await fetch("/api/notificaciones", {
       method: "PATCH",
       headers: {
         Authorization: `Bearer ${accessToken}`,
       },
     });
 
-    if (respuesta.ok) {
-      await cargarNotificaciones();
+      if (respuesta.ok) await cargarNotificaciones();
+    } finally {
+      setActualizando(false);
     }
-
-    setActualizando(false);
   }
 
   return (
@@ -196,7 +230,7 @@ export default function NotificacionesPanel({
         aria-haspopup="dialog"
         aria-expanded={abierto}
         onClick={() => setAbierto((valor) => !valor)}
-        className="focus-primary relative rounded-lg p-2 text-slate-600 transition hover:bg-slate-100 focus:outline-none dark:text-slate-200 dark:hover:bg-slate-800"
+        className="focus-primary relative inline-flex h-11 w-11 items-center justify-center rounded-lg text-slate-600 transition hover:bg-slate-100 focus:outline-none dark:text-slate-200 dark:hover:bg-slate-800 sm:h-10 sm:w-10"
       >
         <Bell size={21} />
         {noLeidas > 0 && (

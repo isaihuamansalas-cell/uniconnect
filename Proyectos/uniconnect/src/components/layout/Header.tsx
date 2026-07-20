@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { LogOut, Menu, UserRound } from "lucide-react";
+import { ChevronDown, LogOut, Menu, UserRound } from "lucide-react";
 
 import { usePerfil } from "@/components/auth/PerfilProvider";
 import { useConfiguracion } from "@/components/configuracion/ConfiguracionProvider";
@@ -27,20 +27,38 @@ export default function Header({ onMenuClick }: HeaderProps) {
   const { configuracion } = useConfiguracion();
   const { perfil, session, cargandoPerfil, cerrarSesion } =
     usePerfil();
+  const [menuCuentaAbierto, setMenuCuentaAbierto] = useState(false);
+  const menuCuentaRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (!menuCuentaAbierto) return;
+    function cerrarFuera(event: MouseEvent) {
+      if (menuCuentaRef.current && !menuCuentaRef.current.contains(event.target as Node)) setMenuCuentaAbierto(false);
+    }
+    function cerrarEscape(event: KeyboardEvent) {
+      if (event.key === "Escape") setMenuCuentaAbierto(false);
+    }
+    document.addEventListener("mousedown", cerrarFuera);
+    window.addEventListener("keydown", cerrarEscape);
+    return () => {
+      document.removeEventListener("mousedown", cerrarFuera);
+      window.removeEventListener("keydown", cerrarEscape);
+    };
+  }, [menuCuentaAbierto]);
 
   return (
-    <header className="flex min-h-20 items-center justify-between gap-4 border-b border-slate-200 bg-white px-4 dark:border-slate-800 dark:bg-slate-900 sm:px-6 lg:px-8">
-      <div className="flex min-w-0 items-center gap-3">
+    <header className="flex min-h-20 max-w-full items-center justify-between gap-1 overflow-x-clip border-b border-slate-200 bg-white px-2 dark:border-slate-800 dark:bg-slate-900 sm:gap-4 sm:px-6 lg:px-8">
+      <div className="flex min-w-0 items-center sm:gap-3">
         <button
           type="button"
           onClick={onMenuClick}
           aria-label="Abrir menu"
-          className="rounded-lg p-2 text-slate-700 transition hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800 lg:hidden"
+          className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-lg text-slate-700 transition hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800 lg:hidden"
         >
           <Menu size={22} />
         </button>
 
-        <div className="min-w-0">
+        <div className="hidden min-w-0 sm:block">
           <h2 className="text-xl font-semibold text-slate-900 dark:text-slate-100">
             Panel principal
           </h2>
@@ -51,7 +69,7 @@ export default function Header({ onMenuClick }: HeaderProps) {
         </div>
       </div>
 
-      <div className="flex shrink-0 items-center gap-2 sm:gap-4">
+      <div className="flex min-w-0 shrink-0 items-center gap-0.5 sm:gap-4">
         <BuscadorGlobal accessToken={session?.access_token ?? ""} />
 
         <NotificacionesPanel
@@ -60,6 +78,7 @@ export default function Header({ onMenuClick }: HeaderProps) {
 
         <ThemeToggle />
 
+        <div className="hidden items-center gap-2 sm:flex sm:gap-4">
         <Link
           href="/perfil"
           className="flex min-w-0 items-center gap-3 rounded-xl px-2 py-1 transition hover:bg-slate-100 dark:hover:bg-slate-800"
@@ -100,6 +119,33 @@ export default function Header({ onMenuClick }: HeaderProps) {
         >
           <LogOut size={21} />
         </button>
+        </div>
+
+        <div ref={menuCuentaRef} className="relative sm:hidden">
+          <button
+            type="button"
+            aria-label="Abrir menu de cuenta"
+            aria-haspopup="menu"
+            aria-expanded={menuCuentaAbierto}
+            aria-controls="menu-cuenta-movil"
+            onClick={() => setMenuCuentaAbierto((valor) => !valor)}
+            className="focus-primary inline-flex h-11 items-center justify-center gap-0.5 rounded-lg px-0.5 text-slate-700 dark:text-slate-200"
+          >
+            <FotoPerfilHeader accessToken={session?.access_token ?? ""} tieneFoto={perfil?.tiene_foto ?? false} version={perfil?.foto_version ?? ""} />
+            <ChevronDown size={14} aria-hidden="true" />
+          </button>
+
+          {menuCuentaAbierto && (
+            <div id="menu-cuenta-movil" role="menu" className="fixed right-2 top-[4.5rem] z-50 w-64 rounded-2xl border border-slate-200 bg-white p-2 shadow-2xl dark:border-slate-800 dark:bg-slate-900">
+              <div className="border-b border-slate-200 px-3 py-3 dark:border-slate-800">
+                <p className="truncate text-sm font-semibold text-slate-900 dark:text-slate-100">{perfil?.nombres} {perfil?.apellidos}</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400">{perfil ? nombresRoles[perfil.rol_id] : "Sin perfil"}</p>
+              </div>
+              <Link role="menuitem" href="/perfil" onClick={() => setMenuCuentaAbierto(false)} className="mt-1 flex min-h-11 items-center gap-3 rounded-xl px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800"><UserRound size={19} />Mi perfil</Link>
+              <button role="menuitem" type="button" onClick={() => { setMenuCuentaAbierto(false); void cerrarSesion(); }} className="flex min-h-11 w-full items-center gap-3 rounded-xl px-3 py-2 text-left text-sm font-semibold text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30"><LogOut size={19} />Cerrar sesion</button>
+            </div>
+          )}
+        </div>
       </div>
     </header>
   );

@@ -14,6 +14,7 @@ import { usePathname, useRouter } from "next/navigation";
 import type { Session, User } from "@supabase/supabase-js";
 
 import { supabase } from "@/lib/supabase/client";
+import { limpiarCacheFotosPrivadas } from "@/lib/imagenes/cacheFotosPrivadas";
 
 export type PerfilUsuario = {
   id: string;
@@ -79,6 +80,7 @@ export function PerfilProvider({ children }: Props) {
   }, []);
 
   const limpiarEstadoAutenticado = useCallback(() => {
+    limpiarCacheFotosPrivadas();
     cancelarSolicitudPerfil();
     perfilCargadoParaUsuario.current = null;
     setPerfil(null);
@@ -285,6 +287,7 @@ export function PerfilProvider({ children }: Props) {
     setCargandoSesion(true);
     setCargandoPerfil(true);
     cancelarSolicitudPerfil();
+    limpiarCacheFotosPrivadas();
     perfilCargadoParaUsuario.current = null;
     setSession(null);
     setPerfil(null);

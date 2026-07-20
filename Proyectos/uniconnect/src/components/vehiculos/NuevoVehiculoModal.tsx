@@ -4,7 +4,7 @@ import {
   ChangeEvent,
   FormEvent,
   useEffect,
-  useMemo,
+  useRef,
   useState,
 } from "react";
 import Image from "next/image";
@@ -28,7 +28,6 @@ type Propietario = {
   apellidos: string;
   dni: string;
   codigo_estudiante: string | null;
-  rol_id: number;
 };
 
 type NuevoVehiculoModalProps = {
@@ -49,6 +48,7 @@ type VehiculoCreado = {
   id: number;
   foto: string | null;
 };
+type RespuestaPropietarios = { propietarios?: Propietario[]; error?: string };
 
 type RespuestaCrearVehiculo = {
   error?: string;
@@ -90,13 +90,18 @@ export default function NuevoVehiculoModal({
   const [guardando, setGuardando] = useState(false);
   const [error, setError] = useState("");
   const [mensaje, setMensaje] = useState("");
+  const solicitudPropietariosRef = useRef(0);
 
   useEffect(() => {
-    if (!abierto) {
+    const texto = busquedaPropietario.trim();
+    if (!abierto || texto.length < 2) {
+      setCargandoPropietarios(false);
+      if (!propietarioId) setPropietarios([]);
       return;
     }
-
-    async function cargarPropietarios() {
+    const controlador = new AbortController();
+    const solicitud = ++solicitudPropietariosRef.current;
+    const temporizador = window.setTimeout(async () => {
       setCargandoPropietarios(true);
       setError("");
 
@@ -109,71 +114,54 @@ export default function NuevoVehiculoModal({
         setError(
           "Tu sesión terminó. Vuelve a iniciar sesión."
         );
-        setCargandoPropietarios(false);
         return;
       }
 
       try {
         const respuesta = await fetch(
-          "/api/vehiculos/propietarios",
+          `/api/vehiculos/propietarios?q=${encodeURIComponent(texto)}`,
           {
             method: "GET",
             headers: {
               Authorization: `Bearer ${session.access_token}`,
             },
+            signal: controlador.signal,
           }
         );
 
-        const resultado = await respuesta.json();
+        const resultado = (await respuesta.json()) as RespuestaPropietarios;
+        if (controlador.signal.aborted || solicitud !== solicitudPropietariosRef.current) return;
 
         if (!respuesta.ok) {
           setError(
             resultado.error ??
               "No se pudieron cargar los propietarios."
           );
-          setCargandoPropietarios(false);
           return;
         }
 
-        setPropietarios(resultado.propietarios ?? []);
+        setPropietarios((actuales) => {
+          const seleccionado = actuales.find((item) => item.id === propietarioId);
+          const nuevos = resultado.propietarios ?? [];
+          return seleccionado && !nuevos.some((item) => item.id === seleccionado.id)
+            ? [seleccionado, ...nuevos] : nuevos;
+        });
       } catch (errorInesperado) {
+        if (errorInesperado instanceof DOMException && errorInesperado.name === "AbortError") return;
         console.error(errorInesperado);
         setError(
           "No se pudo conectar con el servidor."
         );
       } finally {
-        setCargandoPropietarios(false);
+        if (solicitud === solicitudPropietariosRef.current) setCargandoPropietarios(false);
       }
-    }
-
-    cargarPropietarios();
-  }, [abierto]);
-
-  const propietariosFiltrados = useMemo(() => {
-    const texto = busquedaPropietario
-      .trim()
-      .toLowerCase();
-
-    if (!texto) {
-      return propietarios;
-    }
-
-    return propietarios.filter((propietario) => {
-      const nombre =
-        `${propietario.nombres} ${propietario.apellidos}`.toLowerCase();
-
-      return (
-        nombre.includes(texto) ||
-        propietario.dni.includes(texto) ||
-        propietario.codigo_estudiante
-          ?.toLowerCase()
-          .includes(texto)
-      );
-    });
-  }, [busquedaPropietario, propietarios]);
+    }, 350);
+    return () => { window.clearTimeout(temporizador); controlador.abort(); };
+  }, [abierto, busquedaPropietario, propietarioId]);
 
   function limpiarFormulario() {
     setPropietarioId("");
+    setPropietarios([]);
     setBusquedaPropietario("");
     setPlaca("");
     setMarca("");
@@ -251,7 +239,7 @@ export default function NuevoVehiculoModal({
       .toUpperCase()
       .replace(/\s+/g, "");
 
-    if (!propietarioId) {
+    if (!propietarioId || !propietarios.some((item) => item.id === propietarioId)) {
       setError("Selecciona un propietario.");
       setGuardando(false);
       return;
@@ -411,7 +399,7 @@ export default function NuevoVehiculoModal({
                 : "Selecciona un propietario"}
             </option>
 
-            {propietariosFiltrados.map(
+            {propietarios.map(
               (propietario) => (
                 <option
                   key={propietario.id}
@@ -430,10 +418,10 @@ export default function NuevoVehiculoModal({
         </FormField>
 
         {!cargandoPropietarios &&
+          busquedaPropietario.trim().length >= 2 &&
           propietarios.length === 0 && (
             <p className="rounded-xl bg-amber-50 p-4 text-sm text-amber-800 dark:bg-amber-950/40 dark:text-amber-200">
-              No existen profesores o estudiantes activos.
-              Primero crea uno desde el módulo Usuarios.
+              No se encontraron propietarios activos con esos datos.
             </p>
           )}
 
@@ -574,7 +562,8 @@ export default function NuevoVehiculoModal({
             disabled={
               guardando ||
               cargandoPropietarios ||
-              propietarios.length === 0
+              !propietarioId ||
+              !propietarios.some((item) => item.id === propietarioId)
             }
             className="inline-flex items-center justify-center gap-2 rounded-xl btn-primary px-5 py-3 font-semibold text-white transition disabled:cursor-not-allowed disabled:opacity-60"
           >

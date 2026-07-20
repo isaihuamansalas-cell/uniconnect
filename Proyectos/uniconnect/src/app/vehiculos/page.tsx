@@ -169,6 +169,12 @@ export default function VehiculosPage() {
     setVehiculoSeleccionado({
       id: vehiculo.id,
       usuario_id: vehiculo.usuario_id,
+      propietario: {
+        nombres: vehiculo.usuarios?.nombres ?? "Propietario",
+        apellidos: vehiculo.usuarios?.apellidos ?? "actual",
+        dni: vehiculo.usuarios?.dni ?? "",
+        codigo_estudiante: vehiculo.usuarios?.codigo_estudiante ?? null,
+      },
       placa: vehiculo.placa,
       marca: vehiculo.marca,
       modelo: vehiculo.modelo,

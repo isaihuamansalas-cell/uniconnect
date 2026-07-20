@@ -1,9 +1,10 @@
 "use client";
 
 import {
+  type FormEvent,
   useCallback,
   useEffect,
-  useMemo,
+  useRef,
   useState,
 } from "react";
 import { useRouter } from "next/navigation";
@@ -23,7 +24,7 @@ import EditarAvisoModal, {
   type AvisoEditable,
 } from "@/components/avisos/EditarAvisoModal";
 import NuevoAvisoModal from "@/components/avisos/NuevoAvisoModal";
-import { Input } from "@/components/ui";
+import { Input, Paginacion, type TamanoPaginaComun } from "@/components/ui";
 import { supabase } from "@/lib/supabase/client";
 
 type AutorAviso = {
@@ -51,7 +52,22 @@ type Aviso = {
 type RespuestaAvisos = {
   avisos?: Aviso[];
   puedeGestionar?: boolean;
+  total?: number;
+  totalPages?: number;
   error?: string;
+};
+
+type FiltrosAvisos = {
+  titulo: string;
+  contenido: string;
+  autor: string;
+  tipo: string;
+  destinatario: string;
+  estado: string;
+};
+
+const filtrosVacios: FiltrosAvisos = {
+  titulo: "", contenido: "", autor: "", tipo: "", destinatario: "", estado: "todos",
 };
 
 type RespuestaApi = {
@@ -91,7 +107,14 @@ export default function AvisosPage() {
 
   const [avisos, setAvisos] = useState<Aviso[]>([]);
   const [puedeGestionar, setPuedeGestionar] = useState(false);
-  const [busqueda, setBusqueda] = useState("");
+  const abortControllerRef = useRef<AbortController | null>(null);
+  const solicitudActualRef = useRef(0);
+  const [filtrosEdicion, setFiltrosEdicion] = useState<FiltrosAvisos>(filtrosVacios);
+  const [filtrosAplicados, setFiltrosAplicados] = useState<FiltrosAvisos>(filtrosVacios);
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState<TamanoPaginaComun>(10);
+  const [total, setTotal] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
   const [cargando, setCargando] = useState(true);
   const [actualizandoId, setActualizandoId] = useState<number | null>(
     null
@@ -106,6 +129,10 @@ export default function AvisosPage() {
     useState<AvisoEditable | null>(null);
 
   const cargarAvisos = useCallback(async () => {
+    abortControllerRef.current?.abort();
+    const controlador = new AbortController();
+    abortControllerRef.current = controlador;
+    const solicitud = ++solicitudActualRef.current;
     setCargando(true);
     setError("");
 
@@ -115,20 +142,27 @@ export default function AvisosPage() {
 
     if (!session) {
       router.replace("/login");
+      setCargando(false);
       return;
     }
 
     try {
-      const respuesta = await fetch("/api/avisos", {
+      const parametros = new URLSearchParams({ page: String(page), pageSize: String(pageSize) });
+      Object.entries(filtrosAplicados).forEach(([campo, valor]) => {
+        if (valor && valor !== "todos") parametros.set(campo, valor.trim());
+      });
+      const respuesta = await fetch(`/api/avisos?${parametros.toString()}`, {
         headers: {
           Authorization: `Bearer ${session.access_token}`,
         },
         cache: "no-store",
+        signal: controlador.signal,
       });
 
       const resultado =
         (await respuesta.json()) as RespuestaAvisos;
 
+      if (controlador.signal.aborted || solicitud !== solicitudActualRef.current) return;
       if (!respuesta.ok) {
         setError(
           resultado.error ?? "No se pudieron cargar los avisos."
@@ -138,37 +172,36 @@ export default function AvisosPage() {
 
       setAvisos(resultado.avisos ?? []);
       setPuedeGestionar(resultado.puedeGestionar ?? false);
+      setTotal(resultado.total ?? 0);
+      setTotalPages(resultado.totalPages ?? 0);
+      if ((resultado.avisos ?? []).length === 0 && page > 1) {
+        setPage(Math.max(1, resultado.totalPages ?? page - 1));
+      }
     } catch (errorInesperado) {
+      if (errorInesperado instanceof DOMException && errorInesperado.name === "AbortError") return;
       console.error(errorInesperado);
       setError("No se pudo conectar con el servidor.");
     } finally {
-      setCargando(false);
+      if (solicitud === solicitudActualRef.current) setCargando(false);
     }
-  }, [router]);
+  }, [filtrosAplicados, page, pageSize, router]);
 
   useEffect(() => {
-    cargarAvisos();
+    void cargarAvisos();
+    return () => abortControllerRef.current?.abort();
   }, [cargarAvisos]);
 
-  const avisosFiltrados = useMemo(() => {
-    const texto = busqueda.trim().toLowerCase();
+  function buscar(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setPage(1);
+    setFiltrosAplicados(filtrosEdicion);
+  }
 
-    if (!texto) {
-      return avisos;
-    }
-
-    return avisos.filter((aviso) => {
-      const autor = aviso.autor
-        ? `${aviso.autor.nombres} ${aviso.autor.apellidos}`
-        : "";
-
-      return (
-        aviso.titulo.toLowerCase().includes(texto) ||
-        aviso.contenido.toLowerCase().includes(texto) ||
-        autor.toLowerCase().includes(texto)
-      );
-    });
-  }, [avisos, busqueda]);
+  function limpiarFiltros() {
+    setFiltrosEdicion(filtrosVacios);
+    setFiltrosAplicados(filtrosVacios);
+    setPage(1);
+  }
 
   function abrirModalEditar(aviso: Aviso) {
     setAvisoSeleccionado({
@@ -271,7 +304,8 @@ export default function AvisosPage() {
         </div>
 
         <div className="mt-8 rounded-2xl bg-white p-4 shadow-sm sm:p-6">
-          <div className="relative max-w-lg">
+          <form onSubmit={buscar} className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+          <div className="relative">
             <Search
               size={20}
               className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
@@ -279,14 +313,26 @@ export default function AvisosPage() {
 
             <Input
               type="search"
-              value={busqueda}
-              onChange={(event) =>
-                setBusqueda(event.target.value)
-              }
-              placeholder="Buscar por titulo, contenido o autor"
+              value={filtrosEdicion.titulo}
+              onChange={(event) => setFiltrosEdicion((actual) => ({ ...actual, titulo: event.target.value }))}
+              placeholder="Titulo"
               className="pl-11"
             />
           </div>
+          <Input value={filtrosEdicion.contenido} onChange={(event) => setFiltrosEdicion((a) => ({...a, contenido: event.target.value}))} placeholder="Contenido" />
+          <Input value={filtrosEdicion.autor} onChange={(event) => setFiltrosEdicion((a) => ({...a, autor: event.target.value}))} placeholder="Autor" />
+          <Input value={filtrosEdicion.tipo} onChange={(event) => setFiltrosEdicion((a) => ({...a, tipo: event.target.value}))} placeholder="Tipo" />
+          <select value={filtrosEdicion.destinatario} onChange={(event) => setFiltrosEdicion((a) => ({...a, destinatario: event.target.value}))} className="h-12 rounded-xl border border-slate-300 bg-white px-3 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100">
+            <option value="">Todos los destinatarios</option><option value="Todos">Todos</option><option value="Area academica">Area academica</option><option value="Ciclo especifico">Ciclo especifico</option>
+          </select>
+          <select value={filtrosEdicion.estado} onChange={(event) => setFiltrosEdicion((a) => ({...a, estado: event.target.value}))} className="h-12 rounded-xl border border-slate-300 bg-white px-3 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100">
+            <option value="todos">Todos los estados</option><option value="activo">Activos</option><option value="inactivo">Inactivos</option>
+          </select>
+          <div className="flex gap-2 md:col-span-2 xl:col-span-3">
+            <button type="submit" className="btn-primary rounded-xl px-5 py-3 font-semibold">Buscar</button>
+            <button type="button" onClick={limpiarFiltros} className="rounded-xl border border-slate-300 px-5 py-3 font-semibold dark:border-slate-700 dark:text-slate-200">Limpiar</button>
+          </div>
+          </form>
 
           {error && (
             <p className="mt-5 rounded-xl bg-red-50 p-4 text-sm font-medium text-red-700">
@@ -331,7 +377,7 @@ export default function AvisosPage() {
                 </thead>
 
                 <tbody>
-                  {avisosFiltrados.map((aviso) => (
+                  {avisos.map((aviso) => (
                     <tr
                       key={aviso.id}
                       className="border-b border-slate-100 transition hover:bg-slate-50"
@@ -436,7 +482,7 @@ export default function AvisosPage() {
                 </tbody>
               </table>
 
-              {avisosFiltrados.length === 0 && (
+              {avisos.length === 0 && (
                 <div className="py-12 text-center">
                   <Bell
                     size={38}
@@ -448,6 +494,9 @@ export default function AvisosPage() {
                 </div>
               )}
             </div>
+          )}
+          {!cargando && (
+            <div className="mt-5"><Paginacion page={page} pageSize={pageSize} total={total} totalPages={totalPages} onPageChange={setPage} onPageSizeChange={(tamano) => { setPageSize(tamano); setPage(1); }} /></div>
           )}
         </div>
       </section>

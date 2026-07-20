@@ -362,7 +362,7 @@ export default function BuscadorGlobal({
           setPanelMovilAbierto(true);
           setPanelAbierto(true);
         }}
-        className="rounded-lg p-2 text-slate-700 transition hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800 md:hidden"
+        className="inline-flex h-11 w-11 items-center justify-center rounded-lg text-slate-700 transition hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800 md:hidden"
       >
         <Search size={21} />
       </button>

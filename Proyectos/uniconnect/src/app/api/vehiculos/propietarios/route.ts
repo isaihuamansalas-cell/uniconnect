@@ -1,7 +1,11 @@
 import { createClient } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
 
+import { respuestaErrorApi } from "@/lib/api/respuestas";
 import { supabaseAdmin } from "@/lib/supabase/admin";
+
+const longitudMinima = 2;
+const longitudMaxima = 60;
 
 export async function GET(request: Request) {
   try {
@@ -54,20 +58,33 @@ export async function GET(request: Request) {
       );
     }
 
+    const texto = new URL(request.url).searchParams.get("q")?.trim() ?? "";
+    if (texto.length < longitudMinima || texto.length > longitudMaxima) {
+      return NextResponse.json(
+        { error: `La busqueda debe tener entre ${longitudMinima} y ${longitudMaxima} caracteres.` },
+        { status: 400 }
+      );
+    }
+    const seguro = texto.replace(/[,().%_]/g, " ").replace(/\s+/g, " ").trim();
+    if (seguro.length < longitudMinima) {
+      return NextResponse.json({ error: "La busqueda no es valida." }, { status: 400 });
+    }
+
     const { data, error } = await supabaseAdmin
       .from("usuarios")
       .select(
-        "id, nombres, apellidos, dni, codigo_estudiante, rol_id"
+        "id, nombres, apellidos, dni, codigo_estudiante"
       )
       .in("rol_id", [3, 5])
       .eq("estado", true)
-      .order("nombres", { ascending: true });
+      .or(
+        `nombres.ilike.%${seguro}%,apellidos.ilike.%${seguro}%,dni.ilike.%${seguro}%,codigo_estudiante.ilike.%${seguro}%`
+      )
+      .order("nombres", { ascending: true })
+      .limit(10);
 
     if (error) {
-      return NextResponse.json(
-        { error: "No se pudieron cargar los propietarios." },
-        { status: 400 }
-      );
+      return respuestaErrorApi("buscar propietarios", error, "No se pudo cargar la informacion.");
     }
 
     return NextResponse.json({

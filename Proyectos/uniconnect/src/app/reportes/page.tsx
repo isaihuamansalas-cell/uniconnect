@@ -4,7 +4,7 @@ import {
   FormEvent,
   useCallback,
   useEffect,
-  useMemo,
+  useRef,
   useState,
 } from "react";
 import { useRouter } from "next/navigation";
@@ -23,7 +23,7 @@ import {
 
 import { useConfiguracion } from "@/components/configuracion/ConfiguracionProvider";
 import MainLayout from "@/components/layout/MainLayout";
-import { FormField, Input, StatCard } from "@/components/ui";
+import { FormField, Input, Paginacion, StatCard, type TamanoPaginaComun } from "@/components/ui";
 import { supabase } from "@/lib/supabase/client";
 
 type Estadisticas = {
@@ -73,6 +73,8 @@ type RespuestaEstadisticas = {
 type RespuestaSalidas = {
   salidas?: Salida[];
   rol_id?: number;
+  total?: number;
+  totalPages?: number;
   error?: string;
 };
 
@@ -184,16 +186,6 @@ function validarFiltros(filtros: Filtros) {
   return "";
 }
 
-function escaparCsv(valor: string | number | null | undefined) {
-  const texto = String(valor ?? "");
-  return `"${texto.replace(/"/g, '""')}"`;
-}
-
-function crearNombreArchivo() {
-  const fecha = new Date().toISOString().slice(0, 10);
-  return `reporte-salidas-${fecha}.csv`;
-}
-
 export default function ReportesPage() {
   const router = useRouter();
   const { configuracion } = useConfiguracion();
@@ -202,51 +194,64 @@ export default function ReportesPage() {
     useState<Estadisticas>(estadisticasVacias);
   const [salidas, setSalidas] = useState<Salida[]>([]);
   const [rolId, setRolId] = useState<number | null>(null);
-  const [filtros, setFiltros] = useState<Filtros>({
+  const filtrosIniciales: Filtros = {
     fechaInicio: "",
     fechaFin: "",
     dni: "",
     codigo: "",
     placa: "",
-  });
+  };
+  const [filtros, setFiltros] = useState<Filtros>(filtrosIniciales);
+  const [filtrosAplicados, setFiltrosAplicados] = useState<Filtros>(filtrosIniciales);
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState<TamanoPaginaComun>(20);
+  const [total, setTotal] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
   const [cargando, setCargando] = useState(true);
   const [cargandoSalidas, setCargandoSalidas] = useState(false);
   const [error, setError] = useState("");
   const [errorSalidas, setErrorSalidas] = useState("");
+  const [exportando, setExportando] = useState(false);
+  const abortControllerRef = useRef<AbortController | null>(null);
+  const solicitudActualRef = useRef(0);
 
   const puedeVerEstadisticas =
     rolId === 1 || rolId === 2 || rolId === 3;
   const puedeVerSalidas =
     rolId === 1 || rolId === 2 || rolId === 4;
 
-  const construirParametros = useCallback(() => {
+  const construirParametros = useCallback((incluirPaginacion = true) => {
     const parametros = new URLSearchParams();
-
-    if (filtros.fechaInicio) {
-      parametros.set("fechaInicio", filtros.fechaInicio);
+    if (incluirPaginacion) {
+      parametros.set("page", String(page));
+      parametros.set("pageSize", String(pageSize));
     }
 
-    if (filtros.fechaFin) {
-      parametros.set("fechaFin", filtros.fechaFin);
+    if (filtrosAplicados.fechaInicio) {
+      parametros.set("fechaInicio", filtrosAplicados.fechaInicio);
     }
 
-    if (filtros.dni.trim()) {
-      parametros.set("dni", filtros.dni.trim());
+    if (filtrosAplicados.fechaFin) {
+      parametros.set("fechaFin", filtrosAplicados.fechaFin);
     }
 
-    if (filtros.codigo.trim()) {
-      parametros.set("codigo", filtros.codigo.trim());
+    if (filtrosAplicados.dni.trim()) {
+      parametros.set("dni", filtrosAplicados.dni.trim());
     }
 
-    if (filtros.placa.trim()) {
-      parametros.set("placa", filtros.placa.trim().toUpperCase());
+    if (filtrosAplicados.codigo.trim()) {
+      parametros.set("codigo", filtrosAplicados.codigo.trim());
+    }
+
+    if (filtrosAplicados.placa.trim()) {
+      parametros.set("placa", filtrosAplicados.placa.trim().toUpperCase());
     }
 
     return parametros.toString();
-  }, [filtros]);
+  }, [filtrosAplicados, page, pageSize]);
 
   const cargarSalidas = useCallback(async () => {
-    const errorValidacion = validarFiltros(filtros);
+    const errorValidacion = validarFiltros(filtrosAplicados);
 
     if (errorValidacion) {
       setErrorSalidas(errorValidacion);
@@ -255,6 +260,10 @@ export default function ReportesPage() {
 
     setCargandoSalidas(true);
     setErrorSalidas("");
+    abortControllerRef.current?.abort();
+    const controlador = new AbortController();
+    abortControllerRef.current = controlador;
+    const solicitud = ++solicitudActualRef.current;
 
     const {
       data: { session },
@@ -262,6 +271,7 @@ export default function ReportesPage() {
 
     if (!session) {
       router.replace("/login");
+      setCargandoSalidas(false);
       return;
     }
 
@@ -276,15 +286,19 @@ export default function ReportesPage() {
           Authorization: `Bearer ${session.access_token}`,
         },
         cache: "no-store",
+        signal: controlador.signal,
       });
 
       const resultado = (await respuesta.json()) as RespuestaSalidas;
+      if (controlador.signal.aborted || solicitud !== solicitudActualRef.current) return;
 
       if (!respuesta.ok) {
         setErrorSalidas(
           resultado.error ?? "No se pudieron cargar las salidas."
         );
         setSalidas([]);
+        setTotal(0);
+        setTotalPages(0);
 
         if (respuesta.status === 403 && resultado.rol_id) {
           setRolId(resultado.rol_id);
@@ -295,13 +309,17 @@ export default function ReportesPage() {
 
       setRolId(resultado.rol_id ?? null);
       setSalidas(resultado.salidas ?? []);
+      setTotal(resultado.total ?? 0);
+      setTotalPages(resultado.totalPages ?? 0);
+      if ((resultado.salidas ?? []).length === 0 && page > 1) setPage(Math.max(1, resultado.totalPages ?? page - 1));
     } catch (errorInesperado) {
+      if (errorInesperado instanceof DOMException && errorInesperado.name === "AbortError") return;
       console.error(errorInesperado);
       setErrorSalidas("No se pudo conectar con el servidor.");
     } finally {
-      setCargandoSalidas(false);
+      if (solicitud === solicitudActualRef.current) setCargandoSalidas(false);
     }
-  }, [construirParametros, filtros, router]);
+  }, [construirParametros, filtrosAplicados, page, router]);
 
   const cargarReportes = useCallback(async () => {
     setCargando(true);
@@ -380,23 +398,13 @@ export default function ReportesPage() {
   }, [router]);
 
   useEffect(() => {
-    cargarReportes();
+    void cargarReportes();
   }, [cargarReportes]);
 
-  const filasExportacion = useMemo(
-    () =>
-      salidas.map((salida) => [
-        obtenerFecha(salida),
-        obtenerHora(salida),
-        obtenerNombre(salida.estudiante),
-        salida.estudiante?.dni ?? "",
-        salida.estudiante?.codigo_estudiante ?? "",
-        obtenerVehiculo(salida.vehiculo),
-        salida.vehiculo?.placa ?? "",
-        obtenerNombre(salida.garita),
-      ]),
-    [salidas]
-  );
+  useEffect(() => {
+    if (!cargando) void cargarSalidas();
+    return () => abortControllerRef.current?.abort();
+  }, [cargando, cargarSalidas]);
 
   function actualizarFiltro(campo: keyof Filtros, valor: string) {
     setFiltros((filtrosActuales) => ({
@@ -407,36 +415,28 @@ export default function ReportesPage() {
 
   function buscarSalidas(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    cargarSalidas();
+    const errorValidacion = validarFiltros(filtros);
+    if (errorValidacion) { setErrorSalidas(errorValidacion); return; }
+    setPage(1);
+    setFiltrosAplicados({ ...filtros, codigo: filtros.codigo.trim().toUpperCase(), placa: filtros.placa.trim().toUpperCase() });
   }
 
-  function exportarCsv() {
-    const encabezados = [
-      "Fecha",
-      "Hora",
-      "Estudiante",
-      "DNI",
-      "Codigo",
-      "Vehiculo",
-      "Placa",
-      "Garita responsable",
-    ];
-    const contenido = [
-      encabezados.map(escaparCsv).join(","),
-      ...filasExportacion.map((fila) =>
-        fila.map(escaparCsv).join(",")
-      ),
-    ].join("\r\n");
-    const blob = new Blob([`\uFEFF${contenido}`], {
-      type: "text/csv;charset=utf-8;",
-    });
-    const url = URL.createObjectURL(blob);
-    const enlace = document.createElement("a");
-
-    enlace.href = url;
-    enlace.download = crearNombreArchivo();
-    enlace.click();
-    URL.revokeObjectURL(url);
+  async function exportarCsv() {
+    setExportando(true); setErrorSalidas("");
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) { router.replace("/login"); return; }
+      const parametros = construirParametros(false);
+      const respuesta = await fetch(`/api/reportes/salidas/exportar?${parametros.toString()}`, { headers: { Authorization: `Bearer ${session.access_token}` }, cache: "no-store" });
+      if (!respuesta.ok) {
+        const resultado = (await respuesta.json()) as { error?: string };
+        setErrorSalidas(resultado.error ?? "No se pudo exportar el reporte."); return;
+      }
+      const archivo = await respuesta.blob();
+      const url = URL.createObjectURL(archivo); const enlace = document.createElement("a");
+      enlace.href = url; enlace.download = `reporte-salidas-${new Date().toISOString().slice(0, 10)}.csv`; enlace.click(); URL.revokeObjectURL(url);
+    } catch { setErrorSalidas("No se pudo exportar el reporte."); }
+    finally { setExportando(false); }
   }
 
   function imprimirReporte() {
@@ -540,11 +540,11 @@ export default function ReportesPage() {
                   <button
                     type="button"
                     onClick={exportarCsv}
-                    disabled={salidas.length === 0}
+                    disabled={total === 0 || exportando}
                     className="inline-flex items-center gap-2 rounded-xl border border-slate-300 px-4 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-60 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"
                   >
-                    <Download size={18} />
-                    Excel CSV
+                    {exportando ? <LoaderCircle size={18} className="animate-spin" /> : <Download size={18} />}
+                    {exportando ? "Exportando..." : "Excel CSV"}
                   </button>
 
                   <button
@@ -731,6 +731,9 @@ export default function ReportesPage() {
                     </p>
                   </div>
                 )}
+                <div className="mt-5 print:hidden">
+                  <Paginacion page={page} pageSize={pageSize} total={total} totalPages={totalPages} cargando={cargandoSalidas} onPageChange={setPage} onPageSizeChange={(tamano) => { setPageSize(tamano); setPage(1); }} />
+                </div>
               </div>
             )}
           </div>

@@ -34,6 +34,35 @@ type AutorEmprendimiento = {
 };
 
 const rolesGestionEmprendimientos = [1, 3];
+const tamanosPaginaPermitidos = [10, 20, 50] as const;
+
+function parametrosListado(url: URL) {
+  const page = Number(url.searchParams.get("page") ?? "1");
+  const pageSize = Number(url.searchParams.get("pageSize") ?? "10");
+  const estado = (url.searchParams.get("estado")?.trim() ?? "").toLowerCase();
+  if (!Number.isSafeInteger(page) || page < 1) return null;
+  if (!tamanosPaginaPermitidos.includes(pageSize as 10 | 20 | 50)) return null;
+  if (estado && !["todos", "activo", "inactivo"].includes(estado)) return null;
+  return {
+    page,
+    pageSize: pageSize as 10 | 20 | 50,
+    titulo: (url.searchParams.get("titulo")?.trim() ?? "").slice(0, 100),
+    autor: (url.searchParams.get("autor")?.trim() ?? "").slice(0, 100),
+    estado,
+  };
+}
+
+async function idsAutoresCoincidentes(texto: string) {
+  if (!texto) return null;
+  const seguro = texto.replace(/[,().%_]/g, " ").replace(/\s+/g, " ").trim();
+  if (!seguro) return [];
+  const { data, error } = await supabaseAdmin
+    .from("usuarios").select("id")
+    .or(`nombres.ilike.%${seguro}%,apellidos.ilike.%${seguro}%`)
+    .range(0, 499);
+  if (error) throw error;
+  return (data ?? []).map((autor) => String(autor.id));
+}
 
 async function obtenerUsuarioAutenticado(request: Request) {
   const authorization = request.headers.get("authorization");
@@ -121,15 +150,32 @@ export async function GET(request: Request) {
       );
     }
 
-    const {
-      data: emprendimientos,
-      error: errorEmprendimientos,
-    } = await supabaseAdmin
+    const parametros = parametrosListado(new URL(request.url));
+    if (!parametros) {
+      return NextResponse.json({ error: "Los parametros de paginacion o filtros no son validos." }, { status: 400 });
+    }
+    const autoresFiltrados = await idsAutoresCoincidentes(parametros.autor);
+    if (autoresFiltrados?.length === 0) {
+      return NextResponse.json({
+        emprendimientos: [], puedeGestionar: rolesGestionEmprendimientos.includes(Number(usuario.rol_id)),
+        page: parametros.page, pageSize: parametros.pageSize, total: 0, totalPages: 0,
+      });
+    }
+    let consulta = supabaseAdmin
       .from("emprendimientos")
       .select(
-        "id, titulo, descripcion, autor_id, foto, estado, created_at, updated_at"
-      )
-      .order("created_at", { ascending: false });
+        "id, titulo, descripcion, autor_id, foto, estado, created_at, updated_at",
+        { count: "exact" }
+      );
+    if (parametros.titulo) consulta = consulta.ilike("titulo", `%${parametros.titulo}%`);
+    if (parametros.estado === "activo") consulta = consulta.eq("estado", true);
+    if (parametros.estado === "inactivo") consulta = consulta.eq("estado", false);
+    if (autoresFiltrados) consulta = consulta.in("autor_id", autoresFiltrados);
+    const desde = (parametros.page - 1) * parametros.pageSize;
+    const { data: emprendimientos, error: errorEmprendimientos, count } = await consulta
+      .order("created_at", { ascending: false })
+      .order("id", { ascending: false })
+      .range(desde, desde + parametros.pageSize - 1);
 
     if (errorEmprendimientos) {
       return respuestaErrorApi("listar emprendimientos", errorEmprendimientos, "No se pudo cargar la informacion.");
@@ -172,6 +218,10 @@ export async function GET(request: Request) {
       puedeGestionar: rolesGestionEmprendimientos.includes(
         Number(usuario.rol_id)
       ),
+      page: parametros.page,
+      pageSize: parametros.pageSize,
+      total: count ?? 0,
+      totalPages: count ? Math.ceil(count / parametros.pageSize) : 0,
     });
   } catch (error) {
     console.error("Error al listar emprendimientos:", error);
