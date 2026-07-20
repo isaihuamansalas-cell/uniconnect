@@ -15,14 +15,14 @@ type Props = {
 export default function MainLayout({ children }: Props) {
   const router = useRouter();
   const pathname = usePathname();
-  const { perfil, cargandoPerfil, cargandoSesion } = usePerfil();
+  const { perfil, cargaInicial, cargandoSesion } = usePerfil();
   const [menuMovilAbierto, setMenuMovilAbierto] = useState(false);
 
   useEffect(() => {
-    if (!cargandoSesion && !cargandoPerfil && !perfil) {
+    if (!cargandoSesion && !cargaInicial && !perfil) {
       router.replace("/login");
     }
-  }, [cargandoPerfil, cargandoSesion, perfil, router]);
+  }, [cargaInicial, cargandoSesion, perfil, router]);
 
   const rolesPorRuta: Record<string, readonly number[]> = {
     "/usuarios": [1],
@@ -43,10 +43,10 @@ export default function MainLayout({ children }: Props) {
   );
 
   useEffect(() => {
-    if (!cargandoSesion && !cargandoPerfil && perfil && !tienePermiso) {
+    if (!cargandoSesion && !cargaInicial && perfil && !tienePermiso) {
       router.replace("/dashboard");
     }
-  }, [cargandoPerfil, cargandoSesion, perfil, router, tienePermiso]);
+  }, [cargaInicial, cargandoSesion, perfil, router, tienePermiso]);
 
   useEffect(() => {
     if (!menuMovilAbierto) {
@@ -70,7 +70,7 @@ export default function MainLayout({ children }: Props) {
     };
   }, [menuMovilAbierto]);
 
-  if (cargandoSesion || cargandoPerfil || !perfil || !tienePermiso) {
+  if (cargaInicial) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-slate-100 dark:bg-slate-950">
         <div className="flex items-center gap-3 text-primary" role="status" aria-live="polite">
@@ -80,6 +80,8 @@ export default function MainLayout({ children }: Props) {
       </div>
     );
   }
+
+  if (cargandoSesion || !perfil || !tienePermiso) return null;
 
   return (
     <div className="flex min-h-screen min-w-0 bg-slate-100 dark:bg-slate-950">

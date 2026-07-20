@@ -254,6 +254,8 @@ Fase 2B de auditoria tecnica completada: Avisos y Emprendimientos paginados con 
 
 Correccion global de modales completada: foco inicial ejecutado solo al abrir, restauracion al cerrar, bloqueo de scroll, Escape estable y formularios con contraste consistente en modo claro y oscuro
 
+PerfilProvider corregido para separar la carga inicial de las revalidaciones silenciosas: intervalo de 5 minutos, conservacion de la interfaz y formularios ante foco, visibilidad, cambios de token/usuario y fallos temporales de red
+
 ---
 
 ## Pendiente

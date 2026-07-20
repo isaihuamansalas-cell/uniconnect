@@ -33,6 +33,8 @@ export type PerfilUsuario = {
 type PerfilContexto = {
   perfil: PerfilUsuario | null;
   session: Session | null;
+  cargaInicial: boolean;
+  revalidandoPerfil: boolean;
   cargandoPerfil: boolean;
   cargandoSesion: boolean;
   errorPerfil: string;
@@ -61,7 +63,8 @@ export function PerfilProvider({ children }: Props) {
   const pathname = usePathname();
   const [perfil, setPerfil] = useState<PerfilUsuario | null>(null);
   const [session, setSession] = useState<Session | null>(null);
-  const [cargandoPerfil, setCargandoPerfil] = useState(true);
+  const [cargaInicial, setCargaInicial] = useState(true);
+  const [revalidandoPerfil, setRevalidandoPerfil] = useState(false);
   const [cargandoSesion, setCargandoSesion] = useState(true);
   const [errorPerfil, setErrorPerfil] = useState("");
   const perfilCargadoParaUsuario = useRef<string | null>(null);
@@ -86,7 +89,8 @@ export function PerfilProvider({ children }: Props) {
     setPerfil(null);
     setSession(null);
     setErrorPerfil("");
-    setCargandoPerfil(false);
+    setCargaInicial(false);
+    setRevalidandoPerfil(false);
     setCargandoSesion(false);
   }, [cancelarSolicitudPerfil]);
 
@@ -109,7 +113,12 @@ export function PerfilProvider({ children }: Props) {
   }, [limpiarEstadoAutenticado, redirigirAlLogin]);
 
   const cargarPerfilPorUsuario = useCallback(
-    async (user: User, accessToken: string, forzar = false) => {
+    async (
+      user: User,
+      accessToken: string,
+      modo: "inicial" | "revalidacion",
+      forzar = false
+    ) => {
       if (!forzar && perfilCargadoParaUsuario.current === user.id) return;
 
       cancelarSolicitudPerfil();
@@ -117,7 +126,8 @@ export function PerfilProvider({ children }: Props) {
       solicitudPerfil.current = controlador;
       const versionActual = versionSolicitud.current;
 
-      setCargandoPerfil(true);
+      if (modo === "inicial") setCargaInicial(true);
+      else setRevalidandoPerfil(true);
       setErrorPerfil("");
 
       try {
@@ -143,8 +153,6 @@ export function PerfilProvider({ children }: Props) {
         }
 
         if (!respuesta.ok) {
-          perfilCargadoParaUsuario.current = null;
-          setPerfil(null);
           setErrorPerfil(
             resultado.error ?? "No se pudo cargar la informacion del usuario."
           );
@@ -164,11 +172,10 @@ export function PerfilProvider({ children }: Props) {
 
         perfilCargadoParaUsuario.current = user.id;
         setPerfil(normalizarPerfil(resultado.perfil));
+        setErrorPerfil("");
       } catch (error) {
         if (error instanceof DOMException && error.name === "AbortError") return;
         if (versionActual !== versionSolicitud.current || !componenteMontado.current) return;
-        perfilCargadoParaUsuario.current = null;
-        setPerfil(null);
         setErrorPerfil("No se pudo cargar la informacion del usuario.");
       } finally {
         if (
@@ -176,7 +183,8 @@ export function PerfilProvider({ children }: Props) {
           componenteMontado.current
         ) {
           solicitudPerfil.current = null;
-          setCargandoPerfil(false);
+          if (modo === "inicial") setCargaInicial(false);
+          else setRevalidandoPerfil(false);
         }
       }
     },
@@ -185,13 +193,20 @@ export function PerfilProvider({ children }: Props) {
 
   const recargarPerfil = useCallback(async () => {
     if (esRutaRecuperacion) return;
-    setCargandoPerfil(true);
+    if (solicitudPerfil.current) return;
+    setRevalidandoPerfil(true);
     setErrorPerfil("");
 
     try {
       const { data, error } = await supabase.auth.getSession();
-      if (error || !data.session?.user) {
-        limpiarEstadoAutenticado();
+      if (error) {
+        if (componenteMontado.current) {
+          setErrorPerfil("No se pudo validar la sesion.");
+        }
+        return;
+      }
+      if (!data.session?.user) {
+        await expulsarUsuario();
         return;
       }
 
@@ -200,18 +215,19 @@ export function PerfilProvider({ children }: Props) {
       await cargarPerfilPorUsuario(
         data.session.user,
         data.session.access_token,
+        "revalidacion",
         true
       );
     } catch {
       if (!componenteMontado.current) return;
       setErrorPerfil("No se pudo validar la sesion.");
     } finally {
-      if (componenteMontado.current && !solicitudPerfil.current) {
-        setCargandoPerfil(false);
+      if (componenteMontado.current) {
+        setRevalidandoPerfil(false);
         setCargandoSesion(false);
       }
     }
-  }, [cargarPerfilPorUsuario, esRutaRecuperacion, limpiarEstadoAutenticado]);
+  }, [cargarPerfilPorUsuario, esRutaRecuperacion, expulsarUsuario]);
 
   useEffect(() => {
     componenteMontado.current = true;
@@ -226,7 +242,8 @@ export function PerfilProvider({ children }: Props) {
           perfilCargadoParaUsuario.current = null;
           setPerfil(null);
           setErrorPerfil("");
-          setCargandoPerfil(false);
+          setCargaInicial(false);
+          setRevalidandoPerfil(false);
           setCargandoSesion(false);
           return;
         }
@@ -249,6 +266,11 @@ export function PerfilProvider({ children }: Props) {
             nuevaSession.user,
             nuevaSession.access_token,
             event === "TOKEN_REFRESHED" || event === "USER_UPDATED"
+              ? "revalidacion"
+              : perfilCargadoParaUsuario.current
+                ? "revalidacion"
+                : "inicial",
+            event === "TOKEN_REFRESHED" || event === "USER_UPDATED"
           );
         }
       }
@@ -269,7 +291,7 @@ export function PerfilProvider({ children }: Props) {
   useEffect(() => {
     if (esRutaRecuperacion) return;
     const revalidar = () => void recargarPerfil();
-    const intervalo = window.setInterval(revalidar, 30_000);
+    const intervalo = window.setInterval(revalidar, 5 * 60 * 1000);
     const alCambiarVisibilidad = () => {
       if (document.visibilityState === "visible") revalidar();
     };
@@ -285,7 +307,6 @@ export function PerfilProvider({ children }: Props) {
   const cerrarSesion = useCallback(async () => {
     if (redireccionandoAlLogin.current) return;
     setCargandoSesion(true);
-    setCargandoPerfil(true);
     cancelarSolicitudPerfil();
     limpiarCacheFotosPrivadas();
     perfilCargadoParaUsuario.current = null;
@@ -300,7 +321,8 @@ export function PerfilProvider({ children }: Props) {
     } finally {
       if (componenteMontado.current) {
         setCargandoSesion(false);
-        setCargandoPerfil(false);
+        setCargaInicial(false);
+        setRevalidandoPerfil(false);
         redirigirAlLogin();
       }
     }
@@ -314,7 +336,9 @@ export function PerfilProvider({ children }: Props) {
   const valor = useMemo<PerfilContexto>(() => ({
     perfil,
     session,
-    cargandoPerfil,
+    cargaInicial,
+    revalidandoPerfil,
+    cargandoPerfil: cargaInicial,
     cargandoSesion,
     errorPerfil,
     recargarPerfil,
@@ -322,11 +346,12 @@ export function PerfilProvider({ children }: Props) {
     cerrarSesion,
   }), [
     actualizarPerfilLocal,
-    cargandoPerfil,
+    cargaInicial,
     cargandoSesion,
     cerrarSesion,
     errorPerfil,
     perfil,
+    revalidandoPerfil,
     recargarPerfil,
     session,
   ]);
