@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Bell, CheckCheck, Circle } from "lucide-react";
+import Alert from "@/components/ui/Alert";
 
 type Notificacion = {
   id: number;
@@ -32,6 +33,9 @@ export default function NotificacionesPanel({
 }: NotificacionesPanelProps) {
   const router = useRouter();
   const contenedorRef = useRef<HTMLDivElement | null>(null);
+  const campanaRef = useRef<HTMLButtonElement | null>(null);
+  const panelRef = useRef<HTMLDivElement | null>(null);
+  const tituloRef = useRef<HTMLHeadingElement | null>(null);
   const controladorRef = useRef<AbortController | null>(null);
   const solicitudRef = useRef(0);
   const peticionEnCursoRef = useRef(false);
@@ -43,6 +47,12 @@ export default function NotificacionesPanel({
   const [cargando, setCargando] = useState(false);
   const [actualizando, setActualizando] = useState(false);
   const [error, setError] = useState("");
+  const panelId = "centro-notificaciones";
+  const tituloId = "titulo-centro-notificaciones";
+
+  function cerrarPanel() {
+    setAbierto(false);
+  }
 
   const cargarNotificaciones = useCallback(async () => {
     if (!accessToken) {
@@ -140,9 +150,36 @@ export default function NotificacionesPanel({
       return;
     }
 
+    const campanaQueAbrio = campanaRef.current;
     function cerrarConEscape(event: KeyboardEvent) {
       if (event.key === "Escape") {
-        setAbierto(false);
+        cerrarPanel();
+        return;
+      }
+      if (event.key !== "Tab") return;
+      const panel = panelRef.current;
+      if (!panel) return;
+      const enfocables = Array.from(
+        panel.querySelectorAll<HTMLElement>(
+          "button:not([disabled]), a[href], [tabindex]:not([tabindex='-1'])"
+        )
+      ).filter((elemento) => elemento.getClientRects().length > 0);
+      if (enfocables.length === 0) {
+        event.preventDefault();
+        tituloRef.current?.focus();
+        return;
+      }
+      const primero = enfocables[0];
+      const ultimo = enfocables[enfocables.length - 1];
+      if (!panel.contains(document.activeElement)) {
+        event.preventDefault();
+        (event.shiftKey ? ultimo : primero).focus();
+      } else if (event.shiftKey && document.activeElement === primero) {
+        event.preventDefault();
+        ultimo.focus();
+      } else if (!event.shiftKey && document.activeElement === ultimo) {
+        event.preventDefault();
+        primero.focus();
       }
     }
 
@@ -151,16 +188,21 @@ export default function NotificacionesPanel({
         contenedorRef.current &&
         !contenedorRef.current.contains(event.target as Node)
       ) {
-        setAbierto(false);
+        cerrarPanel();
       }
     }
 
+    const temporizador = window.setTimeout(() => {
+      tituloRef.current?.focus();
+    }, 0);
     window.addEventListener("keydown", cerrarConEscape);
     window.addEventListener("mousedown", cerrarConClickFuera);
 
     return () => {
+      window.clearTimeout(temporizador);
       window.removeEventListener("keydown", cerrarConEscape);
       window.removeEventListener("mousedown", cerrarConClickFuera);
+      campanaQueAbrio?.focus();
     };
   }, [abierto]);
 
@@ -186,12 +228,24 @@ export default function NotificacionesPanel({
         }
       );
 
-        if (respuesta.ok) await cargarNotificaciones();
+        if (!respuesta.ok) {
+          const resultado = (await respuesta.json().catch(() => ({}))) as {
+            error?: string;
+          };
+          setError(
+            resultado.error ?? "No se pudo marcar la notificación como leída."
+          );
+          return;
+        }
+        await cargarNotificaciones();
       }
+      setError("");
+      if (notificacion.ruta?.startsWith("/")) router.push(notificacion.ruta);
+      cerrarPanel();
+    } catch {
+      setError("No se pudo marcar la notificación como leída.");
     } finally {
       setActualizando(false);
-      setAbierto(false);
-      if (notificacion.ruta?.startsWith("/")) router.push(notificacion.ruta);
     }
   }
 
@@ -212,7 +266,19 @@ export default function NotificacionesPanel({
       },
     });
 
-      if (respuesta.ok) await cargarNotificaciones();
+      if (!respuesta.ok) {
+        const resultado = (await respuesta.json().catch(() => ({}))) as {
+          error?: string;
+        };
+        setError(
+          resultado.error ?? "No se pudieron marcar todas las notificaciones."
+        );
+        return;
+      }
+      setError("");
+      await cargarNotificaciones();
+    } catch {
+      setError("No se pudieron marcar todas las notificaciones.");
     } finally {
       setActualizando(false);
     }
@@ -221,6 +287,7 @@ export default function NotificacionesPanel({
   return (
     <div ref={contenedorRef} className="relative">
       <button
+        ref={campanaRef}
         type="button"
         aria-label={
           noLeidas > 0
@@ -229,6 +296,7 @@ export default function NotificacionesPanel({
         }
         aria-haspopup="dialog"
         aria-expanded={abierto}
+        aria-controls={panelId}
         onClick={() => setAbierto((valor) => !valor)}
         className="focus-primary relative inline-flex h-11 w-11 items-center justify-center rounded-lg text-slate-600 transition hover:bg-slate-100 focus:outline-none dark:text-slate-200 dark:hover:bg-slate-800 sm:h-10 sm:w-10"
       >
@@ -242,13 +310,16 @@ export default function NotificacionesPanel({
 
       {abierto && (
         <div
+          ref={panelRef}
+          id={panelId}
           role="dialog"
-          aria-label="Centro de notificaciones"
+          aria-modal="true"
+          aria-labelledby={tituloId}
           className="fixed inset-x-3 top-20 z-50 max-h-[75vh] overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl dark:border-slate-800 dark:bg-slate-900 sm:absolute sm:inset-auto sm:right-0 sm:top-12 sm:w-96"
         >
           <div className="flex items-center justify-between gap-3 border-b border-slate-200 px-4 py-3 dark:border-slate-800">
             <div>
-              <h2 className="font-bold text-slate-900 dark:text-slate-100">
+              <h2 ref={tituloRef} id={tituloId} tabIndex={-1} className="font-bold text-slate-900 outline-none dark:text-slate-100">
                 Notificaciones
               </h2>
               <p className="text-xs text-slate-500 dark:text-slate-400">
@@ -260,7 +331,7 @@ export default function NotificacionesPanel({
               type="button"
               onClick={marcarTodas}
               disabled={actualizando || noLeidas === 0}
-              className="inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold text-primary transition hover:bg-primary-soft disabled:cursor-not-allowed disabled:opacity-50"
+              className="focus-primary inline-flex min-h-11 items-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold text-emerald-700 transition hover:bg-emerald-50 disabled:cursor-not-allowed disabled:opacity-50 dark:text-emerald-300 dark:hover:bg-emerald-950/40"
             >
               <CheckCheck size={17} />
               Marcar todas
@@ -269,9 +340,7 @@ export default function NotificacionesPanel({
 
           <div className="max-h-[calc(75vh-72px)] overflow-y-auto">
             {error && (
-              <p className="m-4 rounded-xl bg-red-50 p-3 text-sm font-medium text-red-700 dark:bg-red-950/40 dark:text-red-300">
-                {error}
-              </p>
+              <Alert variant="error" className="m-4">{error}</Alert>
             )}
 
             {!error && cargando && notificaciones.length === 0 && (
@@ -293,7 +362,7 @@ export default function NotificacionesPanel({
                   type="button"
                   onClick={() => void marcarUna(notificacion)}
                   disabled={actualizando}
-                  className="flex w-full gap-3 px-4 py-4 text-left transition hover:bg-slate-50 focus:bg-slate-50 focus:outline-none disabled:cursor-wait dark:hover:bg-slate-800 dark:focus:bg-slate-800"
+                  className="focus-primary flex min-h-11 w-full gap-3 px-4 py-4 text-left transition hover:bg-slate-50 focus:outline-none disabled:cursor-wait dark:hover:bg-slate-800"
                 >
                   <span
                     className={

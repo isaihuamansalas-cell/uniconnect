@@ -3,6 +3,7 @@
 import {
   KeyboardEvent,
   useEffect,
+  useId,
   useMemo,
   useRef,
   useState,
@@ -78,7 +79,12 @@ export default function BuscadorGlobal({
   const router = useRouter();
   const contenedorRef = useRef<HTMLDivElement | null>(null);
   const inputMovilRef = useRef<HTMLInputElement | null>(null);
+  const botonMovilRef = useRef<HTMLButtonElement | null>(null);
+  const dialogoMovilRef = useRef<HTMLDivElement | null>(null);
   const solicitudActual = useRef(0);
+  const idBase = `buscador-${useId()}`;
+  const listaEscritorioId = `${idBase}-lista-escritorio`;
+  const listaMovilId = `${idBase}-lista-movil`;
 
   const [busqueda, setBusqueda] = useState("");
   const [resultados, setResultados] = useState<
@@ -123,11 +129,51 @@ export default function BuscadorGlobal({
       return;
     }
 
+    const botonQueAbrio = botonMovilRef.current;
     const temporizador = window.setTimeout(() => {
       inputMovilRef.current?.focus();
     }, 0);
 
-    return () => window.clearTimeout(temporizador);
+    function contenerFoco(event: globalThis.KeyboardEvent) {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        event.stopPropagation();
+        cerrarPaneles();
+        return;
+      }
+      if (event.key !== "Tab") return;
+      const dialogo = dialogoMovilRef.current;
+      if (!dialogo) return;
+      const enfocables = Array.from(
+        dialogo.querySelectorAll<HTMLElement>(
+          "input:not([disabled]), button:not([disabled]), a[href], [tabindex]:not([tabindex='-1'])"
+        )
+      ).filter((elemento) => elemento.getClientRects().length > 0);
+      if (enfocables.length === 0) {
+        event.preventDefault();
+        dialogo.focus();
+        return;
+      }
+      const primero = enfocables[0];
+      const ultimo = enfocables[enfocables.length - 1];
+      if (!dialogo.contains(document.activeElement) || document.activeElement === dialogo) {
+        event.preventDefault();
+        (event.shiftKey ? ultimo : primero).focus();
+      } else if (event.shiftKey && document.activeElement === primero) {
+        event.preventDefault();
+        ultimo.focus();
+      } else if (!event.shiftKey && document.activeElement === ultimo) {
+        event.preventDefault();
+        primero.focus();
+      }
+    }
+
+    document.addEventListener("keydown", contenerFoco);
+    return () => {
+      window.clearTimeout(temporizador);
+      document.removeEventListener("keydown", contenerFoco);
+      botonQueAbrio?.focus();
+    };
   }, [panelMovilAbierto]);
 
   useEffect(() => {
@@ -266,8 +312,19 @@ export default function BuscadorGlobal({
     }
   }
 
-  const panelResultados = (
-    <div className="max-h-[70vh] overflow-y-auto rounded-2xl border border-slate-200 bg-white p-2 shadow-xl dark:border-slate-800 dark:bg-slate-900">
+  function idOpcion(sufijo: "escritorio" | "movil", indice: number) {
+    return `${idBase}-opcion-${sufijo}-${indice}`;
+  }
+
+  function renderizarPanelResultados(
+    sufijo: "escritorio" | "movil"
+  ) {
+    const listaId = sufijo === "escritorio"
+      ? listaEscritorioId
+      : listaMovilId;
+
+    return (
+    <div id={listaId} role="listbox" aria-label="Resultados de búsqueda" className="max-h-[70vh] overflow-y-auto rounded-2xl border border-slate-200 bg-white p-2 shadow-xl dark:border-slate-800 dark:bg-slate-900">
       {cargando && (
         <div className="flex items-center gap-2 px-3 py-4 text-sm text-slate-500 dark:text-slate-400">
           <LoaderCircle size={18} className="animate-spin" />
@@ -322,8 +379,11 @@ export default function BuscadorGlobal({
 
                   return (
                     <Link
+                      id={idOpcion(sufijo, indice)}
                       key={`${modulo.id}-${resultado.id}`}
                       href={resultado.ruta}
+                      role="option"
+                      aria-selected={activo}
                       onClick={() => {
                         cerrarPaneles();
                         setBusqueda("");
@@ -351,13 +411,18 @@ export default function BuscadorGlobal({
           );
         })}
     </div>
-  );
+    );
+  }
 
   return (
     <div ref={contenedorRef} className="relative">
       <button
+        ref={botonMovilRef}
         type="button"
         aria-label="Abrir buscador"
+        aria-haspopup="dialog"
+        aria-expanded={panelMovilAbierto}
+        aria-controls={`${idBase}-dialogo`}
         onClick={() => {
           setPanelMovilAbierto(true);
           setPanelAbierto(true);
@@ -374,6 +439,7 @@ export default function BuscadorGlobal({
         />
         <input
           type="search"
+          role="combobox"
           value={busqueda}
           onFocus={() => setPanelAbierto(true)}
           onChange={(event) => {
@@ -383,12 +449,20 @@ export default function BuscadorGlobal({
           onKeyDown={manejarTeclado}
           placeholder="Buscar en UniConnect"
           aria-label="Buscar en UniConnect"
+          aria-expanded={panelAbierto}
+          aria-controls={listaEscritorioId}
+          aria-autocomplete="list"
+          aria-activedescendant={
+            indiceActivo >= 0
+              ? idOpcion("escritorio", indiceActivo)
+              : undefined
+          }
           className="w-full rounded-xl border border-slate-300 bg-white py-2.5 pl-10 pr-4 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus-primary dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:placeholder:text-slate-500"
         />
 
         {panelAbierto && (
           <div className="absolute right-0 top-full z-30 mt-2 w-full">
-            {panelResultados}
+            {renderizarPanelResultados("escritorio")}
           </div>
         )}
       </div>
@@ -399,6 +473,12 @@ export default function BuscadorGlobal({
           onMouseDown={cerrarPaneles}
         >
           <div
+            ref={dialogoMovilRef}
+            id={`${idBase}-dialogo`}
+            role="dialog"
+            aria-modal="true"
+            aria-label="Buscar en UniConnect"
+            tabIndex={-1}
             className="rounded-2xl bg-white p-3 shadow-2xl dark:border dark:border-slate-800 dark:bg-slate-900"
             onMouseDown={(event) => event.stopPropagation()}
           >
@@ -411,6 +491,7 @@ export default function BuscadorGlobal({
                 <input
                   ref={inputMovilRef}
                   type="search"
+                  role="combobox"
                   value={busqueda}
                   onChange={(event) => {
                     setBusqueda(event.target.value);
@@ -419,6 +500,14 @@ export default function BuscadorGlobal({
                   onKeyDown={manejarTeclado}
                   placeholder="Buscar en UniConnect"
                   aria-label="Buscar en UniConnect"
+                  aria-expanded={panelAbierto}
+                  aria-controls={listaMovilId}
+                  aria-autocomplete="list"
+                  aria-activedescendant={
+                    indiceActivo >= 0
+                      ? idOpcion("movil", indiceActivo)
+                      : undefined
+                  }
                   className="w-full rounded-xl border border-slate-300 bg-white py-3 pl-10 pr-4 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus-primary dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:placeholder:text-slate-500"
                 />
               </div>
@@ -433,7 +522,7 @@ export default function BuscadorGlobal({
               </button>
             </div>
 
-            <div className="mt-3">{panelResultados}</div>
+            <div className="mt-3">{renderizarPanelResultados("movil")}</div>
           </div>
         </div>
       )}

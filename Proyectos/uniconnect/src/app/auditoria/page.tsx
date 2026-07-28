@@ -369,7 +369,24 @@ export default function AuditoriaPage() {
                   No se encontraron registros de auditoria.
                 </p>
               ) : (
-                <div className="max-w-full overflow-x-auto">
+                <div>
+                  <div className="grid min-w-0 gap-4 md:grid-cols-2 lg:hidden">
+                    {registros.map((registro) => (
+                      <article key={registro.id} className="min-w-0 rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-900">
+                        <p className="break-words text-sm font-semibold text-slate-700 dark:text-slate-200">{formatearFecha(registro.created_at)}</p>
+                        <h2 className="mt-2 break-words font-bold text-slate-900 dark:text-slate-100">{obtenerNombreUsuario(registro)}</h2>
+                        {registro.usuario?.correo && <p className="break-all text-sm text-slate-600 dark:text-slate-300">{registro.usuario.correo}</p>}
+                        <dl className="mt-4 grid grid-cols-2 gap-3 text-sm">
+                          <div className="min-w-0 rounded-xl bg-slate-50 p-3 dark:bg-slate-800"><dt className="text-slate-600 dark:text-slate-300">Módulo</dt><dd className="break-words font-semibold text-slate-900 dark:text-slate-100">{registro.modulo}</dd></div>
+                          <div className="min-w-0 rounded-xl bg-slate-50 p-3 dark:bg-slate-800"><dt className="text-slate-600 dark:text-slate-300">Acción</dt><dd className="break-words font-semibold text-slate-900 dark:text-slate-100">{registro.accion}</dd></div>
+                          <div className="col-span-2 min-w-0 rounded-xl bg-slate-50 p-3 dark:bg-slate-800"><dt className="text-slate-600 dark:text-slate-300">Entidad</dt><dd className="break-words font-semibold text-slate-900 dark:text-slate-100">{registro.entidad_tipo}{registro.entidad_id ? ` #${registro.entidad_id}` : ""}</dd></div>
+                          <div className="col-span-2 min-w-0 rounded-xl bg-slate-50 p-3 dark:bg-slate-800"><dt className="text-slate-600 dark:text-slate-300">Descripción</dt><dd className="break-words font-semibold text-slate-900 dark:text-slate-100">{registro.descripcion}</dd></div>
+                        </dl>
+                        <button type="button" onClick={() => setDetalle(registro)} className="mt-4 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 dark:border-slate-700 dark:text-slate-200"><Eye size={17} /> Ver detalles</button>
+                      </article>
+                    ))}
+                  </div>
+                  <div className="hidden max-w-full overflow-x-auto lg:block">
                   <table className="w-full min-w-[950px] text-left">
                     <thead>
                       <tr className="border-b border-slate-200 text-sm text-slate-500">
@@ -442,6 +459,7 @@ export default function AuditoriaPage() {
                       ))}
                     </tbody>
                   </table>
+                  </div>
                 </div>
               )}
 

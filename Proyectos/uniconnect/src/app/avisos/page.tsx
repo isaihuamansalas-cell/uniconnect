@@ -356,7 +356,35 @@ export default function AvisosPage() {
               Cargando avisos...
             </div>
           ) : (
-            <div className="mt-6 max-w-full overflow-x-auto">
+            <div className="mt-6">
+              <div className="grid min-w-0 gap-4 md:grid-cols-2 lg:hidden">
+                {avisos.map((aviso) => (
+                  <article key={aviso.id} className="min-w-0 rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-900">
+                    <div className="flex min-w-0 items-start gap-3">
+                      <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300"><Megaphone size={22} /></div>
+                      <div className="min-w-0"><h2 className="break-words font-bold text-slate-900 dark:text-slate-100">{aviso.titulo}</h2><p className="mt-1 break-words text-sm text-slate-600 dark:text-slate-300">{aviso.contenido}</p></div>
+                    </div>
+                    <dl className="mt-4 grid grid-cols-2 gap-3 text-sm">
+                      <div className="col-span-2 min-w-0 rounded-xl bg-slate-50 p-3 dark:bg-slate-800"><dt className="text-slate-600 dark:text-slate-300">Autor</dt><dd className="break-words font-semibold text-slate-900 dark:text-slate-100">{aviso.autor ? `${aviso.autor.nombres} ${aviso.autor.apellidos}` : "Autor no disponible"}</dd></div>
+                      <div className="min-w-0 rounded-xl bg-slate-50 p-3 dark:bg-slate-800"><dt className="text-slate-600 dark:text-slate-300">Publicación</dt><dd className="break-words font-semibold text-slate-900 dark:text-slate-100">{formatearFecha(aviso.created_at)}</dd></div>
+                      <div className="min-w-0 rounded-xl bg-slate-50 p-3 dark:bg-slate-800"><dt className="text-slate-600 dark:text-slate-300">Tipo</dt><dd className="break-words font-semibold text-slate-900 dark:text-slate-100">{aviso.tipo}</dd></div>
+                      <div className="min-w-0 rounded-xl bg-slate-50 p-3 dark:bg-slate-800"><dt className="text-slate-600 dark:text-slate-300">Destinatario</dt><dd className="break-words font-semibold text-slate-900 dark:text-slate-100">{aviso.destinatario}<span className="mt-1 block font-normal text-slate-600 dark:text-slate-300">{obtenerDetalleDestinatario(aviso)}</span></dd></div>
+                      <div className="min-w-0 rounded-xl bg-slate-50 p-3 dark:bg-slate-800"><dt className="text-slate-600 dark:text-slate-300">Estado</dt><dd className={aviso.estado ? "font-semibold text-emerald-700 dark:text-emerald-300" : "font-semibold text-red-700 dark:text-red-300"}>{aviso.estado ? "Activo" : "Inactivo"}</dd></div>
+                    </dl>
+                    {puedeGestionar && (
+                      <div className="mt-4 flex flex-wrap gap-2">
+                        <button type="button" onClick={() => abrirModalEditar(aviso)} className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 dark:border-slate-700 dark:text-slate-200"><Pencil size={17} /> Editar</button>
+                        <button type="button" onClick={() => cambiarEstado(aviso)} disabled={actualizandoId === aviso.id} className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 disabled:opacity-60 dark:border-slate-700 dark:text-slate-200">
+                          {actualizandoId === aviso.id ? <LoaderCircle size={17} className="animate-spin" /> : aviso.estado ? <ToggleRight size={17} /> : <ToggleLeft size={17} />}
+                          {aviso.estado ? "Desactivar" : "Activar"}
+                        </button>
+                      </div>
+                    )}
+                  </article>
+                ))}
+              </div>
+
+              <div className="hidden max-w-full overflow-x-auto lg:block">
               <table className="w-full min-w-[1120px] text-left">
                 <thead>
                   <tr className="border-b border-slate-200 text-sm text-slate-500">
@@ -491,6 +519,7 @@ export default function AvisosPage() {
                   ))}
                 </tbody>
               </table>
+              </div>
 
               {avisos.length === 0 && (
                 <div className="py-12 text-center">

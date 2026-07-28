@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useId, useRef, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { LoaderCircle } from "lucide-react";
 
@@ -17,6 +17,13 @@ export default function MainLayout({ children }: Props) {
   const pathname = usePathname();
   const { perfil, cargaInicial, cargandoSesion, cerrandoSesion } = usePerfil();
   const [menuMovilAbierto, setMenuMovilAbierto] = useState(false);
+  const menuId = `menu-movil-${useId()}`;
+  const menuButtonRef = useRef<HTMLButtonElement>(null);
+  const menuRef = useRef<HTMLElement>(null);
+
+  const cerrarMenuMovil = useCallback(() => {
+    setMenuMovilAbierto(false);
+  }, []);
 
   useEffect(() => {
     if (!cerrandoSesion && !cargandoSesion && !cargaInicial && !perfil) {
@@ -49,26 +56,59 @@ export default function MainLayout({ children }: Props) {
   }, [cargaInicial, cargandoSesion, perfil, router, tienePermiso]);
 
   useEffect(() => {
-    if (!menuMovilAbierto) {
-      document.body.style.overflow = "";
-      return;
-    }
+    if (!menuMovilAbierto) return;
 
+    const botonQueAbrio = menuButtonRef.current;
+    const overflowAnterior = document.body.style.overflow;
     document.body.style.overflow = "hidden";
+    const temporizador = window.setTimeout(() => {
+      const menu = menuRef.current;
+      const primerEnlace = menu?.querySelector<HTMLElement>("a[href]");
+      (primerEnlace ?? menu)?.focus();
+    }, 0);
 
     function cerrarConEscape(event: KeyboardEvent) {
       if (event.key === "Escape") {
-        setMenuMovilAbierto(false);
+        cerrarMenuMovil();
+        return;
+      }
+
+      if (event.key !== "Tab") return;
+      const menu = menuRef.current;
+      if (!menu) return;
+      const enfocables = Array.from(
+        menu.querySelectorAll<HTMLElement>(
+          "a[href], button:not([disabled]), [tabindex]:not([tabindex='-1'])"
+        )
+      ).filter((elemento) => elemento.getClientRects().length > 0);
+      if (enfocables.length === 0) {
+        event.preventDefault();
+        menu.focus();
+        return;
+      }
+      const primero = enfocables[0];
+      const ultimo = enfocables[enfocables.length - 1];
+      if (!menu.contains(document.activeElement) || document.activeElement === menu) {
+        event.preventDefault();
+        (event.shiftKey ? ultimo : primero).focus();
+      } else if (event.shiftKey && document.activeElement === primero) {
+        event.preventDefault();
+        ultimo.focus();
+      } else if (!event.shiftKey && document.activeElement === ultimo) {
+        event.preventDefault();
+        primero.focus();
       }
     }
 
     window.addEventListener("keydown", cerrarConEscape);
 
     return () => {
-      document.body.style.overflow = "";
+      window.clearTimeout(temporizador);
+      document.body.style.overflow = overflowAnterior;
       window.removeEventListener("keydown", cerrarConEscape);
+      botonQueAbrio?.focus();
     };
-  }, [menuMovilAbierto]);
+  }, [cerrarMenuMovil, menuMovilAbierto]);
 
   if (cargaInicial) {
     return (
@@ -105,28 +145,29 @@ export default function MainLayout({ children }: Props) {
         <button
           type="button"
           aria-label="Cerrar menu"
-          onClick={() => setMenuMovilAbierto(false)}
+          onClick={cerrarMenuMovil}
           className="fixed inset-0 z-40 bg-slate-950/60 lg:hidden"
         />
       )}
 
-      <div
-        className={
-          menuMovilAbierto
-            ? "fixed inset-y-0 left-0 z-50 w-64 translate-x-0 transition-transform lg:hidden"
-            : "fixed inset-y-0 left-0 z-50 w-64 -translate-x-full transition-transform lg:hidden"
-        }
-      >
-        <Sidebar
-          mobile
-          onNavigate={() => setMenuMovilAbierto(false)}
-        />
-      </div>
+      {menuMovilAbierto && (
+        <div className="fixed inset-y-0 left-0 z-50 w-64 lg:hidden">
+          <Sidebar
+            mobile
+            id={menuId}
+            contenedorRef={menuRef}
+            onNavigate={cerrarMenuMovil}
+          />
+        </div>
+      )}
 
       <div className="min-w-0 flex-1">
 
         <Header
           onMenuClick={() => setMenuMovilAbierto(true)}
+          menuAbierto={menuMovilAbierto}
+          menuButtonRef={menuButtonRef}
+          menuId={menuId}
         />
 
         <main className="min-h-screen min-w-0 bg-slate-100 p-4 dark:bg-slate-950 sm:p-6 lg:p-8">

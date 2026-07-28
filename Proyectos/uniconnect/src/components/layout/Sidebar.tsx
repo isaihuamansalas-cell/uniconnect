@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import type { RefObject } from "react";
 
 import { usePerfil } from "@/components/auth/PerfilProvider";
 import { useConfiguracion } from "@/components/configuracion/ConfiguracionProvider";
@@ -17,6 +18,8 @@ type MenuItem = {
 type SidebarProps = {
   mobile?: boolean;
   onNavigate?: () => void;
+  id?: string;
+  contenedorRef?: RefObject<HTMLElement | null>;
 };
 
 const menuItems: MenuItem[] = [
@@ -75,6 +78,8 @@ const menuItems: MenuItem[] = [
 export default function Sidebar({
   mobile = false,
   onNavigate,
+  id,
+  contenedorRef,
 }: SidebarProps) {
   const { configuracion } = useConfiguracion();
   const { perfil, cargandoPerfil } = usePerfil();
@@ -87,6 +92,10 @@ export default function Sidebar({
 
   return (
     <aside
+      ref={contenedorRef}
+      id={id}
+      tabIndex={mobile ? -1 : undefined}
+      aria-label={mobile ? "Navegación principal móvil" : "Navegación principal"}
       className={
         mobile
           ? "sidebar-secondary h-full w-64 overflow-y-auto p-6 shadow-2xl"

@@ -660,7 +660,24 @@ export default function ReportesPage() {
                 Cargando salidas...
               </div>
             ) : (
-              <div className="mt-6 max-w-full overflow-x-auto">
+              <div className="mt-6">
+                <div className="grid min-w-0 gap-4 print:hidden md:grid-cols-2 lg:hidden">
+                  {salidas.map((salida) => (
+                    <article key={salida.id} className="min-w-0 rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-900">
+                      <h2 className="break-words font-bold text-slate-900 dark:text-slate-100">{obtenerNombre(salida.estudiante)}</h2>
+                      <p className="mt-1 break-words text-2xl font-black uppercase text-emerald-700 dark:text-emerald-300">{salida.vehiculo?.placa ?? "Sin placa"}</p>
+                      <dl className="mt-4 grid grid-cols-2 gap-3 text-sm">
+                        <div className="min-w-0 rounded-xl bg-slate-50 p-3 dark:bg-slate-800"><dt className="text-slate-600 dark:text-slate-300">DNI</dt><dd className="break-words font-semibold text-slate-900 dark:text-slate-100">{salida.estudiante?.dni ?? "No disponible"}</dd></div>
+                        <div className="min-w-0 rounded-xl bg-slate-50 p-3 dark:bg-slate-800"><dt className="text-slate-600 dark:text-slate-300">Código</dt><dd className="break-words font-semibold text-slate-900 dark:text-slate-100">{salida.estudiante?.codigo_estudiante ?? "No registrado"}</dd></div>
+                        <div className="col-span-2 min-w-0 rounded-xl bg-slate-50 p-3 dark:bg-slate-800"><dt className="text-slate-600 dark:text-slate-300">Vehículo</dt><dd className="break-words font-semibold text-slate-900 dark:text-slate-100">{obtenerVehiculo(salida.vehiculo)}</dd></div>
+                        <div className="min-w-0 rounded-xl bg-slate-50 p-3 dark:bg-slate-800"><dt className="text-slate-600 dark:text-slate-300">Fecha</dt><dd className="break-words font-semibold text-slate-900 dark:text-slate-100">{obtenerFecha(salida)}</dd></div>
+                        <div className="min-w-0 rounded-xl bg-slate-50 p-3 dark:bg-slate-800"><dt className="text-slate-600 dark:text-slate-300">Hora</dt><dd className="break-words font-semibold text-slate-900 dark:text-slate-100">{obtenerHora(salida)}</dd></div>
+                        <div className="col-span-2 min-w-0 rounded-xl bg-slate-50 p-3 dark:bg-slate-800"><dt className="text-slate-600 dark:text-slate-300">Garita responsable</dt><dd className="break-words font-semibold text-slate-900 dark:text-slate-100">{obtenerNombre(salida.garita)}</dd></div>
+                      </dl>
+                    </article>
+                  ))}
+                </div>
+                <div className="hidden max-w-full overflow-x-auto lg:block print:block">
                 <table className="w-full min-w-[1180px] text-left text-sm print:min-w-0 print:text-xs">
                   <thead>
                     <tr className="border-b border-slate-200 text-slate-500 dark:border-slate-800 dark:text-slate-400">
@@ -718,6 +735,7 @@ export default function ReportesPage() {
                     ))}
                   </tbody>
                 </table>
+                </div>
 
                 {salidas.length === 0 && (
                   <div className="py-12 text-center print:hidden">

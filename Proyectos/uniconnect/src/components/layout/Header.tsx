@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type RefObject } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { ChevronDown, LogOut, Menu, UserRound } from "lucide-react";
@@ -13,6 +13,9 @@ import NotificacionesPanel from "./NotificacionesPanel";
 
 type HeaderProps = {
   onMenuClick: () => void;
+  menuAbierto: boolean;
+  menuButtonRef: RefObject<HTMLButtonElement | null>;
+  menuId: string;
 };
 
 const nombresRoles: Record<number, string> = {
@@ -23,7 +26,12 @@ const nombresRoles: Record<number, string> = {
   5: "Estudiante",
 };
 
-export default function Header({ onMenuClick }: HeaderProps) {
+export default function Header({
+  onMenuClick,
+  menuAbierto,
+  menuButtonRef,
+  menuId,
+}: HeaderProps) {
   const { configuracion } = useConfiguracion();
   const { perfil, session, cargandoPerfil, cerrandoSesion, cerrarSesion } =
     usePerfil();
@@ -50,10 +58,13 @@ export default function Header({ onMenuClick }: HeaderProps) {
     <header className="flex min-h-20 max-w-full items-center justify-between gap-1 overflow-x-clip border-b border-slate-200 bg-white px-2 dark:border-slate-800 dark:bg-slate-900 sm:gap-4 sm:px-6 lg:px-8">
       <div className="flex min-w-0 items-center sm:gap-3">
         <button
+          ref={menuButtonRef}
           type="button"
           onClick={onMenuClick}
           aria-label="Abrir menu"
-          className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-lg text-slate-700 transition hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800 lg:hidden"
+          aria-expanded={menuAbierto}
+          aria-controls={menuId}
+          className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-lg text-slate-700 transition hover:bg-slate-100 focus-primary dark:text-slate-200 dark:hover:bg-slate-800 lg:hidden"
         >
           <Menu size={22} />
         </button>
@@ -69,7 +80,7 @@ export default function Header({ onMenuClick }: HeaderProps) {
         </div>
       </div>
 
-      <div className="flex min-w-0 shrink-0 items-center gap-0.5 sm:gap-4">
+      <div className="flex min-w-0 shrink-0 items-center gap-0 sm:gap-4">
         <BuscadorGlobal accessToken={session?.access_token ?? ""} />
 
         <NotificacionesPanel

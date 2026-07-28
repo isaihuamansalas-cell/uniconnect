@@ -265,7 +265,42 @@ export default function VehiculosPage() {
               Cargando vehículos...
             </p>
           ) : (
-            <div className="mt-6 max-w-full overflow-x-auto">
+            <div className="mt-6">
+              <div className="grid min-w-0 gap-4 md:grid-cols-2 lg:hidden">
+                {vehiculosFiltrados.map((vehiculo) => (
+                  <article key={vehiculo.id} className="min-w-0 rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-900">
+                    <div className="flex min-w-0 items-center gap-3">
+                      {vehiculo.foto ? (
+                        <FotoVehiculo vehiculoId={vehiculo.id} version={`${vehiculo.foto}-${actualizacion}`} className="h-20 w-24 shrink-0 rounded-xl object-cover" fallbackClassName="flex h-20 w-24 shrink-0 items-center justify-center rounded-xl bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300" />
+                      ) : (
+                        <div className="flex h-20 w-24 shrink-0 items-center justify-center rounded-xl bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300"><Car size={28} /></div>
+                      )}
+                      <div className="min-w-0">
+                        <p className="break-words text-2xl font-black uppercase text-emerald-700 dark:text-emerald-300">{vehiculo.placa}</p>
+                        <p className="break-words font-semibold text-slate-900 dark:text-slate-100">{vehiculo.marca ?? "Sin marca"} {vehiculo.modelo ?? ""}</p>
+                      </div>
+                    </div>
+                    <div className="mt-4 min-w-0">
+                      <p className="text-sm text-slate-600 dark:text-slate-300">Propietario</p>
+                      <p className="break-words font-semibold text-slate-900 dark:text-slate-100">{vehiculo.usuarios ? `${vehiculo.usuarios.nombres} ${vehiculo.usuarios.apellidos}` : "Sin propietario"}</p>
+                    </div>
+                    <dl className="mt-4 grid grid-cols-2 gap-3 text-sm">
+                      <div className="min-w-0 rounded-xl bg-slate-50 p-3 dark:bg-slate-800"><dt className="text-slate-600 dark:text-slate-300">Marca</dt><dd className="break-words font-semibold text-slate-900 dark:text-slate-100">{vehiculo.marca ?? "Sin marca"}</dd></div>
+                      <div className="min-w-0 rounded-xl bg-slate-50 p-3 dark:bg-slate-800"><dt className="text-slate-600 dark:text-slate-300">Modelo</dt><dd className="break-words font-semibold text-slate-900 dark:text-slate-100">{vehiculo.modelo ?? "Sin modelo"}</dd></div>
+                      <div className="min-w-0 rounded-xl bg-slate-50 p-3 dark:bg-slate-800"><dt className="text-slate-600 dark:text-slate-300">Color</dt><dd className="break-words font-semibold text-slate-900 dark:text-slate-100">{vehiculo.color}</dd></div>
+                      <div className="min-w-0 rounded-xl bg-slate-50 p-3 dark:bg-slate-800"><dt className="text-slate-600 dark:text-slate-300">Tipo</dt><dd className="break-words font-semibold text-slate-900 dark:text-slate-100">{vehiculo.tipo}</dd></div>
+                      <div className="min-w-0 rounded-xl bg-slate-50 p-3 dark:bg-slate-800"><dt className="text-slate-600 dark:text-slate-300">Año</dt><dd className="break-words font-semibold text-slate-900 dark:text-slate-100">{vehiculo.anio ?? "No registrado"}</dd></div>
+                      <div className="min-w-0 rounded-xl bg-slate-50 p-3 dark:bg-slate-800"><dt className="text-slate-600 dark:text-slate-300">Estado</dt><dd className={vehiculo.estado ? "font-semibold text-emerald-700 dark:text-emerald-300" : "font-semibold text-red-700 dark:text-red-300"}>{vehiculo.estado ? "Activo" : "Inactivo"}</dd></div>
+                    </dl>
+                    <div className="mt-4 flex flex-wrap gap-2">
+                      <button type="button" onClick={() => abrirModalEditar(vehiculo)} className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-100 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"><Pencil size={17} /> Editar</button>
+                      {puedeEliminar && <button type="button" onClick={() => abrirModalEliminar(vehiculo)} className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl border border-red-300 px-4 py-2 text-sm font-semibold text-red-700 transition hover:bg-red-50 dark:border-red-900/70 dark:text-red-300 dark:hover:bg-red-950/40"><Trash2 size={17} /> Eliminar</button>}
+                    </div>
+                  </article>
+                ))}
+              </div>
+
+              <div className="hidden max-w-full overflow-x-auto lg:block">
               <table className="w-full min-w-[1050px] text-left">
                 <thead>
                   <tr className="border-b border-slate-200 text-sm text-slate-500 dark:border-slate-700 dark:text-slate-300">
@@ -408,6 +443,7 @@ export default function VehiculosPage() {
                   ))}
                 </tbody>
               </table>
+              </div>
 
               {vehiculosFiltrados.length === 0 && (
                 <div className="py-12 text-center">

@@ -190,7 +190,31 @@ export default function UsuariosPage() {
               Cargando usuarios...
             </p>
           ) : (
-            <div className="mt-6 max-w-full overflow-x-auto">
+            <div className="mt-6">
+              <div className="grid min-w-0 gap-4 md:grid-cols-2 lg:hidden">
+                {usuariosFiltrados.map((usuario) => (
+                  <article key={usuario.id} className="min-w-0 rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-900">
+                    <h2 className="break-words font-bold text-slate-900 dark:text-slate-100">
+                      {usuario.nombres} {usuario.apellidos}
+                    </h2>
+                    <p className="mt-1 break-all text-sm text-slate-600 dark:text-slate-300">{usuario.correo}</p>
+                    <dl className="mt-4 grid grid-cols-2 gap-3 text-sm">
+                      <div className="min-w-0 rounded-xl bg-slate-50 p-3 dark:bg-slate-800"><dt className="text-slate-600 dark:text-slate-300">DNI</dt><dd className="break-words font-semibold text-slate-900 dark:text-slate-100">{usuario.dni}</dd></div>
+                      <div className="min-w-0 rounded-xl bg-slate-50 p-3 dark:bg-slate-800"><dt className="text-slate-600 dark:text-slate-300">Código</dt><dd className="break-words font-semibold text-slate-900 dark:text-slate-100">{usuario.codigo_estudiante ?? "No aplica"}</dd></div>
+                      <div className="min-w-0 rounded-xl bg-slate-50 p-3 dark:bg-slate-800"><dt className="text-slate-600 dark:text-slate-300">Rol</dt><dd className="break-words font-semibold text-slate-900 dark:text-slate-100">{nombresRoles[usuario.rol_id] ?? "Sin rol"}</dd></div>
+                      <div className="min-w-0 rounded-xl bg-slate-50 p-3 dark:bg-slate-800"><dt className="text-slate-600 dark:text-slate-300">Estado</dt><dd className={usuario.estado ? "font-semibold text-emerald-700 dark:text-emerald-300" : "font-semibold text-red-700 dark:text-red-300"}>{usuario.estado ? "Activo" : "Inactivo"}</dd></div>
+                    </dl>
+                    <div className="mt-4 flex flex-wrap gap-2">
+                      <button type="button" onClick={() => abrirModalEditar(usuario)} className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-100 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"><Pencil size={17} /> Editar</button>
+                      {puedeEliminar && (
+                        <button type="button" onClick={() => abrirModalEliminar(usuario)} disabled={perfil?.id === usuario.id} title={perfil?.id === usuario.id ? "No puedes eliminar tu propio usuario" : "Eliminar usuario"} className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl border border-red-300 px-4 py-2 text-sm font-semibold text-red-700 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-red-900/70 dark:text-red-300 dark:hover:bg-red-950/40"><Trash2 size={17} /> Eliminar</button>
+                      )}
+                    </div>
+                  </article>
+                ))}
+              </div>
+
+              <div className="hidden max-w-full overflow-x-auto lg:block">
               <table className="w-full min-w-[900px] text-left">
                 <thead>
                   <tr className="border-b border-slate-200 text-sm text-slate-500">
@@ -302,6 +326,7 @@ export default function UsuariosPage() {
                   ))}
                 </tbody>
               </table>
+              </div>
 
               {usuariosFiltrados.length === 0 && (
                 <p className="py-10 text-center text-slate-500">
