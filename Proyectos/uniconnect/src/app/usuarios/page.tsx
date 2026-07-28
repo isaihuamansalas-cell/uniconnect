@@ -10,7 +10,7 @@ import EditarUsuarioModal, {
   type UsuarioEditable,
 } from "@/components/usuarios/EditarUsuarioModal";
 import NuevoUsuarioModal from "@/components/usuarios/NuevoUsuarioModal";
-import { FormField, Input } from "@/components/ui";
+import { FormField, Input, LoadingState } from "@/components/ui";
 import { supabase } from "@/lib/supabase/client";
 
 type Usuario = {
@@ -186,9 +186,7 @@ export default function UsuariosPage() {
           )}
 
           {cargando ? (
-            <p className="mt-8 text-slate-500">
-              Cargando usuarios...
-            </p>
+            <LoadingState variant="list" message="Cargando usuarios..." className="mt-6" />
           ) : (
             <div className="mt-6">
               <div className="grid min-w-0 gap-4 md:grid-cols-2 lg:hidden">

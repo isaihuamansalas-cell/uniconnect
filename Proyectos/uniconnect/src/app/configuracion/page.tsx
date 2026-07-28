@@ -12,7 +12,6 @@ import { useRouter } from "next/navigation";
 import {
   Building2,
   ImageUp,
-  LoaderCircle,
   Palette,
   Save,
   ShieldAlert,
@@ -21,7 +20,7 @@ import {
 import { useConfiguracion } from "@/components/configuracion/ConfiguracionProvider";
 import { usePerfil } from "@/components/auth/PerfilProvider";
 import MainLayout from "@/components/layout/MainLayout";
-import { FormField, Input, Modal, Select } from "@/components/ui";
+import { FormField, Input, LoadingButtonContent, LoadingState, Modal, Select } from "@/components/ui";
 import { obtenerUrlLogo } from "@/lib/configuracion/defaults";
 import { supabase } from "@/lib/supabase/client";
 
@@ -295,12 +294,9 @@ export default function ConfiguracionPage() {
 
   if (cargandoPerfil) {
     return (
-      <main className="flex min-h-screen items-center justify-center bg-slate-100 dark:bg-slate-950">
-        <div className="flex items-center gap-3 text-slate-600 dark:text-slate-300">
-          <LoaderCircle size={22} className="animate-spin" />
-          Cargando configuracion...
-        </div>
-      </main>
+      <MainLayout>
+        <LoadingState variant="section" message="Cargando configuración..." />
+      </MainLayout>
     );
   }
 
@@ -389,12 +385,12 @@ export default function ConfiguracionPage() {
                   : "mt-5 inline-flex w-full cursor-not-allowed items-center justify-center gap-2 rounded-xl bg-slate-300 px-5 py-3 font-semibold text-white dark:bg-slate-700 dark:text-slate-300"
               }
             >
-              {subiendoLogo ? (
-                <LoaderCircle size={20} className="animate-spin" />
-              ) : (
-                <ImageUp size={20} />
-              )}
-              {subiendoLogo ? "Subiendo..." : "Subir logo"}
+              <LoadingButtonContent
+                loading={subiendoLogo}
+                text="Subir logo"
+                loadingText="Subiendo..."
+                icon={<ImageUp size={20} />}
+              />
               <input
                 type="file"
                 accept="image/jpeg,image/png,image/webp,image/svg+xml"
@@ -565,12 +561,12 @@ export default function ConfiguracionPage() {
                 disabled={!esAdministrador || guardando}
                 className="btn-primary inline-flex items-center justify-center gap-2 rounded-xl px-5 py-3 font-semibold transition disabled:cursor-not-allowed disabled:opacity-60"
               >
-                {guardando ? (
-                  <LoaderCircle size={20} className="animate-spin" />
-                ) : (
-                  <Save size={20} />
-                )}
-                Guardar configuracion
+                <LoadingButtonContent
+                  loading={guardando}
+                  text="Guardar configuración"
+                  loadingText="Guardando..."
+                  icon={<Save size={20} />}
+                />
               </button>
             </div>
           </form>

@@ -23,7 +23,7 @@ import {
 
 import { useConfiguracion } from "@/components/configuracion/ConfiguracionProvider";
 import MainLayout from "@/components/layout/MainLayout";
-import { FormField, Input, Paginacion, StatCard, type TamanoPaginaComun } from "@/components/ui";
+import { FormField, Input, LoadingButtonContent, LoadingState, Paginacion, StatCard, type TamanoPaginaComun } from "@/components/ui";
 import { supabase } from "@/lib/supabase/client";
 
 type Estadisticas = {
@@ -445,12 +445,12 @@ export default function ReportesPage() {
 
   if (cargando) {
     return (
-      <main className="flex min-h-screen items-center justify-center bg-slate-100 dark:bg-slate-950">
-        <div className="flex items-center gap-3 text-slate-600 dark:text-slate-300">
-          <LoaderCircle size={22} className="animate-spin" />
-          Cargando reportes...
-        </div>
-      </main>
+      <MainLayout>
+        <section>
+          <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-100">Reportes</h1>
+          <LoadingState variant="section" message="Cargando reportes..." className="mt-6" />
+        </section>
+      </MainLayout>
     );
   }
 
@@ -543,8 +543,13 @@ export default function ReportesPage() {
                     disabled={total === 0 || exportando}
                     className="inline-flex items-center gap-2 rounded-xl border border-slate-300 px-4 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-60 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"
                   >
-                    {exportando ? <LoaderCircle size={18} className="animate-spin" /> : <Download size={18} />}
-                    {exportando ? "Exportando..." : "Excel CSV"}
+                    <LoadingButtonContent
+                      loading={exportando}
+                      text="Excel CSV"
+                      loadingText="Exportando..."
+                      icon={<Download size={18} />}
+                      size="compact"
+                    />
                   </button>
 
                   <button
@@ -645,9 +650,9 @@ export default function ReportesPage() {
             </div>
 
             <div className="hidden print:mb-6 print:block">
-              <h1 className="text-2xl font-bold text-slate-900">
+              <h2 className="text-2xl font-bold text-slate-900">
                 Reporte de salidas
-              </h1>
+              </h2>
               <p className="mt-1 text-sm text-slate-600">
                 {configuracion.nombre_sistema} -{" "}
                 {new Date().toLocaleDateString("es-PE")}
@@ -655,17 +660,14 @@ export default function ReportesPage() {
             </div>
 
             {cargandoSalidas ? (
-              <div className="mt-8 flex items-center gap-3 text-slate-500 dark:text-slate-400 print:hidden">
-                <LoaderCircle size={20} className="animate-spin" />
-                Cargando salidas...
-              </div>
+              <LoadingState variant="list" message="Cargando salidas..." className="mt-6 print:hidden" />
             ) : (
               <div className="mt-6">
                 <div className="grid min-w-0 gap-4 print:hidden md:grid-cols-2 lg:hidden">
                   {salidas.map((salida) => (
                     <article key={salida.id} className="min-w-0 rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-900">
                       <h2 className="break-words font-bold text-slate-900 dark:text-slate-100">{obtenerNombre(salida.estudiante)}</h2>
-                      <p className="mt-1 break-words text-2xl font-black uppercase text-emerald-700 dark:text-emerald-300">{salida.vehiculo?.placa ?? "Sin placa"}</p>
+                      <p className="mt-1 break-words text-2xl font-black uppercase text-primary">{salida.vehiculo?.placa ?? "Sin placa"}</p>
                       <dl className="mt-4 grid grid-cols-2 gap-3 text-sm">
                         <div className="min-w-0 rounded-xl bg-slate-50 p-3 dark:bg-slate-800"><dt className="text-slate-600 dark:text-slate-300">DNI</dt><dd className="break-words font-semibold text-slate-900 dark:text-slate-100">{salida.estudiante?.dni ?? "No disponible"}</dd></div>
                         <div className="min-w-0 rounded-xl bg-slate-50 p-3 dark:bg-slate-800"><dt className="text-slate-600 dark:text-slate-300">Código</dt><dd className="break-words font-semibold text-slate-900 dark:text-slate-100">{salida.estudiante?.codigo_estudiante ?? "No registrado"}</dd></div>

@@ -21,7 +21,7 @@ import {
 import MainLayout from "@/components/layout/MainLayout";
 import FotoUsuario from "@/components/usuarios/FotoUsuario";
 import FotoVehiculo from "@/components/vehiculos/FotoVehiculo";
-import { FormField, Input, Select } from "@/components/ui";
+import { FormField, Input, LoadingButtonContent, LoadingState, Select } from "@/components/ui";
 import type {
   RegistroHistorial,
   TamanoPagina,
@@ -287,8 +287,12 @@ export default function HistorialPage() {
             disabled={exportando || total === 0}
             className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl border border-slate-300 px-5 py-3 font-semibold text-slate-700 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-60 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800 sm:w-auto"
           >
-            {exportando ? <LoaderCircle size={20} className="animate-spin" /> : <Download size={20} />}
-            {exportando ? "Exportando..." : "Exportar CSV filtrado"}
+            <LoadingButtonContent
+              loading={exportando}
+              text="Exportar CSV filtrado"
+              loadingText="Exportando..."
+              icon={<Download size={20} />}
+            />
           </button>
         </div>
 
@@ -367,9 +371,7 @@ export default function HistorialPage() {
           </div>
 
           {cargando ? (
-            <div className="flex min-h-48 items-center justify-center gap-3 text-slate-500 dark:text-slate-400">
-              <LoaderCircle size={22} className="animate-spin" /> Cargando historial...
-            </div>
+            <LoadingState variant="list" message="Cargando historial..." />
           ) : registros.length === 0 && !error ? (
             <div className="py-12 text-center text-slate-500 dark:text-slate-400">
               <CalendarClock size={40} className="mx-auto text-slate-300 dark:text-slate-600" />

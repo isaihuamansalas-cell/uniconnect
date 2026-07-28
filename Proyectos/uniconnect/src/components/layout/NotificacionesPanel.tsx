@@ -331,7 +331,7 @@ export default function NotificacionesPanel({
               type="button"
               onClick={marcarTodas}
               disabled={actualizando || noLeidas === 0}
-              className="focus-primary inline-flex min-h-11 items-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold text-emerald-700 transition hover:bg-emerald-50 disabled:cursor-not-allowed disabled:opacity-50 dark:text-emerald-300 dark:hover:bg-emerald-950/40"
+              className="focus-primary inline-flex min-h-11 items-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold text-primary transition hover:bg-primary-soft disabled:cursor-not-allowed disabled:opacity-50"
             >
               <CheckCheck size={17} />
               Marcar todas

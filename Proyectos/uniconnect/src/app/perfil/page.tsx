@@ -17,7 +17,7 @@ import {
 } from "@/components/auth/PerfilProvider";
 import { useConfiguracion } from "@/components/configuracion/ConfiguracionProvider";
 import MainLayout from "@/components/layout/MainLayout";
-import { FormField, Input, Modal } from "@/components/ui";
+import { FormField, Input, LoadingButtonContent, LoadingState, Modal } from "@/components/ui";
 import { supabase } from "@/lib/supabase/client";
 
 type RespuestaPerfil = {
@@ -307,9 +307,7 @@ export default function PerfilPage() {
         </div>
 
         {cargandoPerfil ? (
-          <div className="rounded-2xl bg-white p-6 shadow-sm dark:border dark:border-slate-800 dark:bg-slate-900">
-            <p className="text-slate-500 dark:text-slate-400">Cargando perfil...</p>
-          </div>
+          <LoadingState variant="section" message="Cargando perfil..." className="rounded-2xl bg-white shadow-sm dark:border dark:border-slate-800 dark:bg-slate-900" />
         ) : (
           <div className="grid gap-6 xl:grid-cols-[1.15fr_0.85fr]">
             <div className="space-y-6">
@@ -405,17 +403,12 @@ export default function PerfilPage() {
                       disabled={guardandoTelefono}
                       className="inline-flex items-center justify-center gap-2 rounded-xl btn-primary px-5 py-3 font-semibold text-white transition disabled:opacity-60"
                     >
-                      {guardandoTelefono ? (
-                        <LoaderCircle
-                          size={20}
-                          className="animate-spin"
-                        />
-                      ) : (
-                        <Save size={20} />
-                      )}
-                      {guardandoTelefono
-                        ? "Guardando..."
-                        : "Guardar telefono"}
+                      <LoadingButtonContent
+                        loading={guardandoTelefono}
+                        text="Guardar teléfono"
+                        loadingText="Guardando..."
+                        icon={<Save size={20} />}
+                      />
                     </button>
                   </div>
                 </form>
@@ -606,12 +599,12 @@ export default function PerfilPage() {
               disabled={subiendoFoto}
               className="inline-flex items-center justify-center gap-2 rounded-xl btn-primary px-5 py-3 font-semibold text-white transition disabled:opacity-60"
             >
-              {subiendoFoto ? (
-                <LoaderCircle size={20} className="animate-spin" />
-              ) : (
-                <CheckCircle2 size={20} />
-              )}
-              {subiendoFoto ? "Guardando..." : "Guardar foto"}
+              <LoadingButtonContent
+                loading={subiendoFoto}
+                text="Guardar foto"
+                loadingText="Guardando..."
+                icon={<CheckCircle2 size={20} />}
+              />
             </button>
           </div>
         </div>

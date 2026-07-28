@@ -251,7 +251,7 @@ export default function RestablecerPasswordPage() {
             <div className="flex flex-col items-center gap-2 text-center">
               <Link
                 href="/recuperar-password"
-                className="text-sm font-medium text-emerald-700 transition hover:underline dark:text-emerald-300"
+                className="text-sm font-medium text-primary transition hover:underline"
               >
                 Solicitar un nuevo enlace
               </Link>

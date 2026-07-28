@@ -28,6 +28,7 @@ import {
   Alert,
   FormField,
   Input,
+  LoadingState,
   Paginacion,
   Select,
   type TamanoPaginaComun,
@@ -314,10 +315,7 @@ export default function EmprendimientosPage() {
           {error && <Alert variant="error" className="mt-5">{error}</Alert>}
 
           {cargando ? (
-            <div className="mt-8 flex items-center gap-3 text-slate-500">
-              <LoaderCircle size={20} className="animate-spin" />
-              Cargando emprendimientos...
-            </div>
+            <LoadingState variant="list" message="Cargando emprendimientos..." className="mt-6" />
           ) : (
             <div className="mt-6">
               {emprendimientos.length === 0 ? (

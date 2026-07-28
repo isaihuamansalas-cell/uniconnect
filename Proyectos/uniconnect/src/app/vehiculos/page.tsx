@@ -20,7 +20,7 @@ import MainLayout from "@/components/layout/MainLayout";
 import EliminarVehiculoModal from "@/components/vehiculos/EliminarVehiculoModal";
 import FotoVehiculo from "@/components/vehiculos/FotoVehiculo";
 import NuevoVehiculoModal from "@/components/vehiculos/NuevoVehiculoModal";
-import { FormField, Input } from "@/components/ui";
+import { FormField, Input, LoadingState } from "@/components/ui";
 
 import EditarVehiculoModal, {
   type VehiculoEditable,
@@ -261,9 +261,7 @@ export default function VehiculosPage() {
           )}
 
           {cargando ? (
-            <p className="mt-8 text-slate-500 dark:text-slate-400">
-              Cargando vehículos...
-            </p>
+            <LoadingState variant="list" message="Cargando vehículos..." className="mt-6" />
           ) : (
             <div className="mt-6">
               <div className="grid min-w-0 gap-4 md:grid-cols-2 lg:hidden">
@@ -276,7 +274,7 @@ export default function VehiculosPage() {
                         <div className="flex h-20 w-24 shrink-0 items-center justify-center rounded-xl bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300"><Car size={28} /></div>
                       )}
                       <div className="min-w-0">
-                        <p className="break-words text-2xl font-black uppercase text-emerald-700 dark:text-emerald-300">{vehiculo.placa}</p>
+                        <p className="break-words text-2xl font-black uppercase text-primary">{vehiculo.placa}</p>
                         <p className="break-words font-semibold text-slate-900 dark:text-slate-100">{vehiculo.marca ?? "Sin marca"} {vehiculo.modelo ?? ""}</p>
                       </div>
                     </div>

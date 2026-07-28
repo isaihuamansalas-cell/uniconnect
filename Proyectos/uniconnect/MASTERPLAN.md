@@ -323,3 +323,16 @@ Nunca romper funcionalidades existentes.
 # Objetivo
 
 Construir un sistema profesional listo para producción manteniendo siempre la arquitectura original del proyecto.
+
+---
+
+# Fase Final 3A completada
+
+- Metadata raíz privada con plantilla de títulos, Open Graph, Twitter, robots y viewport para temas claro y oscuro.
+- Títulos específicos por ruta mediante layouts mínimos compatibles con los componentes cliente existentes.
+- Sistema reutilizable de carga para páginas, secciones, listas, contenido en línea y botones.
+- Loaders unificados en Dashboard, Usuarios, Vehículos, Avisos, Emprendimientos, Reportes, Auditoría, Perfil, Configuración e Historial.
+- Colores institucionales aplicados a acciones, enlaces, selecciones e iconos destacados sin alterar colores semánticos.
+- Jerarquía de encabezados corregida en la vista imprimible de Reportes.
+- Movimiento no esencial reducido cuando el sistema solicita `prefers-reduced-motion`.
+- No se añadieron manifest, service worker, PWA ni dependencias.

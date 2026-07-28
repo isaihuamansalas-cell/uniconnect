@@ -2,9 +2,9 @@
 
 import { useCallback, useEffect, useId, useRef, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
-import { LoaderCircle } from "lucide-react";
 
 import { usePerfil } from "@/components/auth/PerfilProvider";
+import { LoadingState } from "@/components/ui";
 import Sidebar from "./Sidebar";
 import Header from "./Header";
 
@@ -112,23 +112,13 @@ export default function MainLayout({ children }: Props) {
 
   if (cargaInicial) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-slate-100 dark:bg-slate-950">
-        <div className="flex items-center gap-3 text-primary" role="status" aria-live="polite">
-          <LoaderCircle className="animate-spin" size={30} />
-          <span className="font-semibold">Validando acceso institucional...</span>
-        </div>
-      </div>
+      <LoadingState variant="page" message="Validando acceso institucional..." className="bg-slate-100 text-primary dark:bg-slate-950" />
     );
   }
 
   if (cerrandoSesion) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-slate-100 dark:bg-slate-950">
-        <div className="flex items-center gap-3 text-primary" role="status" aria-live="polite">
-          <LoaderCircle className="animate-spin" size={30} />
-          <span className="font-semibold">Cerrando sesion...</span>
-        </div>
-      </div>
+      <LoadingState variant="page" message="Cerrando sesión..." className="bg-slate-100 text-primary dark:bg-slate-950" />
     );
   }
 

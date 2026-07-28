@@ -28,6 +28,7 @@ import {
   Alert,
   FormField,
   Input,
+  LoadingState,
   Paginacion,
   Select,
   type TamanoPaginaComun,
@@ -351,17 +352,14 @@ export default function AvisosPage() {
           {error && <Alert variant="error" className="mt-5">{error}</Alert>}
 
           {cargando ? (
-            <div className="mt-8 flex items-center gap-3 text-slate-500">
-              <LoaderCircle size={20} className="animate-spin" />
-              Cargando avisos...
-            </div>
+            <LoadingState variant="list" message="Cargando avisos..." className="mt-6" />
           ) : (
             <div className="mt-6">
               <div className="grid min-w-0 gap-4 md:grid-cols-2 lg:hidden">
                 {avisos.map((aviso) => (
                   <article key={aviso.id} className="min-w-0 rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-900">
                     <div className="flex min-w-0 items-start gap-3">
-                      <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300"><Megaphone size={22} /></div>
+                      <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary-soft text-primary"><Megaphone size={22} /></div>
                       <div className="min-w-0"><h2 className="break-words font-bold text-slate-900 dark:text-slate-100">{aviso.titulo}</h2><p className="mt-1 break-words text-sm text-slate-600 dark:text-slate-300">{aviso.contenido}</p></div>
                     </div>
                     <dl className="mt-4 grid grid-cols-2 gap-3 text-sm">

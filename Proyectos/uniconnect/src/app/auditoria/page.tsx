@@ -5,7 +5,7 @@ import { Download, Eye, LoaderCircle, Search } from "lucide-react";
 
 import { usePerfil } from "@/components/auth/PerfilProvider";
 import MainLayout from "@/components/layout/MainLayout";
-import { FormField, Input, Modal, Select } from "@/components/ui";
+import { FormField, Input, LoadingState, Modal, Select } from "@/components/ui";
 import { supabase } from "@/lib/supabase/client";
 
 type DatosAuditoria =
@@ -363,7 +363,7 @@ export default function AuditoriaPage() {
               )}
 
               {cargando ? (
-                <p role="status" className="text-slate-600 dark:text-slate-300">Cargando auditoria...</p>
+                <LoadingState variant="list" message="Cargando auditoría..." />
               ) : registros.length === 0 ? (
                 <p className="py-10 text-center text-slate-500">
                   No se encontraron registros de auditoria.

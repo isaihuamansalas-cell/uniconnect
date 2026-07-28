@@ -5,7 +5,6 @@ import {
   Bell,
   Car,
   FileText,
-  LoaderCircle,
   RefreshCw,
   ShieldCheck,
   Store,
@@ -17,7 +16,7 @@ import ActividadReciente from "@/components/dashboard/ActividadReciente";
 import GraficoBarras from "@/components/dashboard/GraficoBarras";
 import GraficoDistribucion from "@/components/dashboard/GraficoDistribucion";
 import MainLayout from "@/components/layout/MainLayout";
-import { StatCard } from "@/components/ui";
+import { LoadingButtonContent, LoadingState, StatCard } from "@/components/ui";
 
 type EstadisticaDashboard = {
   id: string;
@@ -130,11 +129,9 @@ export default function DashboardPage() {
 
   if (cargandoPerfil) {
     return (
-      <main className="flex min-h-screen items-center justify-center bg-slate-100 p-4 dark:bg-slate-950">
-        <p className="font-medium text-slate-600 dark:text-slate-300">
-          Cargando tu perfil...
-        </p>
-      </main>
+      <MainLayout>
+        <LoadingState variant="section" message="Cargando tu perfil..." />
+      </MainLayout>
     );
   }
 
@@ -162,12 +159,12 @@ export default function DashboardPage() {
             disabled={cargandoDashboard}
             className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-slate-300 bg-white px-5 py-3 font-semibold text-slate-700 transition hover:bg-slate-50 disabled:opacity-60 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800 sm:w-auto"
           >
-            {cargandoDashboard ? (
-              <LoaderCircle size={20} className="animate-spin" />
-            ) : (
-              <RefreshCw size={20} />
-            )}
-            Reintentar
+            <LoadingButtonContent
+              loading={cargandoDashboard}
+              text="Reintentar"
+              loadingText="Actualizando..."
+              icon={<RefreshCw size={20} />}
+            />
           </button>
         </div>
 
@@ -195,12 +192,7 @@ export default function DashboardPage() {
         )}
 
         {cargandoDashboard && !datos ? (
-          <div className="rounded-2xl bg-white p-6 shadow-sm dark:border dark:border-slate-800 dark:bg-slate-900">
-            <div className="flex items-center gap-3 text-slate-500 dark:text-slate-400">
-              <LoaderCircle size={20} className="animate-spin" />
-              Cargando estadisticas...
-            </div>
-          </div>
+          <LoadingState variant="section" message="Cargando estadísticas..." className="rounded-2xl bg-white shadow-sm dark:border dark:border-slate-800 dark:bg-slate-900" />
         ) : (
           <>
             <div className="grid w-full min-w-0 max-w-full gap-4 sm:gap-6 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-6">
