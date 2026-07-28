@@ -489,13 +489,13 @@ export default function EditarVehiculoModal({
         )}
 
         {error && (
-          <p className="rounded-xl bg-red-50 p-4 text-sm font-medium text-red-700 dark:bg-red-950/40 dark:text-red-300">
+          <p role="alert" className="rounded-xl bg-red-50 p-4 text-sm font-medium text-red-700 dark:bg-red-950/40 dark:text-red-200">
             {error}
           </p>
         )}
 
         {mensaje && (
-          <p className="rounded-xl bg-primary-soft p-4 text-sm font-medium text-primary">
+          <p role="status" aria-live="polite" className="rounded-xl bg-emerald-50 p-4 text-sm font-medium text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-200">
             {mensaje}
           </p>
         )}

@@ -10,6 +10,7 @@ import EditarUsuarioModal, {
   type UsuarioEditable,
 } from "@/components/usuarios/EditarUsuarioModal";
 import NuevoUsuarioModal from "@/components/usuarios/NuevoUsuarioModal";
+import { FormField, Input } from "@/components/ui";
 import { supabase } from "@/lib/supabase/client";
 
 type Usuario = {
@@ -161,25 +162,25 @@ export default function UsuariosPage() {
         </div>
 
         <div className="mt-8 rounded-2xl bg-white p-4 shadow-sm sm:p-6">
-          <div className="relative max-w-md">
+          <div className="max-w-md">
+            <FormField label="Buscar usuarios">
+              <Input
+                type="search"
+                value={busqueda}
+                onChange={(event) => setBusqueda(event.target.value)}
+                placeholder="Ej.: nombre, DNI, código o correo"
+                className="pl-11"
+              />
+            </FormField>
             <Search
               size={20}
-              className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
-            />
-
-            <input
-              type="search"
-              value={busqueda}
-              onChange={(event) =>
-                setBusqueda(event.target.value)
-              }
-              placeholder="Buscar por nombre, DNI, código o correo"
-              className="w-full rounded-xl border border-slate-300 py-3 pl-11 pr-4 outline-none transition focus-primary"
+              aria-hidden="true"
+              className="pointer-events-none relative -mt-[2.15rem] ml-3 block -translate-y-1/2 text-slate-500 dark:text-slate-400"
             />
           </div>
 
           {error && (
-            <p className="mt-5 rounded-xl bg-red-50 p-4 text-red-700">
+            <p role="alert" className="mt-5 rounded-xl bg-red-50 p-4 text-red-700 dark:bg-red-950/40 dark:text-red-200">
               {error}
             </p>
           )}

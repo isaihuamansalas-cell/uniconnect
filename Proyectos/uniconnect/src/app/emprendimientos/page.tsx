@@ -24,7 +24,14 @@ import EditarEmprendimientoModal, {
 } from "@/components/emprendimientos/EditarEmprendimientoModal";
 import FotoEmprendimiento from "@/components/emprendimientos/FotoEmprendimiento";
 import NuevoEmprendimientoModal from "@/components/emprendimientos/NuevoEmprendimientoModal";
-import { Input, Paginacion, type TamanoPaginaComun } from "@/components/ui";
+import {
+  Alert,
+  FormField,
+  Input,
+  Paginacion,
+  Select,
+  type TamanoPaginaComun,
+} from "@/components/ui";
 import { supabase } from "@/lib/supabase/client";
 
 type AutorEmprendimiento = {
@@ -278,30 +285,33 @@ export default function EmprendimientosPage() {
 
         <div className="mt-8 rounded-2xl bg-white p-4 shadow-sm sm:p-6">
           <form onSubmit={buscar} className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          <div className="relative">
-            <Search
-              size={20}
-              className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
-            />
-
-            <Input
-              type="search"
-              value={filtrosEdicion.titulo}
-              onChange={(event) => setFiltrosEdicion((a) => ({...a, titulo: event.target.value}))}
-              placeholder="Titulo"
-              className="pl-11"
-            />
-          </div>
-          <Input value={filtrosEdicion.autor} onChange={(event) => setFiltrosEdicion((a) => ({...a, autor: event.target.value}))} placeholder="Autor" />
-          <select value={filtrosEdicion.estado} onChange={(event) => setFiltrosEdicion((a) => ({...a, estado: event.target.value}))} className="h-12 rounded-xl border border-slate-300 bg-white px-3 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"><option value="todos">Todos los estados</option><option value="activo">Activos</option><option value="inactivo">Inactivos</option></select>
+          <FormField label="Título" htmlFor="filtro-emprendimiento-titulo">
+            <div className="relative">
+              <Search
+                size={20}
+                aria-hidden="true"
+                className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 dark:text-slate-400"
+              />
+              <Input
+                id="filtro-emprendimiento-titulo"
+                type="search"
+                value={filtrosEdicion.titulo}
+                onChange={(event) => setFiltrosEdicion((a) => ({...a, titulo: event.target.value}))}
+                placeholder="Ej.: venta de postres"
+                className="pl-11"
+              />
+            </div>
+          </FormField>
+          <FormField label="Autor"><Input value={filtrosEdicion.autor} onChange={(event) => setFiltrosEdicion((a) => ({...a, autor: event.target.value}))} placeholder="Ej.: nombres o apellidos" /></FormField>
+          <FormField label="Estado">
+            <Select value={filtrosEdicion.estado} onChange={(event) => setFiltrosEdicion((a) => ({...a, estado: event.target.value}))}>
+              <option value="todos">Todos los estados</option><option value="activo">Activos</option><option value="inactivo">Inactivos</option>
+            </Select>
+          </FormField>
           <div className="flex gap-2 sm:col-span-2 lg:col-span-3"><button type="submit" className="btn-primary rounded-xl px-5 py-3 font-semibold">Buscar</button><button type="button" onClick={limpiarFiltros} className="rounded-xl border border-slate-300 px-5 py-3 font-semibold dark:border-slate-700 dark:text-slate-200">Limpiar</button></div>
           </form>
 
-          {error && (
-            <p className="mt-5 rounded-xl bg-red-50 p-4 text-sm font-medium text-red-700">
-              {error}
-            </p>
-          )}
+          {error && <Alert variant="error" className="mt-5">{error}</Alert>}
 
           {cargando ? (
             <div className="mt-8 flex items-center gap-3 text-slate-500">

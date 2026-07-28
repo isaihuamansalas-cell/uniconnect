@@ -60,7 +60,7 @@ export default function HistorialReciente({
 
       <div aria-live="polite">
         {error && (
-          <p className="mt-4 rounded-xl bg-red-50 p-4 text-sm font-semibold text-red-800 dark:bg-red-950/40 dark:text-red-200">
+          <p role="alert" className="mt-4 rounded-xl bg-red-50 p-4 text-sm font-semibold text-red-800 dark:bg-red-950/40 dark:text-red-200">
             {error}
           </p>
         )}

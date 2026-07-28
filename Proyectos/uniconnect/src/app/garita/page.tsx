@@ -300,12 +300,12 @@ export default function GaritaPage() {
 
           <div aria-live="polite" aria-atomic="true">
             {error && (
-              <p className="mt-5 rounded-xl border border-red-200 bg-red-50 p-4 text-sm font-semibold text-red-800 dark:border-red-900 dark:bg-red-950/40 dark:text-red-200">
+              <p role="alert" className="mt-5 rounded-xl border border-red-200 bg-red-50 p-4 text-sm font-semibold text-red-800 dark:border-red-900 dark:bg-red-950/40 dark:text-red-200">
                 {error}
               </p>
             )}
             {mensaje && (
-              <p className="mt-5 flex items-center gap-3 rounded-xl bg-primary-soft p-4 text-sm font-semibold text-primary">
+              <p role="status" aria-live="polite" className="mt-5 flex items-center gap-3 rounded-xl bg-emerald-50 p-4 text-sm font-semibold text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-200">
                 <CheckCircle2 className="shrink-0" size={22} />
                 {mensaje}
               </p>

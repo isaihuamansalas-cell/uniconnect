@@ -20,6 +20,7 @@ import MainLayout from "@/components/layout/MainLayout";
 import EliminarVehiculoModal from "@/components/vehiculos/EliminarVehiculoModal";
 import FotoVehiculo from "@/components/vehiculos/FotoVehiculo";
 import NuevoVehiculoModal from "@/components/vehiculos/NuevoVehiculoModal";
+import { FormField, Input } from "@/components/ui";
 
 import EditarVehiculoModal, {
   type VehiculoEditable,
@@ -236,25 +237,25 @@ export default function VehiculosPage() {
         </div>
 
         <div className="mt-8 rounded-2xl bg-white p-4 shadow-sm dark:border dark:border-slate-800 dark:bg-slate-900 sm:p-6">
-          <div className="relative max-w-lg">
+          <div className="max-w-lg">
+            <FormField label="Buscar vehículos">
+              <Input
+                type="search"
+                value={busqueda}
+                onChange={(event) => setBusqueda(event.target.value)}
+                placeholder="Ej.: placa, propietario, DNI o código"
+                className="pl-11"
+              />
+            </FormField>
             <Search
               size={20}
-              className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500"
-            />
-
-            <input
-              type="search"
-              value={busqueda}
-              onChange={(event) =>
-                setBusqueda(event.target.value)
-              }
-              placeholder="Buscar por placa, propietario, DNI o código"
-              className="w-full rounded-xl border border-slate-300 bg-white py-3 pl-11 pr-4 text-slate-900 outline-none transition placeholder:text-slate-400 focus-primary dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:placeholder:text-slate-500"
+              aria-hidden="true"
+              className="pointer-events-none relative -mt-[2.15rem] ml-3 block -translate-y-1/2 text-slate-500 dark:text-slate-400"
             />
           </div>
 
           {error && (
-            <p className="mt-5 rounded-xl bg-red-50 p-4 text-red-700">
+            <p role="alert" className="mt-5 rounded-xl bg-red-50 p-4 text-red-700 dark:bg-red-950/40 dark:text-red-200">
               {error}
             </p>
           )}

@@ -169,7 +169,7 @@ export default function LoginPage() {
           </div>
 
           {errorLogin && (
-            <p className="rounded-lg bg-red-50 p-3 text-sm font-medium text-red-700 dark:bg-red-950/40 dark:text-red-300">
+            <p role="alert" className="rounded-lg bg-red-50 p-3 text-sm font-medium text-red-700 dark:bg-red-950/40 dark:text-red-200">
               {errorLogin}
             </p>
           )}
@@ -185,7 +185,7 @@ export default function LoginPage() {
           <div className="text-center">
             <Link
               href="/recuperar-password"
-              className="text-primary text-sm font-medium transition hover:underline"
+              className="text-sm font-medium text-emerald-700 transition hover:underline dark:text-emerald-300"
             >
               ¿Olvidaste tu contraseña?
             </Link>

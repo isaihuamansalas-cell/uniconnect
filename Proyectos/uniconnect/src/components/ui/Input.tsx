@@ -28,3 +28,5 @@ export default function Input({
     />
   );
 }
+
+Input.displayName = "Input";

@@ -220,20 +220,20 @@ export default function RestablecerPasswordPage() {
             </FormField>
 
             {!sesionRecuperacionLista && (
-              <p className="rounded-lg bg-amber-50 p-3 text-sm font-medium text-amber-700 dark:bg-amber-950/40 dark:text-amber-200">
+              <p role="status" className="rounded-lg bg-amber-50 p-3 text-sm font-medium text-amber-800 dark:bg-amber-950/40 dark:text-amber-200">
                 El enlace de recuperacion no es valido o ya expiro.
                 Solicita uno nuevo.
               </p>
             )}
 
             {error && (
-              <p className="rounded-lg bg-red-50 p-3 text-sm font-medium text-red-700 dark:bg-red-950/40 dark:text-red-300">
+              <p role="alert" className="rounded-lg bg-red-50 p-3 text-sm font-medium text-red-700 dark:bg-red-950/40 dark:text-red-200">
                 {error}
               </p>
             )}
 
             {mensaje && (
-              <p className="rounded-lg bg-primary-soft p-3 text-sm font-medium text-primary">
+              <p role="status" aria-live="polite" className="rounded-lg bg-emerald-50 p-3 text-sm font-medium text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-200">
                 {mensaje}
               </p>
             )}
@@ -251,7 +251,7 @@ export default function RestablecerPasswordPage() {
             <div className="flex flex-col items-center gap-2 text-center">
               <Link
                 href="/recuperar-password"
-                className="text-primary text-sm font-medium transition hover:underline"
+                className="text-sm font-medium text-emerald-700 transition hover:underline dark:text-emerald-300"
               >
                 Solicitar un nuevo enlace
               </Link>

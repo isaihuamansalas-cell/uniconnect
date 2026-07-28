@@ -104,13 +104,13 @@ export default function RecuperarPasswordPage() {
           </FormField>
 
           {error && (
-            <p className="rounded-lg bg-red-50 p-3 text-sm font-medium text-red-700 dark:bg-red-950/40 dark:text-red-300">
+            <p role="alert" className="rounded-lg bg-red-50 p-3 text-sm font-medium text-red-700 dark:bg-red-950/40 dark:text-red-200">
               {error}
             </p>
           )}
 
           {mensaje && (
-            <p className="rounded-lg bg-primary-soft p-3 text-sm font-medium text-primary">
+            <p role="status" aria-live="polite" className="rounded-lg bg-emerald-50 p-3 text-sm font-medium text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-200">
               {mensaje}
             </p>
           )}
@@ -126,7 +126,7 @@ export default function RecuperarPasswordPage() {
           <div className="text-center">
             <Link
               href="/login"
-              className="text-primary text-sm font-medium transition hover:underline"
+              className="text-sm font-medium text-emerald-700 transition hover:underline dark:text-emerald-300"
             >
               Volver al login
             </Link>

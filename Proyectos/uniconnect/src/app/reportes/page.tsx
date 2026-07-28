@@ -476,7 +476,7 @@ export default function ReportesPage() {
         </div>
 
         {error && (
-          <p className="mt-6 rounded-xl bg-red-50 p-4 text-sm font-medium text-red-700 dark:bg-red-950/40 dark:text-red-300 print:hidden">
+          <p role="alert" className="mt-6 rounded-xl bg-red-50 p-4 text-sm font-medium text-red-700 dark:bg-red-950/40 dark:text-red-200 print:hidden">
             {error}
           </p>
         )}
@@ -638,7 +638,7 @@ export default function ReportesPage() {
               </form>
 
               {errorSalidas && (
-                <p className="mt-5 rounded-xl bg-red-50 p-4 text-sm font-medium text-red-700 dark:bg-red-950/40 dark:text-red-300">
+                <p role="alert" className="mt-5 rounded-xl bg-red-50 p-4 text-sm font-medium text-red-700 dark:bg-red-950/40 dark:text-red-200">
                   {errorSalidas}
                 </p>
               )}

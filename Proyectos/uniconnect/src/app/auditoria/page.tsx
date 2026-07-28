@@ -357,13 +357,13 @@ export default function AuditoriaPage() {
 
             <div className="rounded-2xl bg-white p-4 shadow-sm sm:p-6">
               {error && (
-                <p className="rounded-xl bg-red-50 p-4 text-sm font-medium text-red-700">
+                <p role="alert" className="rounded-xl bg-red-50 p-4 text-sm font-medium text-red-700 dark:bg-red-950/40 dark:text-red-200">
                   {error}
                 </p>
               )}
 
               {cargando ? (
-                <p className="text-slate-500">Cargando auditoria...</p>
+                <p role="status" className="text-slate-600 dark:text-slate-300">Cargando auditoria...</p>
               ) : registros.length === 0 ? (
                 <p className="py-10 text-center text-slate-500">
                   No se encontraron registros de auditoria.

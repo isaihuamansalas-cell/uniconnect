@@ -141,7 +141,7 @@ body {
 }
 
 .dark .text-slate-400 {
-  color: #64748b;
+  color: #94a3b8;
 }
 
 .dark .text-gray-500 {
@@ -159,7 +159,11 @@ body {
 }
 
 .dark .placeholder\:text-slate-400::placeholder {
-  color: #64748b;
+  color: #94a3b8;
+}
+
+.dark .placeholder\:text-slate-500::placeholder {
+  color: #94a3b8;
 }
 
 .dark .hover\:bg-slate-50:hover,

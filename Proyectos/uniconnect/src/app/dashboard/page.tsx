@@ -172,13 +172,13 @@ export default function DashboardPage() {
         </div>
 
         {errorPerfil && (
-          <p className="rounded-lg bg-red-50 p-3 text-red-700 dark:bg-red-950/40 dark:text-red-300">
+          <p role="alert" className="rounded-lg bg-red-50 p-3 text-red-700 dark:bg-red-950/40 dark:text-red-200">
             {errorPerfil}
           </p>
         )}
 
         {errorDashboard && (
-          <p className="rounded-lg bg-red-50 p-4 text-sm font-medium text-red-700 dark:bg-red-950/40 dark:text-red-300">
+          <p role="alert" className="rounded-lg bg-red-50 p-4 text-sm font-medium text-red-700 dark:bg-red-950/40 dark:text-red-200">
             {errorDashboard}
           </p>
         )}

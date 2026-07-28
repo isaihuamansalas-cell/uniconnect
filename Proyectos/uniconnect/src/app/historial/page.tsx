@@ -329,7 +329,7 @@ export default function HistorialPage() {
 
         <div aria-live="polite" aria-atomic="true">
           {error && (
-            <div className="mt-5 rounded-xl border border-red-200 bg-red-50 p-4 text-sm font-semibold text-red-800 dark:border-red-900 dark:bg-red-950/40 dark:text-red-200">
+            <div role="alert" className="mt-5 rounded-xl border border-red-200 bg-red-50 p-4 text-sm font-semibold text-red-800 dark:border-red-900 dark:bg-red-950/40 dark:text-red-200">
               <p>{error}</p>
               <button type="button" onClick={() => setRevision((valor) => valor + 1)} className="mt-3 min-h-11 rounded-xl border border-current px-4 py-2">
                 Reintentar

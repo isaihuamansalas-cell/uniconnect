@@ -388,13 +388,13 @@ export default function PerfilPage() {
                   </FormField>
 
                   {errorTelefono && (
-                    <p className="mt-4 rounded-xl bg-red-50 p-4 text-sm font-medium text-red-700 dark:bg-red-950/40 dark:text-red-300">
+                    <p role="alert" className="mt-4 rounded-xl bg-red-50 p-4 text-sm font-medium text-red-700 dark:bg-red-950/40 dark:text-red-200">
                       {errorTelefono}
                     </p>
                   )}
 
                   {mensajeTelefono && (
-                    <p className="mt-4 rounded-xl bg-primary-soft p-4 text-sm font-medium text-primary ">
+                    <p role="status" aria-live="polite" className="mt-4 rounded-xl bg-emerald-50 p-4 text-sm font-medium text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-200">
                       {mensajeTelefono}
                     </p>
                   )}
@@ -482,13 +482,13 @@ export default function PerfilPage() {
                   </div>
 
                   {errorPassword && (
-                    <p className="rounded-xl bg-red-50 p-4 text-sm font-medium text-red-700 dark:bg-red-950/40 dark:text-red-300">
+                    <p role="alert" className="rounded-xl bg-red-50 p-4 text-sm font-medium text-red-700 dark:bg-red-950/40 dark:text-red-200">
                       {errorPassword}
                     </p>
                   )}
 
                   {mensajePassword && (
-                    <p className="rounded-xl bg-primary-soft p-4 text-sm font-medium text-primary ">
+                    <p role="status" aria-live="polite" className="rounded-xl bg-emerald-50 p-4 text-sm font-medium text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-200">
                       {mensajePassword}
                     </p>
                   )}
@@ -551,13 +551,13 @@ export default function PerfilPage() {
               </div>
 
               {errorFoto && (
-                <p className="mt-5 rounded-xl bg-red-50 p-4 text-sm font-medium text-red-700 dark:bg-red-950/40 dark:text-red-300">
+                <p role="alert" className="mt-5 rounded-xl bg-red-50 p-4 text-sm font-medium text-red-700 dark:bg-red-950/40 dark:text-red-200">
                   {errorFoto}
                 </p>
               )}
 
               {mensajeFoto && (
-                <p className="mt-5 rounded-xl bg-primary-soft p-4 text-sm font-medium text-primary ">
+                <p role="status" aria-live="polite" className="mt-5 rounded-xl bg-emerald-50 p-4 text-sm font-medium text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-200">
                   {mensajeFoto}
                 </p>
               )}
@@ -585,7 +585,7 @@ export default function PerfilPage() {
           )}
 
           {errorFoto && (
-            <p className="rounded-xl bg-red-50 p-4 text-sm font-medium text-red-700 dark:bg-red-950/40 dark:text-red-300">
+            <p role="alert" className="rounded-xl bg-red-50 p-4 text-sm font-medium text-red-700 dark:bg-red-950/40 dark:text-red-200">
               {errorFoto}
             </p>
           )}

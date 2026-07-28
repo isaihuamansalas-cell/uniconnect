@@ -24,7 +24,14 @@ import EditarAvisoModal, {
   type AvisoEditable,
 } from "@/components/avisos/EditarAvisoModal";
 import NuevoAvisoModal from "@/components/avisos/NuevoAvisoModal";
-import { Input, Paginacion, type TamanoPaginaComun } from "@/components/ui";
+import {
+  Alert,
+  FormField,
+  Input,
+  Paginacion,
+  Select,
+  type TamanoPaginaComun,
+} from "@/components/ui";
 import { supabase } from "@/lib/supabase/client";
 
 type AutorAviso = {
@@ -305,40 +312,43 @@ export default function AvisosPage() {
 
         <div className="mt-8 rounded-2xl bg-white p-4 shadow-sm sm:p-6">
           <form onSubmit={buscar} className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-          <div className="relative">
-            <Search
-              size={20}
-              className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
-            />
-
-            <Input
-              type="search"
-              value={filtrosEdicion.titulo}
-              onChange={(event) => setFiltrosEdicion((actual) => ({ ...actual, titulo: event.target.value }))}
-              placeholder="Titulo"
-              className="pl-11"
-            />
-          </div>
-          <Input value={filtrosEdicion.contenido} onChange={(event) => setFiltrosEdicion((a) => ({...a, contenido: event.target.value}))} placeholder="Contenido" />
-          <Input value={filtrosEdicion.autor} onChange={(event) => setFiltrosEdicion((a) => ({...a, autor: event.target.value}))} placeholder="Autor" />
-          <Input value={filtrosEdicion.tipo} onChange={(event) => setFiltrosEdicion((a) => ({...a, tipo: event.target.value}))} placeholder="Tipo" />
-          <select value={filtrosEdicion.destinatario} onChange={(event) => setFiltrosEdicion((a) => ({...a, destinatario: event.target.value}))} className="h-12 rounded-xl border border-slate-300 bg-white px-3 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100">
-            <option value="">Todos los destinatarios</option><option value="Todos">Todos</option><option value="Area academica">Area academica</option><option value="Ciclo especifico">Ciclo especifico</option>
-          </select>
-          <select value={filtrosEdicion.estado} onChange={(event) => setFiltrosEdicion((a) => ({...a, estado: event.target.value}))} className="h-12 rounded-xl border border-slate-300 bg-white px-3 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100">
-            <option value="todos">Todos los estados</option><option value="activo">Activos</option><option value="inactivo">Inactivos</option>
-          </select>
+          <FormField label="Título" htmlFor="filtro-aviso-titulo">
+            <div className="relative">
+              <Search
+                size={20}
+                aria-hidden="true"
+                className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 dark:text-slate-400"
+              />
+              <Input
+                id="filtro-aviso-titulo"
+                type="search"
+                value={filtrosEdicion.titulo}
+                onChange={(event) => setFiltrosEdicion((actual) => ({ ...actual, titulo: event.target.value }))}
+                placeholder="Ej.: reunión institucional"
+                className="pl-11"
+              />
+            </div>
+          </FormField>
+          <FormField label="Contenido"><Input value={filtrosEdicion.contenido} onChange={(event) => setFiltrosEdicion((a) => ({...a, contenido: event.target.value}))} placeholder="Ej.: suspensión de clases" /></FormField>
+          <FormField label="Autor"><Input value={filtrosEdicion.autor} onChange={(event) => setFiltrosEdicion((a) => ({...a, autor: event.target.value}))} placeholder="Ej.: nombres o apellidos" /></FormField>
+          <FormField label="Tipo"><Input value={filtrosEdicion.tipo} onChange={(event) => setFiltrosEdicion((a) => ({...a, tipo: event.target.value}))} placeholder="Ej.: informativo" /></FormField>
+          <FormField label="Destinatario">
+            <Select value={filtrosEdicion.destinatario} onChange={(event) => setFiltrosEdicion((a) => ({...a, destinatario: event.target.value}))}>
+              <option value="">Todos los destinatarios</option><option value="Todos">Todos</option><option value="Area academica">Area academica</option><option value="Ciclo especifico">Ciclo especifico</option>
+            </Select>
+          </FormField>
+          <FormField label="Estado">
+            <Select value={filtrosEdicion.estado} onChange={(event) => setFiltrosEdicion((a) => ({...a, estado: event.target.value}))}>
+              <option value="todos">Todos los estados</option><option value="activo">Activos</option><option value="inactivo">Inactivos</option>
+            </Select>
+          </FormField>
           <div className="flex gap-2 md:col-span-2 xl:col-span-3">
             <button type="submit" className="btn-primary rounded-xl px-5 py-3 font-semibold">Buscar</button>
             <button type="button" onClick={limpiarFiltros} className="rounded-xl border border-slate-300 px-5 py-3 font-semibold dark:border-slate-700 dark:text-slate-200">Limpiar</button>
           </div>
           </form>
 
-          {error && (
-            <p className="mt-5 rounded-xl bg-red-50 p-4 text-sm font-medium text-red-700">
-              {error}
-            </p>
-          )}
+          {error && <Alert variant="error" className="mt-5">{error}</Alert>}
 
           {cargando ? (
             <div className="mt-8 flex items-center gap-3 text-slate-500">
